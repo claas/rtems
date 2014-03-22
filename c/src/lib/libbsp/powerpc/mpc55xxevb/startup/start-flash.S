@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <libcpu/powerpc-utility.h>
@@ -38,7 +38,9 @@
  * @warning Code will be copied and executed on the stack.
  */
 GLOBAL_FUNCTION mpc55xx_start_flash
-#if !defined(MPC55XX_NEEDS_LOW_LEVEL_INIT) || MPC55XX_CHIP_TYPE / 10 == 564
+#if !defined(MPC55XX_NEEDS_LOW_LEVEL_INIT) \
+  || MPC55XX_CHIP_FAMILY == 564 \
+  || MPC55XX_CHIP_FAMILY == 566
 	blr
 #else
 	.equ	stack_size, 20

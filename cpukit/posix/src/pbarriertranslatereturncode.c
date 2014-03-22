@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function Translates POSIX Barrier Status Code
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  Barrier Manager -- Translate SuperCore Status
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,7 +24,7 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/barrier.h>
+#include <rtems/posix/barrierimpl.h>
 
 /*
  *  _POSIX_Barrier_Translate_core_barrier_return_code

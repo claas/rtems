@@ -1,12 +1,16 @@
- /*
- *  Macros used for brm controller
- *
+/**
+ * @file
+ * @ingroup 1553
+ * @brief Macros used for brm RASTA controller
+ */
+
+/*
  *  COPYRIGHT (c) 2006.
  *  Gaisler Research
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

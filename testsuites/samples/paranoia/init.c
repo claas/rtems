@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -17,6 +17,8 @@
 #include <stdlib.h> /* exit */
 
 extern int paranoia(int, char **);
+
+const char rtems_test_name[] = "PARANOIA";
 
 char *args[2] = { "paranoia", 0 };
 
@@ -37,9 +39,9 @@ rtems_task Init(
   M68KFPSPInstallExceptionHandlers ();
 #endif
 
-  printf( "\n\n*** PARANOIA TEST ***\n" );
+  rtems_test_begin();
   paranoia(1, args);
-  printf( "*** END OF PARANOIA TEST ***\n" );
+  rtems_test_end();
 #endif /* BSP_SMALL_MEMORY */
   exit( 0 );
 }

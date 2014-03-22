@@ -16,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems/libio.h>
@@ -32,5 +32,9 @@ const rtems_filesystem_file_handlers_r rtems_filesystem_handlers_default = {
   .ftruncate_h = rtems_filesystem_default_ftruncate,
   .fsync_h = rtems_filesystem_default_fsync_or_fdatasync,
   .fdatasync_h = rtems_filesystem_default_fsync_or_fdatasync,
-  .fcntl_h = rtems_filesystem_default_fcntl
+  .fcntl_h = rtems_filesystem_default_fcntl,
+  .kqfilter_h = rtems_filesystem_default_kqfilter,
+  .poll_h = rtems_filesystem_default_poll,
+  .readv_h = rtems_filesystem_default_readv,
+  .writev_h = rtems_filesystem_default_writev
 };

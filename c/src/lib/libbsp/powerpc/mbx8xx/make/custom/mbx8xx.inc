@@ -41,7 +41,7 @@ RTEMS_CPU_MODEL=mpc$(8XX_CPU_TYPE)
 #  and (hopefully) optimize for it.
 #
 CPU_CFLAGS = -mcpu=$(8XX_CPU_TYPE) -Dmpc$(8XX_CPU_TYPE) -D$(RTEMS_MBX_MODEL) \
-	-meabi -msdata -fno-common
+	-meabi -msdata=sysv -fno-common
 
 # optimize flag: typically -O2
 CFLAGS_OPTIMIZE_V = -O2 -g -fno-keep-inline-functions
@@ -49,7 +49,7 @@ CFLAGS_OPTIMIZE_V = -O2 -g -fno-keep-inline-functions
 LDFLAGS += $(MBX8xx_LDFLAGS)
 
 define bsp-post-link
-	cp $(basename $@).exe $(basename $@)$(DOWNEXT) 
+	cp $(basename $@)$(EXEEXT) $(basename $@)$(DOWNEXT) 
 	$(STRIP) $(basename $@)$(DOWNEXT)
 	$(default-bsp-post-link)
 endef

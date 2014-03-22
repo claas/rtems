@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_SHARED_LPC_EMC_H
@@ -32,8 +32,8 @@ extern "C" {
 /**
  * @defgroup lpc_emc EMC Support
  *
- * @ingroup lpc24xx
- * @ingroup lpc32xx
+ * @ingroup arm_lpc24xx
+ * @ingroup arm_lpc32xx
  *
  * @brief EMC Support
  *

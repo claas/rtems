@@ -1,46 +1,31 @@
+/**
+ * @file
+ *
+ * @brief Removes a Thread from a Thread  Queue
+ *
+ * @ingroup ScoreThreadQ
+ */
+
 /*
- *  Thread Queue Handler
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/chainimpl.h>
+#include <rtems/score/isrlevel.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
-/*
- *  _Thread_queue_Extract_fifo
- *
- *  This routine removes a specific thread from the specified threadq,
- *  deletes any timeout, and unblocks the thread.
- *
- *  Input parameters:
- *    the_thread_queue - pointer to a threadq header
- *    the_thread       - pointer to the thread to block
- *
- *  Output parameters: NONE
- *
- *  INTERRUPT LATENCY:
- *    EXTRACT_FIFO
- */
-
-void _Thread_queue_Extract_fifo(
-  Thread_queue_Control *the_thread_queue __attribute__((unused)),
+bool _Thread_queue_Extract_fifo(
   Thread_Control       *the_thread
 )
 {
@@ -50,7 +35,7 @@ void _Thread_queue_Extract_fifo(
 
   if ( !_States_Is_waiting_on_thread_queue( the_thread->current_state ) ) {
     _ISR_Enable( level );
-    return;
+    return false;
   }
 
   _Chain_Extract_unprotected( &the_thread->Object.Node );
@@ -72,4 +57,5 @@ void _Thread_queue_Extract_fifo(
     _Thread_MP_Free_proxy( the_thread );
 #endif
 
+  return true;
 }

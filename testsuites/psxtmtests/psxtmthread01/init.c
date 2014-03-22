@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2012.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -50,7 +50,7 @@ void *POSIX_Init(
   puts( "\n\n*** POSIX TIME TEST PSXTMTHREAD01 ***" );
 
   rtems_time_test_measure_operation(
-    "pthread_create",
+    "pthread_create: no preempt",
     benchmark_pthread_create,
     NULL,
     1,

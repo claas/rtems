@@ -7,18 +7,20 @@
  */
 
 /*
- * Copyright (c) 2010-2011 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2010-2013 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
- *  Obere Lagerstr. 30
+ *  Dornierstr. 4
  *  82178 Puchheim
  *  Germany
  *  <rtems@embedded-brains.de>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
+
+#include <rtems/asm.h>
 
 #include <bspopts.h>
 
@@ -32,6 +34,9 @@
 #define UBOOT_BOARD_INFO r15
 
 	.globl _start
+#ifdef RTEMS_SMP
+	.globl _start_core_1
+#endif
 	.globl bsp_exc_vector_base
 
 	.section ".bsp_start_text", "ax"
@@ -157,6 +162,57 @@ copy:
 	beqlr
 	b	memcpy
 
+#ifdef RTEMS_SMP
+_start_core_1:
+
+	/* Reset time base */
+	li	r0, 0
+	mtspr	TBWU, r0
+	mtspr	TBWL, r0
+
+	/* Get start stack */
+	subi	r1, r3, 16
+
+	/* Initial MMU setup */
+	bl	qoriq_tlb1_ts_0_only
+	li	r3, SCRATCH_TLB
+	li	r4, FSL_EIS_MAS1_TS
+	li	r5, FSL_EIS_MAS2_I
+	li	r6, FSL_EIS_MAS3_SR | FSL_EIS_MAS3_SW | FSL_EIS_MAS3_SX
+	li	r7, 0
+	li	r8, 11
+	bl	qoriq_tlb1_write
+
+	/* MSR initialization */
+	LWI	INITIAL_MSR, QORIQ_INITIAL_MSR
+	ori	r0, INITIAL_MSR, MSR_IS | MSR_DS
+	mtmsr	r0
+
+	/* SPEFSCR initialization */
+	LWI	r0, QORIQ_INITIAL_SPEFSCR
+	mtspr	FSL_EIS_SPEFSCR, r0
+
+	/* Initialize start stack */
+	li	r0, 0
+	stw	r0, 0(r1)
+
+	/* Configure MMU */
+	li	r3, FIRST_TLB
+	li	r4, SCRATCH_TLB
+	bl	qoriq_mmu_config
+	mtmsr	INITIAL_MSR
+	li	r3, SCRATCH_TLB
+	bl	qoriq_tlb1_invalidate
+
+	/* Set small-data anchors */
+	LA	r2, _SDA2_BASE_
+	LA	r13, _SDA_BASE_
+
+	b	qoriq_secondary_cpu_initialize
+
+	b	twiddle
+#endif /* RTEMS_SMP */
+
 	/* Exception vector prologues area */
 	.section ".bsp_start_text", "ax"
 	.align 4
@@ -178,9 +234,15 @@ bsp_exc_vector_base:
 	li	r4, 4
 	b	ppc_exc_wrap_nopush_std
 	stwu	r1, -PPC_EXC_MINIMAL_FRAME_SIZE(r1)
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 	stw	r4, PPC_EXC_VECTOR_PROLOGUE_OFFSET(r1)
 	li	r4, -32763
+#endif
 	b	ppc_exc_wrap_async_normal
+#ifdef PPC_EXC_CONFIG_USE_FIXED_HANDLER
+	nop
+	nop
+#endif
 	stwu	r1, -EXC_GENERIC_SIZE(r1)
 	stw	r4, GPR4_OFFSET(r1)
 	li	r4, 6
@@ -203,13 +265,25 @@ system_call:
 	li	r4, 24
 	b	ppc_exc_wrap_nopush_std
 	stwu	r1, -PPC_EXC_MINIMAL_FRAME_SIZE(r1)
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 	stw	r4, PPC_EXC_VECTOR_PROLOGUE_OFFSET(r1)
 	li	r4, -32752
+#endif
 	b	ppc_exc_wrap_async_normal
+#ifdef PPC_EXC_CONFIG_USE_FIXED_HANDLER
+	nop
+	nop
+#endif
 	stwu	r1, -PPC_EXC_MINIMAL_FRAME_SIZE(r1)
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 	stw	r4, PPC_EXC_VECTOR_PROLOGUE_OFFSET(r1)
 	li	r4, -32749
+#endif
 	b	ppc_exc_wrap_async_normal
+#ifdef PPC_EXC_CONFIG_USE_FIXED_HANDLER
+	nop
+	nop
+#endif
 	stw	r1, ppc_exc_lock_crit@sdarel(r13)
 	stw	r4, ppc_exc_vector_register_crit@sdarel(r13)
 	li	r4, -32748

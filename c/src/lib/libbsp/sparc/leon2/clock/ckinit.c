@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup sparc_leon2
+ * @brief Clock Tick Device Driver
+ */
+
 /*
  *  Clock Tick Device Driver
  *
@@ -15,14 +21,14 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
 #include <bspopts.h>
 
 #if SIMSPARC_FAST_IDLE==1
-#define CLOCK_DRIVER_USE_FAST_IDLE
+#define CLOCK_DRIVER_USE_FAST_IDLE 1
 #endif
 
 /*
@@ -57,7 +63,7 @@ extern int CLOCK_SPEED;
     LEON_REG.Timer_Control_1 = 0; \
   } while (0)
 
-uint32_t bsp_clock_nanoseconds_since_last_tick(void)
+static uint32_t bsp_clock_nanoseconds_since_last_tick(void)
 {
   uint32_t clicks;
   uint32_t usecs;

@@ -23,11 +23,11 @@
  *  COPYRIGHT (c) 1989-1997.
  *  On-Line Applications Research Corporation (OAR).
  *
- *  Copyright (c) 2011-2012 embedded brains GmbH.
+ *  Copyright (c) 2011-2013 embedded brains GmbH.
  *
  *  The license and distribution terms for this file may in
  *  the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems/asm.h>
@@ -267,18 +267,19 @@ PROC (_CPU_Context_switch):
 	mfmsr	r5
 	mflr	r6
 	mfcr	r7
-#ifdef RTEMS_MULTIPROCESSING
+
 	/*
 	 * We have to clear the reservation of the executing thread.  See also
-	 * Book E section 6.1.6.2 "Atomic Update Primitives".
+	 * Book E section 6.1.6.2 "Atomic Update Primitives".  Recent GCC
+	 * versions use atomic operations in the C++ library for example.
 	 */
-  #if PPC_CONTEXT_OFFSET_GPR1 != PPC_CONTEXT_CACHE_LINE_0 \
-    || !BSP_DATA_CACHE_ENABLED \
-    || PPC_CACHE_ALIGNMENT != 32
+#if PPC_CONTEXT_OFFSET_GPR1 != PPC_CONTEXT_CACHE_LINE_0 \
+  || !BSP_DATA_CACHE_ENABLED \
+  || PPC_CACHE_ALIGNMENT != 32
 	li	r10, PPC_CONTEXT_OFFSET_GPR1
-  #endif
-	stwcx.	r1, r3, r10
 #endif
+	stwcx.	r1, r3, r10
+
 	stw	r1, PPC_CONTEXT_OFFSET_GPR1(r3)
 	stw	r5, PPC_CONTEXT_OFFSET_MSR(r3)
 	stw	r6, PPC_CONTEXT_OFFSET_LR(r3)
@@ -323,6 +324,8 @@ PROC (_CPU_Context_switch):
 	PPC_GPR_STORE	r30, PPC_CONTEXT_OFFSET_GPR30(r3)
 	PPC_GPR_STORE	r31, PPC_CONTEXT_OFFSET_GPR31(r3)
 
+	stw	r2, PPC_CONTEXT_OFFSET_GPR2(r3)
+
 	/* Restore context from r4 */
 restore_context:
 
@@ -362,6 +365,8 @@ restore_context:
 	PPC_GPR_LOAD	r29, PPC_CONTEXT_OFFSET_GPR29(r4)
 	PPC_GPR_LOAD	r30, PPC_CONTEXT_OFFSET_GPR30(r4)
 	PPC_GPR_LOAD	r31, PPC_CONTEXT_OFFSET_GPR31(r4)
+
+	lwz	r2, PPC_CONTEXT_OFFSET_GPR2(r4)
 
 	mtcr	r7
 	mtlr	r6

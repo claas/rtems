@@ -1,11 +1,16 @@
-/*
- * imfs_fifo.c: FIFO support for IMFS
+/**
+ * @file
  *
+ * @brief FIFO Support
+ * @ingroup IMFS
+ */
+
+/*
  * Author: Wei Shen <cquark@gmail.com>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -108,17 +113,21 @@ static int IMFS_fifo_ioctl(
 }
 
 static const rtems_filesystem_file_handlers_r IMFS_fifo_handlers = {
-  IMFS_fifo_open,
-  IMFS_fifo_close,
-  IMFS_fifo_read,
-  IMFS_fifo_write,
-  IMFS_fifo_ioctl,
-  rtems_filesystem_default_lseek,
-  IMFS_stat,
-  rtems_filesystem_default_ftruncate,
-  rtems_filesystem_default_fsync_or_fdatasync,
-  rtems_filesystem_default_fsync_or_fdatasync,
-  rtems_filesystem_default_fcntl
+  .open_h = IMFS_fifo_open,
+  .close_h = IMFS_fifo_close,
+  .read_h = IMFS_fifo_read,
+  .write_h = IMFS_fifo_write,
+  .ioctl_h = IMFS_fifo_ioctl,
+  .lseek_h = rtems_filesystem_default_lseek,
+  .fstat_h = IMFS_stat,
+  .ftruncate_h = rtems_filesystem_default_ftruncate,
+  .fsync_h = rtems_filesystem_default_fsync_or_fdatasync,
+  .fdatasync_h = rtems_filesystem_default_fsync_or_fdatasync,
+  .fcntl_h = rtems_filesystem_default_fcntl,
+  .kqfilter_h = rtems_filesystem_default_kqfilter,
+  .poll_h = rtems_filesystem_default_poll,
+  .readv_h = rtems_filesystem_default_readv,
+  .writev_h = rtems_filesystem_default_writev
 };
 
 const IMFS_node_control IMFS_node_control_fifo = {

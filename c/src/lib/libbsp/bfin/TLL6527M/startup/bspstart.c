@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license
+ * http://www.rtems.org/license
  */
 
 
@@ -61,11 +61,6 @@ const unsigned int _icplbs_table[16][2] = {
   { 0xffffffff, 0xffffffff }/* end of section - termination */
 };
 
-/*
- *  Use the shared implementations of the following routines
- */
-
-void bsp_libc_init( void *, uint32_t, int );
 void Init_PLL (void);
 void Init_EBIU (void);
 void Init_Flags(void);

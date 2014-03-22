@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +31,8 @@
 #include <rtems.h>
 #include <rtems/bdbuf.h>
 #include <rtems/diskdevs.h>
+
+const char rtems_test_name[] = "BLOCK 5";
 
 /* forward declarations to avoid warnings */
 static rtems_task Init(rtems_task_argument argument);
@@ -379,7 +381,7 @@ static int disk_ioctl(rtems_disk_device *dd, uint32_t req, void *argp)
     switch (r->req) {
       case RTEMS_BLKDEV_REQ_READ:
       case RTEMS_BLKDEV_REQ_WRITE:
-        r->req_done(r->done_arg, RTEMS_SUCCESSFUL);
+        rtems_blkdev_request_done(r, RTEMS_SUCCESSFUL);
         return 0;
       default:
         errno = EINVAL;
@@ -424,7 +426,7 @@ static rtems_task Init(rtems_task_argument argument)
   rtems_status_code sc = RTEMS_SUCCESSFUL;
   unsigned i = 0;
 
-  printk("\n\n*** TEST BLOCK 5 ***\n");
+  rtems_test_begink();
 
   task_id_init = rtems_task_self();
 
@@ -503,7 +505,7 @@ static rtems_task Init(rtems_task_argument argument)
     }
   }
 
-  printk("*** END OF TEST BLOCK 5 ***\n");
+  rtems_test_endk();
 
   exit(0);
 }
@@ -518,6 +520,8 @@ static rtems_task Init(rtems_task_argument argument)
 
 #define CONFIGURE_MAXIMUM_TASKS 4
 #define CONFIGURE_MAXIMUM_DRIVERS 4
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

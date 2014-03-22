@@ -32,6 +32,8 @@ include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../../shared/include/uart-output-char.h
 include_bsp_HEADERS += ../../shared/tod.h
 include_bsp_HEADERS += ../shared/include/start.h
+include_bsp_HEADERS += ../shared/include/arm-pl111-fb.h
+include_bsp_HEADERS += ../shared/include/arm-pl111-regs.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-i2s.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-emc.h
@@ -99,9 +101,9 @@ libbsp_a_SOURCES += ../../shared/bootcard.c \
 	../../shared/sbrk.c \
 	../../shared/src/stackalloc.c \
 	../../shared/src/uart-output-char.c
+libbsp_a_SOURCES += ../../shared/cpucounterdiff.c
 
 # Startup
-libbsp_a_SOURCES += ../shared/startup/bsp-start-copy-sections.c
 libbsp_a_SOURCES += ../shared/startup/bsp-start-memcpy.S
 libbsp_a_SOURCES += startup/bspreset.c
 libbsp_a_SOURCES += startup/bspstart.c
@@ -119,10 +121,15 @@ libbsp_a_SOURCES += irq/irq.c
 libbsp_a_SOURCES += irq/irq-dispatch.c
 
 # Console
-libbsp_a_SOURCES += ../../shared/console.c \
-    console/console-config.c ../../shared/console_select.c \
-    ../../shared/console_read.c ../../shared/console_write.c \
-    ../../shared/console_control.c
+libbsp_a_SOURCES += ../../shared/console.c
+libbsp_a_SOURCES += ../../shared/console_control.c
+libbsp_a_SOURCES += ../../shared/console_read.c
+libbsp_a_SOURCES += ../../shared/console_select.c
+libbsp_a_SOURCES += ../../shared/console_write.c
+libbsp_a_SOURCES += console/console-config.c
+libbsp_a_SOURCES += console/uart-probe-1.c
+libbsp_a_SOURCES += console/uart-probe-2.c
+libbsp_a_SOURCES += console/uart-probe-3.c
 
 # Clock
 libbsp_a_SOURCES += ../../shared/clockdrv_shell.h
@@ -149,6 +156,10 @@ libbsp_a_SOURCES += ssp/ssp.c
 # I2C
 libbsp_a_SOURCES += i2c/i2c.c \
 	i2c/i2c-config.c
+
+# Framebuffer
+libbsp_a_SOURCES += ../shared/arm-pl111-fb.c
+libbsp_a_SOURCES += startup/fb-config.c
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c

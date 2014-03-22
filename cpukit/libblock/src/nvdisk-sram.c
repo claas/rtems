@@ -1,10 +1,14 @@
+/**
+ * @file
+ *
+ * @brief Provide SRAM support for the NV Disk
+ * @ingroup libblock
+ */
+
 /*
  * RTEMS Project (http://www.rtems.org/)
  *
  * Copyright 2007 Chris Johns (chrisj@rtems.org)
- */
-/**
- * Provide SRAM support for the NV Disk.
  */
 
 #if HAVE_CONFIG_H
@@ -12,6 +16,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <rtems.h>

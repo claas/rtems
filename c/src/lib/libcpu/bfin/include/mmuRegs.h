@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _mmuRegs_h_
@@ -52,4 +52,3 @@
 #define ICPLB_DATA_CPLB_VALID                     0x00000001
 
 #endif /* _mmuRegs_h_ */
-

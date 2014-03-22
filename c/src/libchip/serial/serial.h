@@ -15,7 +15,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __LIBCHIP_SERIAL_h
@@ -116,14 +116,14 @@ typedef enum {
  */
 typedef struct _console_tbl {
   /**  This is the name of the device. */
-  char          *sDeviceName;
+  const char    *sDeviceName;
   /** This indicates the chip type.  It is especially important when
    *   multiple devices share the same interrupt vector and must be
    *   distinguished.
    */
   console_devs   deviceType;
   /** pDeviceFns   This is a pointer to the set of driver routines to use. */
-  console_fns   *pDeviceFns;
+  const console_fns *pDeviceFns;
   /** This value is passed to the serial device driver for use.  In termios
    *  itself the number is ignored.
    */
@@ -135,7 +135,7 @@ typedef struct _console_tbl {
    *  should be necessary as RTS will be driven automatically
    *  when the transmitter is active.
    */
-  console_flow  *pDeviceFlow;
+  const console_flow *pDeviceFlow;
   /** The high water mark in the input buffer is set to the buffer
    *  size less ulMargin. Once this level is reached, the driver's
    *  flow control routine used to stop the remote transmitter will
@@ -220,6 +220,13 @@ extern unsigned long  Console_Configuration_Count;
 extern console_data  *Console_Port_Data;
 
 extern rtems_device_minor_number Console_Port_Minor;
+
+/**
+ * @brief Selects the minor number of the console device.
+ *
+ * @see Console_Port_Minor.
+ */
+void bsp_console_select(void);
 
 #ifdef __cplusplus
 }

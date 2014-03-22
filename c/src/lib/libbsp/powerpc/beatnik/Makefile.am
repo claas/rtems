@@ -57,7 +57,7 @@ noinst_LIBRARIES = libbsp.a
 libbsp_a_SOURCES =
 
 libbsp_a_SOURCES += startup/bspstart.c \
-    ../shared/motorola/vpd.c startup/reboot.c startup/i2c_init.c \
+    ../shared/motorola/vpd.c startup/bspreset.c startup/i2c_init.c \
     ../../powerpc/shared/startup/panic.c \
     ../../powerpc/shared/startup/bspgetworkarea.c \
     ../../powerpc/shared/startup/probeMemEnd.c \
@@ -229,7 +229,7 @@ libbsp_a_LIBADD += network_support.rel \
     network_if_mve.rel network_if_gfe.rel network_if_em.rel
 endif
 
-EXTRA_DIST += README LICENSE ChangeLog
+EXTRA_DIST += README LICENSE
 
 include $(srcdir)/preinstall.am
 include $(top_srcdir)/../../../../automake/local.am

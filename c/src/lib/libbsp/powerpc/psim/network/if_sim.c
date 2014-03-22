@@ -11,7 +11,7 @@
  * LICENSE
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -303,7 +303,7 @@ struct ifsim_softc *sc = arg;
 #endif
 
 	ifsim_out(sc, IFSIM_IEN_REG, 0);
-	rtems_event_send(ifsim_tid, (1<<(sc-theIfSims)));
+	rtems_bsdnet_event_send(ifsim_tid, (1<<(sc-theIfSims)));
 }
 
 static void

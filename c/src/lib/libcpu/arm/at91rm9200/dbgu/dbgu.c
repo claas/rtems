@@ -10,7 +10,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 #include <bsp.h>
 #include <rtems/libio.h>
@@ -35,7 +35,7 @@ static void    dbgu_write_polled(int minor, char c);
 static int     dbgu_set_attributes(int minor, const struct termios *t);
 
 /* Pointers to functions for handling the UART. */
-console_fns dbgu_fns =
+const console_fns dbgu_fns =
 {
     libchip_serial_default_probe,
     dbgu_first_open,

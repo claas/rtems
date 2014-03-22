@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function sets the inheritsched Attribute in the attr Argument
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  13.5.1 Thread Creation Scheduling Attributes, P1003.1c/Draft 10, p. 120
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,7 +24,7 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/pthread.h>
+#include <rtems/posix/pthreadimpl.h>
 
 int pthread_attr_setinheritsched(
   pthread_attr_t  *attr,

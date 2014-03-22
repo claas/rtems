@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -20,6 +20,8 @@
 #endif
 
 #include "system.h"
+
+#include <rtems/score/watchdogimpl.h>
 
 rtems_task Task_1(
   rtems_task_argument argument

@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2011.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /*
@@ -99,6 +99,9 @@ rtems_task Task_1(
   rtems_task_argument argument
 )
 {
+#if defined(RTEMS_SMP)
+  rtems_interrupt_level level;
+#endif
   Chain_Control   *ready_queues;
 
   Install_tm27_vector( Isr_handler );
@@ -108,8 +111,6 @@ rtems_task Task_1(
    */
 
   Interrupt_nest = 0;
-
-  _Thread_Dispatch_set_disable_level( 0 );
 
   Interrupt_occurred = 0;
 
@@ -123,7 +124,7 @@ rtems_task Task_1(
   Interrupt_return_time = benchmark_timer_read();
 
   put_time(
-    "interrupt entry overhead: returns to interrupted task",
+    "rtems interrupt: entry overhead returns to interrupted task",
     Interrupt_enter_time,
     1,
     0,
@@ -131,7 +132,7 @@ rtems_task Task_1(
   );
 
   put_time(
-    "interrupt exit overhead: returns to interrupted task",
+    "rtems interrupt: exit overhead returns to interrupted task",
     Interrupt_return_time,
     1,
     0,
@@ -142,7 +143,7 @@ rtems_task Task_1(
    *  No preempt .. nested
    */
 
-  _Thread_Dispatch_set_disable_level( 1 );
+  _Thread_Disable_dispatch();
 
   Interrupt_nest = 1;
 
@@ -156,10 +157,10 @@ rtems_task Task_1(
 #endif
   Interrupt_return_time = benchmark_timer_read();
 
-  _Thread_Dispatch_set_disable_level( 0 );
+  _Thread_Unnest_dispatch();
 
   put_time(
-    "interrupt entry overhead: returns to nested interrupt",
+    "rtems interrupt: entry overhead returns to nested interrupt",
     Interrupt_enter_nested_time,
     1,
     0,
@@ -167,7 +168,7 @@ rtems_task Task_1(
   );
 
   put_time(
-    "interrupt exit overhead: returns to nested interrupt",
+    "rtems interrupt: exit overhead returns to nested interrupt",
     Interrupt_return_nested_time,
     1,
     0,
@@ -178,13 +179,19 @@ rtems_task Task_1(
    *  Does a preempt .. not nested
    */
 
-  _Thread_Dispatch_set_disable_level( 0 );
+#if defined(RTEMS_SMP)
+  _ISR_Disable_without_giant(level);
+#endif
 
   ready_queues      = (Chain_Control *) _Scheduler.information;
   _Thread_Executing =
         (Thread_Control *) _Chain_First(&ready_queues[LOW_PRIORITY]);
 
   _Thread_Dispatch_necessary = 1;
+
+#if defined(RTEMS_SMP)
+  _ISR_Enable_without_giant(level);
+#endif
 
   Interrupt_occurred = 0;
   benchmark_timer_initialize();
@@ -210,6 +217,9 @@ rtems_task Task_2(
   rtems_task_argument argument
 )
 {
+#if defined(RTEMS_SMP)
+  rtems_interrupt_level level;
+#endif
   Chain_Control   *ready_queues;
 
 #if (MUST_WAIT_FOR_INTERRUPT == 1)
@@ -218,7 +228,7 @@ rtems_task Task_2(
   end_time = benchmark_timer_read();
 
   put_time(
-    "interrupt entry overhead: returns to preempting task",
+    "rtems interrupt: entry overhead returns to preempting task",
     Interrupt_enter_time,
     1,
     0,
@@ -226,7 +236,7 @@ rtems_task Task_2(
   );
 
   put_time(
-    "interrupt exit overhead: returns to preempting task",
+    "rtems interrupt: exit overhead returns to preempting task",
     end_time,
     1,
     0,
@@ -239,13 +249,19 @@ rtems_task Task_2(
    *  Switch back to the other task to exit the test.
    */
 
-  _Thread_Dispatch_set_disable_level( 0 );
+#if defined(RTEMS_SMP)
+  rtems_interrupt_disable(level);
+#endif
 
   ready_queues      = (Chain_Control *) _Scheduler.information;
   _Thread_Executing =
         (Thread_Control *) _Chain_First(&ready_queues[LOW_PRIORITY]);
 
   _Thread_Dispatch_necessary = 1;
+
+#if defined(RTEMS_SMP)
+  rtems_interrupt_enable(level);
+#endif
 
   _Thread_Dispatch();
 

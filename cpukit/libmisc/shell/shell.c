@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -37,8 +37,10 @@
 #include <unistd.h>
 #include <errno.h>
 #include <pwd.h>
+#include <pthread.h>
+#include <assert.h>
 
-rtems_shell_env_t rtems_global_shell_env = {
+static rtems_shell_env_t rtems_global_shell_env = {
   .magic         = rtems_build_name('S', 'E', 'N', 'V'),
   .devname       = CONSOLE_DEVICE_NAME,
   .taskname      = "SHGL",
@@ -54,7 +56,8 @@ rtems_shell_env_t rtems_global_shell_env = {
   .login_check   = NULL
 };
 
-rtems_shell_env_t *rtems_current_shell_env = &rtems_global_shell_env;
+static pthread_once_t rtems_shell_current_env_once = PTHREAD_ONCE_INIT;
+static pthread_key_t rtems_shell_current_env_key;
 
 /*
  *  Initialize the shell user/process environment information
@@ -96,6 +99,24 @@ static void rtems_shell_env_free(
   if ( shell_env->output )
     free((void *)shell_env->output);
   free( ptr );
+}
+
+/*
+ *  Create the posix key.
+ */
+static void rtems_shell_current_env_make_key(void)
+{
+  (void) pthread_key_create(&rtems_shell_current_env_key, rtems_shell_env_free);
+}
+
+/*
+ *  Return the current shell environment
+ */
+rtems_shell_env_t *rtems_shell_get_current_env(void)
+{
+  void *ptr = pthread_getspecific(rtems_shell_current_env_key);
+  assert (ptr != NULL);
+  return (rtems_shell_env_t *) ptr;
 }
 
 /*
@@ -173,70 +194,24 @@ static int rtems_shell_line_editor(
           break;
 
         case RTEMS_SHELL_KEYS_LARROW:
-          if (col > 0)
-          {
-            col--;
-            if (output)
-              fputc('\b', out);
-          }
+          c = 2;
+          extended_key = 0;
           break;
 
-          case RTEMS_SHELL_KEYS_RARROW:
-            if ((col < size) && (line[col] != '\0'))
-            {
-              if (output)
-                fprintf(out, "%c", line[col]);
-              col++;
-            }
-            break;
+        case RTEMS_SHELL_KEYS_RARROW:
+          c = 6;
+          extended_key = 0;
+          break;
 
         case RTEMS_SHELL_KEYS_UARROW:
-          if ((cmd >= (count - 1)) || (strlen(cmds[cmd + 1]) == 0)) {
-            if (output)
-              fputc('\x7', out);
-            break;
-          }
+          c = 16;
+          extended_key = 0;
+          break;
 
-          up = 1;
-
-          /* drop through */
         case RTEMS_SHELL_KEYS_DARROW:
-
-        {
-          int last_cmd = cmd;
-          int clen = strlen (line);
-
-          if (prompt)
-            clen += strlen(prompt);
-
-          if (up) {
-            cmd++;
-          } else {
-            if (cmd < 0) {
-              if (output)
-                fprintf(out, "\x7");
-              break;
-            }
-            else
-              cmd--;
-          }
-
-          if ((last_cmd < 0) || (strcmp(cmds[last_cmd], line) != 0))
-            memcpy (new_line, line, size);
-
-          if (cmd < 0)
-            memcpy (line, new_line, size);
-          else
-            memcpy (line, cmds[cmd], size);
-
-          col = strlen (line);
-
-          if (output) {
-            fprintf(out,"\r%*c", clen, ' ');
-            fprintf(out,"\r%s%s", prompt, line);
-          }
-        }
-        break;
+          c = 14;
+          extended_key = 0;
+          break;
 
         case RTEMS_SHELL_KEYS_DEL:
           if (line[col] != '\0')
@@ -258,11 +233,11 @@ static int rtems_shell_line_editor(
           break;
       }
     }
-    else
+    if (!extended_key)
     {
       switch (c)
       {
-        case 1:/*Control-a*/
+        case 1:                         /*Control-a*/
           if (output) {
             if (prompt)
               fprintf(out,"\r%s", prompt);
@@ -270,13 +245,59 @@ static int rtems_shell_line_editor(
           col = 0;
           break;
 
-        case 5:/*Control-e*/
+        case 2:                         /* Control-B */
+          if (col > 0)
+          {
+            col--;
+            if (output)
+              fputc('\b', out);
+          }
+          break;
+
+        case 4:                         /* Control-D */
+          if (strlen(line)) {
+            if (col < strlen(line)) {
+              strcpy (line + col, line + col + 1);
+              if (output) {
+                int bs;
+                fprintf(out,"%s \b", line + col);
+                for (bs = 0; bs < ((int) strlen (line) - col); bs++)
+                  fputc('\b', out);
+              }
+            }
+            break;
+          }
+          /* Fall through */
+
+        case EOF:
+          if (output)
+            fputc('\n', out);
+          return -2;
+
+        case 5:                         /*Control-e*/
           if (output)
             fprintf(out, "%s", line + col);
           col = (int) strlen (line);
           break;
 
-        case 11:/*Control-k*/
+        case 6:                         /* Control-F */
+          if ((col < size) && (line[col] != '\0')) {
+            if (output)
+              fputc(line[col], out);
+            col++;
+          }
+          break;
+
+        case 7:                         /* Control-G */
+          if (output) {
+            fprintf(out,"\r%s%*c", prompt, strlen (line), ' ');
+            fprintf(out,"\r%s\x7", prompt);
+          }
+          memset (line, '\0', strlen(line));
+          col = 0;
+          break;
+
+        case 11:                        /*Control-k*/
           if (line[col]) {
             if (output) {
               int end = strlen(line);
@@ -288,14 +309,6 @@ static int rtems_shell_line_editor(
             line[col] = '\0';
           }
           break;
-
-        case 0x04:/*Control-d*/
-          if (strlen(line))
-            break;
-        case EOF:
-          if (output)
-            fputc('\n', out);
-          return -2;
 
         case '\f':
           if (output) {
@@ -345,10 +358,98 @@ static int rtems_shell_line_editor(
                 memmove(cmds[1], cmds[0], (count - 1) * size);
               memmove (cmds[0], line, size);
               cmd = 0;
+            } else {
+              if ((cmd > 1) && (strcmp(line, cmds[cmd]) == 0)) {
+                memmove(cmds[1], cmds[0], cmd * size);
+                memmove (cmds[0], line, size);
+                cmd = 0;
+              }
             }
           }
         }
         return cmd;
+
+        case 16:                         /* Control-P */
+          if ((cmd >= (count - 1)) || (strlen(cmds[cmd + 1]) == 0)) {
+            if (output)
+              fputc('\x7', out);
+            break;
+          }
+
+          up = 1;
+          /* drop through */
+
+        case 14:                        /* Control-N */
+        {
+          int last_cmd = cmd;
+          int clen = strlen (line);
+
+          if (prompt)
+            clen += strlen(prompt);
+
+          if (up) {
+            cmd++;
+          } else {
+            if (cmd < 0) {
+              if (output)
+                fprintf(out, "\x7");
+              break;
+            }
+            else
+              cmd--;
+          }
+
+          if ((last_cmd < 0) || (strcmp(cmds[last_cmd], line) != 0))
+            memcpy (new_line, line, size);
+
+          if (cmd < 0)
+            memcpy (line, new_line, size);
+          else
+            memcpy (line, cmds[cmd], size);
+
+          col = strlen (line);
+
+          if (output) {
+            fprintf(out,"\r%s%*c", prompt, clen, ' ');
+            fprintf(out,"\r%s%s", prompt, line);
+          }
+        }
+        break;
+
+        case 20:                        /* Control-T */
+          if (col > 0)
+          {
+            char tmp;
+            if (col == strlen(line)) {
+              col--;
+              if (output)
+                fprintf(out,"\b");
+            }
+            tmp           = line[col];
+            line[col]     = line[col - 1];
+            line[col - 1] = tmp;
+            if (output)
+              fprintf(out,"\b%c%c", line[col - 1], line[col]);
+            col++;
+          } else {
+            if (output)
+              fputc('\x7', out);
+          }
+          break;
+
+        case 21:                        /* Control-U */
+          if (col > 0)
+          {
+            int clen = strlen (line);
+
+            strcpy (line, line + col);
+            if (output) {
+              fprintf(out,"\r%s%*c", prompt, clen, ' ');
+              fprintf(out,"\r%s%s", prompt, line);
+            }
+            col = 0;
+          }
+          break;
 
         default:
           if ((col < (size - 1)) && (c >= ' ') && (c <= '~')) {
@@ -570,6 +671,7 @@ bool rtems_shell_main_loop(
   rtems_shell_env_t *shell_env;
   rtems_shell_cmd_t *shell_cmd;
   rtems_status_code  sc;
+  int                eno;
   struct termios     term;
   struct termios     previous_term;
   char              *prompt = NULL;
@@ -587,23 +689,21 @@ bool rtems_shell_main_loop(
 
   rtems_shell_initialize_command_set();
 
-  shell_env =
-  rtems_current_shell_env = rtems_shell_init_env( shell_env_arg );
-
-  /*
-   * @todo chrisj
-   * Remove the use of task variables. Change to have a single
-   * allocation per shell and then set into a notepad register
-   * in the TCB. Provide a function to return the pointer.
-   * Task variables are a virus to embedded systems software.
-   */
-  sc = rtems_task_variable_add(
-    RTEMS_SELF,
-    (void*)&rtems_current_shell_env,
-    rtems_shell_env_free
+  eno = pthread_once(
+    &rtems_shell_current_env_once,
+    rtems_shell_current_env_make_key
   );
-  if (sc != RTEMS_SUCCESSFUL) {
-    rtems_error(sc,"rtems_task_variable_add(current_shell_env):");
+  assert(eno == 0);
+
+  shell_env = rtems_shell_init_env(shell_env_arg);
+  if (shell_env == NULL) {
+    rtems_error(0, "rtems_shell_init_env");
+    return false;
+  }
+
+  eno = pthread_setspecific(rtems_shell_current_env_key, shell_env);
+  if (eno != 0) {
+    rtems_error(0, "pthread_setspecific(shell_current_env_key)");
     return false;
   }
 

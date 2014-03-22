@@ -1,12 +1,25 @@
+/**
+ * @file
+ * @ingroup lm32_milkymist_dmx lm32_milkymist_shared
+ * @brief Milkymist DMX512 driver
+ */
+
 /*  milkymist_dmx.h
  *
  *  Milkymist DMX512 driver for RTEMS
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2010 Sebastien Bourdeauducq
+ */
+
+/**
+ * @defgroup lm32_milkymist_dmx Milkymist DMX512
+ * @ingroup lm32_milkymist_shared
+ * @brief Milkymist DMX512 driver
+ * @{
  */
 
 #ifndef __MILKYMIST_DMX_H_
@@ -45,6 +58,8 @@ rtems_device_driver dmx_control(
 
 #define DMX_DRIVER_TABLE_ENTRY {dmx_initialize, \
 NULL, NULL, dmx_read, dmx_write, dmx_control}
+
+/** @} */
 
 #ifdef __cplusplus
 }

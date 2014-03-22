@@ -1,40 +1,26 @@
+/**
+ * @file
+ *
+ * @brief
+ * @ingroup ScoreRWLock
+ */
+
 /*
- *  SuperCore RWLock Handler
- *
- *  DESCRIPTION:
- *
- *  This package is part of the implementation of the SuperCore RWLock Handler.
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/corerwlock.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-
-/*
- *  _CORE_RWLock_Initialize
- *
- *  This function initialize a rwlock and sets the initial value based
- *  on the given count.
- *
- *  Input parameters:
- *    the_rwlock            - the rwlock control block to initialize
- *    the_rwlock_attributes - the attributes specified at create time
- *
- *  Output parameters:  NONE
- */
+#include <rtems/score/corerwlockimpl.h>
+#include <rtems/score/statesimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 void _CORE_RWLock_Initialize(
   CORE_RWLock_Control       *the_rwlock,

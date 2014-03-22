@@ -34,7 +34,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -59,6 +59,11 @@ extern "C" {
 #include <rtems/iosupp.h>
 #include <bsp/irq.h>
 #include <bsp/vectors.h>
+#include <bsp/default-initial-extension.h>
+
+#define BSP_FEATURE_IRQ_EXTENSION
+
+#define BSP_INTERRUPT_STACK_AT_WORK_AREA_BEGIN
 
 /* miscellaneous stuff assumed to exist */
 extern bool bsp_timer_internal_clock;   /* TRUE, when timer runs with CPU clk */
@@ -72,8 +77,6 @@ extern bool bsp_timer_internal_clock;   /* TRUE, when timer runs with CPU clk */
 #endif
 extern xilTemac_driver_attach(struct rtems_bsdnet_ifconfig*, int );
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH xilTemac_driver_attach
-
-#define BSP_PPC403_CLOCK_HOOK_EXCEPTION ASM_BOOKE_DEC_VECTOR
 
 #endif /* ASM */
 

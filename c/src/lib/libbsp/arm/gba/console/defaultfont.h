@@ -1,8 +1,11 @@
 /**
- *  @file defaultfont.c
+ * @file
  *
- *  This file contains default font definitions.
+ * @ingroup arm_gba
+ *
+ * @brief Default font definitions.
  */
+
 /*
  *  RTEMS GBA BSP
  *
@@ -10,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /** Font array dot value   */

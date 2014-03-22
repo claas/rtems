@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function Releases a lock held on RWLock object referenced by rwlock 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  POSIX RWLock Manager -- Release a lock held on a RWLock Instance
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,7 +24,7 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/rwlock.h>
+#include <rtems/posix/rwlockimpl.h>
 
 /*
  *  pthread_rwlock_unlock
@@ -47,8 +54,8 @@ int pthread_rwlock_unlock(
   switch ( location ) {
 
     case OBJECTS_LOCAL:
-      status = _CORE_RWLock_Release( &the_rwlock->RWLock );
-      _Thread_Enable_dispatch();
+      status = _CORE_RWLock_Release( &the_rwlock->RWLock, _Thread_Executing );
+      _Objects_Put( &the_rwlock->Object );
       return _POSIX_RWLock_Translate_core_RWLock_return_code( status );
 
 #if defined(RTEMS_MULTIPROCESSING)

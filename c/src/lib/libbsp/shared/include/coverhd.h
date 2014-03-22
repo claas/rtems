@@ -1,14 +1,20 @@
-/* coverhd.h
+/**
+ *  @file
  *
- *  This include file has defines to represent the overhead associated
+ *  @ingroup shared_coverhd
+ *
+ *  @brief This include file has defines to represent the overhead associated
  *  with calling a particular directive from C on this target.
+ */
+
+/* coverhd.h
  *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __COVERHD_h

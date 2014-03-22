@@ -1,31 +1,28 @@
-/*
- *  Thread Handler / Thread Close
+/**
+ *  @file
  *
+ *  @brief Thread Close
+ *  @ingroup ScoreThread
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/scheduler.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/schedulerimpl.h>
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/userextimpl.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/score/wkspace.h>
 
 void _Thread_Close(
@@ -99,4 +96,6 @@ void _Thread_Close(
 
   _Workspace_Free( the_thread->extensions );
   the_thread->extensions = NULL;
+
+  _Workspace_Free( the_thread->Start.tls_area );
 }

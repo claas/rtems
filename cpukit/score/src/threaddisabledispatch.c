@@ -1,5 +1,11 @@
+/**
+ * @file
+ *
+ * @brief Disaable Thread Dispatching
+ * @ingroup ScoreThread
+ */
+
 /*
- *  _Thread_Disable_dispatch
  *
  *
  *  COPYRIGHT (c) 1989-2011.
@@ -7,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,7 +21,9 @@
 #endif
 
 #include <rtems/system.h>
+#include <rtems/score/sysstate.h>
 #include <rtems/score/thread.h>
+#include <rtems/score/threaddispatch.h>
 
 #if defined ( __THREAD_DO_NOT_INLINE_DISABLE_DISPATCH__ )
 void _Thread_Disable_dispatch( void )

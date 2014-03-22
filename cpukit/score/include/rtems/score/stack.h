@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/score/stack.h
  *
+ *  @brief Information About the Thread Stack Handler
+ *
  *  This include file contains all information about the thread
  *  Stack Handler.  This Handler provides mechanisms which can be used to
  *  initialize and utilize stacks.
@@ -12,11 +14,17 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_STACK_H
 #define _RTEMS_SCORE_STACK_H
+
+#include <rtems/score/basedefs.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  @defgroup ScoreStack Stack Handler
@@ -27,10 +35,6 @@
  *  of thread stacks.
  */
 /**@{*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  *  The following constant defines the minimum stack size which every
@@ -55,15 +59,11 @@ typedef struct {
  */
 extern uint32_t rtems_minimum_stack_size;
 
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/score/stack.inl>
-#endif
+/**@}*/
 
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of include file */

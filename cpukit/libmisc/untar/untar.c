@@ -1,13 +1,22 @@
-/* FIXME:
+/**
+ * @file
+ *
+ * @brief Untar an Image
+ * @ingroup libmisc_untar_img Untar Image
+ *
+ * FIXME:
  *   1. Symbolic links are not created.
  *   2. Untar_FromMemory uses FILE *fp.
  *   3. How to determine end of archive?
  *
+ */
+
+/*
  *  Written by: Jake Janovetz <janovetz@tempest.ece.uiuc.edu>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -214,7 +223,11 @@ Untar_FromMemory(
       }
       else if (linkflag == DIRTYPE)
       {
-         mkdir(fname, S_IRWXU | S_IRWXG | S_IRWXO);
+         if ( mkdir(fname, S_IRWXU | S_IRWXG | S_IRWXO) != 0 ) {
+           printk("Untar: failed to create directory %s\n", fname);
+           retval = UNTAR_FAIL;
+           break;
+         }
       }
    }
 
@@ -272,9 +285,10 @@ Untar_FromFile(
 
    bufr = (char *)malloc(512);
    if (bufr == NULL) {
+      close(fd);
       return(UNTAR_FAIL);
    }
-   
+
    while (1)
    {
       /* Read the header */

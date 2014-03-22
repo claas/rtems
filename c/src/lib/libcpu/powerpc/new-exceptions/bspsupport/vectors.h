@@ -27,13 +27,15 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 /* DO NOT INTRODUCE #ifdef <cpu_flavor> in this file */
 
 #ifndef LIBCPU_VECTORS_H
 #define LIBCPU_VECTORS_H
+
+#include <bspopts.h>
 
 #include <libcpu/powerpc-utility.h>
 
@@ -209,8 +211,6 @@ extern "C" {
 #define GPR29_OFFSET PPC_EXC_GPR_OFFSET(29)
 #define GPR30_OFFSET PPC_EXC_GPR_OFFSET(30)
 #define GPR31_OFFSET PPC_EXC_GPR_OFFSET(31)
-#define EXC_MSR_OFFSET PPC_EXC_GPR_OFFSET(32)
-#define EXC_DAR_OFFSET (4 + EXC_MSR_OFFSET)
 
 #define EXC_GENERIC_SIZE PPC_EXC_FRAME_SIZE
 
@@ -248,53 +248,7 @@ extern "C" {
  * @{
  */
 
-typedef struct {
-  unsigned EXC_SRR0;
-  unsigned EXC_SRR1;
-  unsigned _EXC_number;
-  unsigned EXC_CR;
-  unsigned EXC_CTR;
-  unsigned EXC_XER;
-  unsigned EXC_LR;
-  #ifdef __SPE__
-    uint32_t EXC_SPEFSCR;
-    uint64_t EXC_ACC;
-  #endif
-  PPC_GPR_TYPE GPR0;
-  PPC_GPR_TYPE GPR1;
-  PPC_GPR_TYPE GPR2;
-  PPC_GPR_TYPE GPR3;
-  PPC_GPR_TYPE GPR4;
-  PPC_GPR_TYPE GPR5;
-  PPC_GPR_TYPE GPR6;
-  PPC_GPR_TYPE GPR7;
-  PPC_GPR_TYPE GPR8;
-  PPC_GPR_TYPE GPR9;
-  PPC_GPR_TYPE GPR10;
-  PPC_GPR_TYPE GPR11;
-  PPC_GPR_TYPE GPR12;
-  PPC_GPR_TYPE GPR13;
-  PPC_GPR_TYPE GPR14;
-  PPC_GPR_TYPE GPR15;
-  PPC_GPR_TYPE GPR16;
-  PPC_GPR_TYPE GPR17;
-  PPC_GPR_TYPE GPR18;
-  PPC_GPR_TYPE GPR19;
-  PPC_GPR_TYPE GPR20;
-  PPC_GPR_TYPE GPR21;
-  PPC_GPR_TYPE GPR22;
-  PPC_GPR_TYPE GPR23;
-  PPC_GPR_TYPE GPR24;
-  PPC_GPR_TYPE GPR25;
-  PPC_GPR_TYPE GPR26;
-  PPC_GPR_TYPE GPR27;
-  PPC_GPR_TYPE GPR28;
-  PPC_GPR_TYPE GPR29;
-  PPC_GPR_TYPE GPR30;
-  PPC_GPR_TYPE GPR31;
-  unsigned EXC_MSR;
-  unsigned EXC_DAR;
-} BSP_Exception_frame;
+typedef CPU_Exception_frame BSP_Exception_frame;
 
 /** @} */
 
@@ -310,16 +264,11 @@ typedef struct {
 typedef void (*exception_handler_t)(BSP_Exception_frame*);
 
 /**
- * @brief Global exception handler.
- */
-extern exception_handler_t globalExceptHdl;
-
-/**
  * @brief Default global exception handler.
  */
 void C_exception_handler(BSP_Exception_frame* excPtr);
 
-void BSP_printStackTrace(BSP_Exception_frame *excPtr);
+void BSP_printStackTrace(const BSP_Exception_frame *excPtr);
 
 /**
  * @brief Exception categories.
@@ -354,32 +303,12 @@ static inline bool ppc_exc_is_valid_category(ppc_exc_category category)
 }
 
 /**
- * @brief Indicates if exception entry table resides in a writable memory.
+ * @brief Returns the entry address of the vector.
  *
- * This variable is initialized to 'TRUE' by default;
- * BSPs which have their vectors in ROM should set it
- * to FALSE prior to initializing raw exceptions.
- *
- * I suspect the only candidate is the simulator.
- * After all, the value of this variable is used to
- * determine where to install the prologue code and
- * installing to ROM on anyting that's real ROM
- * will fail anyways.
- *
- * This should probably go away... (T.S. 2007/11/30)
+ * @param[in] vector The vector number.
+ * @param[in] vector_base The vector table base address.
  */
-extern bool bsp_exceptions_in_RAM;
-
-/**
- * @brief Vector base address for CPUs (for example e200 and e500) with IVPR
- * and IVOR registers.
- */
-extern uint32_t ppc_exc_vector_base;
-
-/**
- * @brief Returns the entry address of the vector @a vector.
- */
-void *ppc_exc_vector_address(unsigned vector);
+void *ppc_exc_vector_address(unsigned vector, void *vector_base);
 
 /**
  * @brief Returns the category set for a CPU of type @a cpu, or @c NULL if
@@ -409,8 +338,8 @@ ppc_exc_category ppc_exc_category_for_vector(
  * @brief Makes a minimal prologue for the vector @a vector with the category
  * @a category.
  *
- * The minimal prologue will be copied to @a prologue.  Not more than @a
- * prologue_size bytes will be copied.  Returns the actual minimal prologue
+ * The minimal prologue will be copied to @a prologue.  Not more than
+ * @a prologue_size bytes will be copied.  Returns the actual minimal prologue
  * size in bytes in @a prologue_size.
  *
  * @retval RTEMS_SUCCESSFUL Minimal prologue successfully made.
@@ -420,6 +349,7 @@ ppc_exc_category ppc_exc_category_for_vector(
  */
 rtems_status_code ppc_exc_make_prologue(
   unsigned vector,
+  void *vector_base,
   ppc_exc_category category,
   uint32_t *prologue,
   size_t *prologue_size
@@ -428,30 +358,57 @@ rtems_status_code ppc_exc_make_prologue(
 /**
  * @brief Initializes the exception handling.
  *
- * @retval RTEMS_SUCCESSFUL Successful initialization.
- * @retval RTEMS_NOT_IMPLEMENTED No category set available for the current CPU.
- * @retval RTEMS_NOT_CONFIGURED Register r13 does not point to the small data
- * area anchor required by SVR4/EABI.
- * @retval RTEMS_INTERNAL_ERROR Minimal prologue creation failed.
+ * @see ppc_exc_initialize().
  */
-rtems_status_code ppc_exc_initialize(
-  uint32_t interrupt_disable_mask,
+void ppc_exc_initialize_with_vector_base(
+  uintptr_t interrupt_stack_begin,
+  uintptr_t interrupt_stack_size,
+  void *vector_base
+);
+
+/**
+ * @brief Initializes the exception handling.
+ *
+ * If the initialization fails, then this is a fatal error.  The fatal error
+ * source is RTEMS_FATAL_SOURCE_BSP and the fatal error code is
+ * PPC_FATAL_EXCEPTION_INITIALIZATION.
+ *
+ * Possible error reasons are
+ * - no category set available for the current CPU,
+ * - the register r13 does not point to the small data area anchor required by
+ *   SVR4/EABI, or
+ * - the minimal prologue creation failed.
+ */
+static inline void ppc_exc_initialize(
   uintptr_t interrupt_stack_begin,
   uintptr_t interrupt_stack_size
-);
+)
+{
+  ppc_exc_initialize_with_vector_base(
+    interrupt_stack_begin,
+    interrupt_stack_size,
+    NULL
+  );
+}
 
 /**
  * @brief High-level exception handler type.
  *
- * Exception handlers should return zero if the exception was handled and
- * normal execution may resume.
- *
- * They should return minus one to reject the exception resulting in the
- * globalExcHdl() being called.
- *
- * Other return values are reserved.
+ * @retval 0 The exception was handled and normal execution may resume.
+ * @retval -1 Reject the exception resulting in a call of the global exception
+ * handler.
+ * @retval other Reserved, do not use.
  */
 typedef int (*ppc_exc_handler_t)(BSP_Exception_frame *f, unsigned vector);
+
+/**
+ * @brief Default high-level exception handler.
+ *
+ * @retval -1 Always.
+ */
+int ppc_exc_handler_default(BSP_Exception_frame *f, unsigned int vector);
+
+#ifndef PPC_EXC_CONFIG_BOOKE_ONLY
 
 /**
  * @brief Bits for MSR update.
@@ -464,6 +421,8 @@ typedef int (*ppc_exc_handler_t)(BSP_Exception_frame *f, unsigned vector);
  * handling is initialized is used.
  */
 extern uint32_t ppc_exc_msr_bits;
+
+#endif /* PPC_EXC_CONFIG_BOOKE_ONLY */
 
 /**
  * @brief Cache write back check flag.
@@ -479,6 +438,28 @@ extern uint32_t ppc_exc_msr_bits;
  *       (unless the entire cache is physically disabled)
  */
 extern uint32_t ppc_exc_cache_wb_check;
+
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
+  /**
+   * @brief High-level exception handler table.
+   */
+  extern ppc_exc_handler_t ppc_exc_handler_table [LAST_VALID_EXC + 1];
+
+  /**
+   * @brief Global exception handler.
+   */
+  extern exception_handler_t globalExceptHdl;
+#else /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
+  /**
+   * @brief High-level exception handler table.
+   */
+  extern const ppc_exc_handler_t ppc_exc_handler_table [LAST_VALID_EXC + 1];
+
+  /**
+   * @brief Interrupt dispatch routine provided by BSP.
+   */
+  void bsp_interrupt_dispatch(void);
+#endif /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
 
 /**
  * @brief Set high-level exception handler.
@@ -496,6 +477,11 @@ extern uint32_t ppc_exc_cache_wb_check;
  *
  * It is legal to set a NULL handler. This leads to the globalExcHdl
  * being called if an exception for 'vector' occurs.
+ *
+ * @retval RTEMS_SUCCESSFUL Successful operation.
+ * @retval RTEMS_INVALID_ID Invalid vector number.
+ * @retval RTEMS_RESOURCE_IN_USE Handler table is read-only and handler does
+ * not match.
  */
 rtems_status_code ppc_exc_set_handler(unsigned vector, ppc_exc_handler_t hdl);
 
@@ -532,7 +518,6 @@ int ppc_exc_alignment_handler(BSP_Exception_frame *frame, unsigned excNum);
 /*
  * Compatibility with pc386
  */
-typedef BSP_Exception_frame CPU_Exception_frame;
 typedef exception_handler_t cpuExcHandlerType;
 
 #endif /* ASM */

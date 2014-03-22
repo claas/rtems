@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -27,7 +27,7 @@
 /* These are used by code in console.c */
 unsigned long Console_Configuration_Count = NUM_DEVS;
 
-extern console_fns ffuart_fns;
+extern const console_fns ffuart_fns;
 
 /*
  * There's one item in array for each UART.

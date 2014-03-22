@@ -1,7 +1,7 @@
 /**
- *  @file
- *
- *  LEON3 SMP Obtain CPU Core Number
+ * @file
+ * @ingroup sparc_leon3
+ * @brief LEON3 SMP Obtain CPU Core Number
  */
 
 /*
@@ -10,14 +10,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
-int bsp_smp_processor_id(void)
-{
-  unsigned int id;
-  __asm__ __volatile__( "rd     %%asr17,%0\n\t" : "=r" (id) : );
+#include <rtems/score/cpu.h>
 
-  return ((id >> 28) & 0xff);
+uint32_t _CPU_SMP_Get_current_processor( void )
+{
+  return _LEON3_Get_current_processor();
 }
 

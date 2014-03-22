@@ -1,30 +1,29 @@
+/**
+ *  @file
+ *
+ *  @brief Objects MP Support
+ *  @ingroup ScoreObjectMP
+ */
+
 /*
- *  Multiprocessing Support for the Object Handler
- *
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/config.h>
+#include <rtems/score/objectimpl.h>
 #include <rtems/score/interr.h>
-#include <rtems/score/object.h>
+#include <rtems/score/threaddispatch.h>
 #include <rtems/score/wkspace.h>
-#include <rtems/score/thread.h>
+#include <rtems/config.h>
 
-/*
- *  _Objects_MP_Handler_early_initialization
- *
- */
 void _Objects_MP_Handler_early_initialization(void)
 {
   uint32_t   node;
@@ -34,7 +33,7 @@ void _Objects_MP_Handler_early_initialization(void)
   maximum_nodes          = _Configuration_MP_table->maximum_nodes;
 
   if ( node < 1 || node > maximum_nodes )
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_INVALID_NODE
@@ -74,11 +73,6 @@ void _Objects_MP_Handler_initialization(void)
 
 }
 
-/*
- *  _Objects_MP_Open
- *
- */
-
 void _Objects_MP_Open (
   Objects_Information *information,
   Objects_MP_Control  *the_global_object,
@@ -96,11 +90,6 @@ void _Objects_MP_Open (
 
 }
 
-/*
- *  _Objects_MP_Allocate_and_open
- *
- */
-
 bool _Objects_MP_Allocate_and_open (
   Objects_Information *information,
   uint32_t             the_name,      /* XXX -- wrong for variable */
@@ -116,7 +105,7 @@ bool _Objects_MP_Allocate_and_open (
     if ( is_fatal_error == false )
       return false;
 
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_OUT_OF_GLOBAL_OBJECTS
@@ -128,11 +117,6 @@ bool _Objects_MP_Allocate_and_open (
 
   return true;
 }
-
-/*
- *  _Objects_MP_Close
- *
- */
 
 void _Objects_MP_Close (
   Objects_Information *information,
@@ -160,17 +144,12 @@ void _Objects_MP_Close (
 
   }
 
-  _Internal_error_Occurred(
+  _Terminate(
     INTERNAL_ERROR_CORE,
     true,
     INTERNAL_ERROR_INVALID_GLOBAL_ID
   );
 }
-
-/*
- *  _Objects_MP_Global_name_search
- *
- */
 
 Objects_Name_or_id_lookup_errors _Objects_MP_Global_name_search (
   Objects_Information *information,
@@ -234,11 +213,6 @@ Objects_Name_or_id_lookup_errors _Objects_MP_Global_name_search (
   _Thread_Enable_dispatch();
   return OBJECTS_INVALID_NAME;
 }
-
-/*
- *  _Objects_MP_Is_remote
- *
- */
 
 void _Objects_MP_Is_remote (
   Objects_Information  *information,

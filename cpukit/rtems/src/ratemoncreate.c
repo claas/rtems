@@ -1,12 +1,17 @@
-/*
- *  Rate Monotonic Manager -- Create a Period
+/**
+ * @file
  *
+ * @brief Create a Period
+ * @ingroup ClassicRateMon Rate Monotonic Scheduler
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,9 +22,9 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/ratemon.h>
+#include <rtems/rtems/ratemonimpl.h>
 #include <rtems/score/thread.h>
+#include <rtems/score/watchdogimpl.h>
 
 /*
  *  rtems_rate_monotonic_create

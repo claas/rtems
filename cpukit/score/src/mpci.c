@@ -1,35 +1,30 @@
+/**
+ * @file
+ *
+ * @brief Multiprocessing Communications Interface (MPCI) Handler
+ * @ingroup ScoreMPCI
+ */
+
 /*
- *  Multiprocessing Communications Interface (MPCI) Handler
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
-#endif
-#include <rtems/config.h>
-#include <rtems/score/cpu.h>
+#include <rtems/score/mpciimpl.h>
+#include <rtems/score/coresemimpl.h>
 #include <rtems/score/interr.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/score/stackimpl.h>
 #include <rtems/score/sysstate.h>
-
-#include <rtems/score/coresem.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
 #include <rtems/config.h>
 
 RTEMS_STATIC_ASSERT(
@@ -42,12 +37,6 @@ RTEMS_STATIC_ASSERT(
  */
 CORE_semaphore_Control _MPCI_Semaphore;
 
-/*
- *  _MPCI_Handler_initialization
- *
- *  This subprogram performs the initialization necessary for this handler.
- */
-
 void _MPCI_Handler_initialization(
   uint32_t   timeout_status
 )
@@ -58,7 +47,7 @@ void _MPCI_Handler_initialization(
   users_mpci_table = _Configuration_MP_table->User_mpci_table;
 
   if ( _System_state_Is_multiprocessing && !users_mpci_table )
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_NO_MPCI
@@ -98,12 +87,6 @@ void _MPCI_Handler_initialization(
   );
 }
 
-/*
- *  _MPCI_Create_server
- *
- *  This subprogram creates the MPCI receive server.
- */
-
 void _MPCI_Create_server( void )
 {
   Objects_Name name;
@@ -140,28 +123,15 @@ void _MPCI_Create_server( void )
     THREAD_START_NUMERIC,
     (void *) _MPCI_Receive_server,
     NULL,
-    0
+    0,
+    NULL
   );
 }
-
-/*
- *  _MPCI_Initialization
- *
- *  This subprogram initializes the MPCI driver by
- *  invoking the user provided MPCI initialization callout.
- */
 
 void _MPCI_Initialization ( void )
 {
   (*_MPCI_table->initialization)();
 }
-
-/*
- *  _MPCI_Register_packet_processor
- *
- *  This routine registers the MPCI packet processor for the
- *  designated object class.
- */
 
 void _MPCI_Register_packet_processor(
   MP_packet_Classes      the_class,
@@ -172,13 +142,6 @@ void _MPCI_Register_packet_processor(
   _MPCI_Packet_processors[ the_class ] = the_packet_processor;
 }
 
-/*
- *  _MPCI_Get_packet
- *
- *  This subprogram obtains a packet by invoking the user provided
- *  MPCI get packet callout.
- */
-
 MP_packet_Prefix *_MPCI_Get_packet ( void )
 {
   MP_packet_Prefix  *the_packet;
@@ -186,7 +149,7 @@ MP_packet_Prefix *_MPCI_Get_packet ( void )
   (*_MPCI_table->get_packet)( &the_packet );
 
   if ( the_packet == NULL )
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_OUT_OF_PACKETS
@@ -202,26 +165,12 @@ MP_packet_Prefix *_MPCI_Get_packet ( void )
   return the_packet;
 }
 
-/*
- *  _MPCI_Return_packet
- *
- *  This subprogram returns a packet by invoking the user provided
- *  MPCI return packet callout.
- */
-
 void _MPCI_Return_packet (
   MP_packet_Prefix   *the_packet
 )
 {
   (*_MPCI_table->return_packet)( the_packet );
 }
-
-/*
- *  _MPCI_Send_process_packet
- *
- *  This subprogram sends a process packet by invoking the user provided
- *  MPCI send callout.
- */
 
 void _MPCI_Send_process_packet (
   uint32_t            destination,
@@ -235,27 +184,22 @@ void _MPCI_Send_process_packet (
   (*_MPCI_table->send_packet)( destination, the_packet );
 }
 
-/*
- *  _MPCI_Send_request_packet
- *
- *  This subprogram sends a request packet by invoking the user provided
- *  MPCI send callout.
- */
-
 uint32_t   _MPCI_Send_request_packet (
   uint32_t            destination,
   MP_packet_Prefix   *the_packet,
   States_Control      extra_state
 )
 {
-  the_packet->source_tid      = _Thread_Executing->Object.id;
-  the_packet->source_priority = _Thread_Executing->current_priority;
+  Thread_Control *executing = _Thread_Executing;
+
+  the_packet->source_tid      = executing->Object.id;
+  the_packet->source_priority = executing->current_priority;
   the_packet->to_convert =
      ( the_packet->to_convert - sizeof(MP_packet_Prefix) ) / sizeof(uint32_t);
 
-  _Thread_Executing->Wait.id = the_packet->id;
+  executing->Wait.id = the_packet->id;
 
-  _Thread_Executing->Wait.queue = &_MPCI_Remote_blocked_threads;
+  executing->Wait.queue = &_MPCI_Remote_blocked_threads;
 
   _Thread_Disable_dispatch();
 
@@ -270,22 +214,19 @@ uint32_t   _MPCI_Send_request_packet (
     if (the_packet->timeout == MPCI_DEFAULT_TIMEOUT)
         the_packet->timeout = _MPCI_table->default_timeout;
 
-    _Thread_queue_Enqueue( &_MPCI_Remote_blocked_threads, the_packet->timeout );
+    _Thread_queue_Enqueue(
+      &_MPCI_Remote_blocked_threads,
+      executing,
+      the_packet->timeout
+    );
 
-    _Thread_Executing->current_state =
-      _States_Set( extra_state, _Thread_Executing->current_state );
+    executing->current_state =
+      _States_Set( extra_state, executing->current_state );
 
   _Thread_Enable_dispatch();
 
-  return _Thread_Executing->Wait.return_code;
+  return executing->Wait.return_code;
 }
-
-/*
- *  _MPCI_Send_response_packet
- *
- *  This subprogram sends a response packet by invoking the user provided
- *  MPCI send callout.
- */
 
 void _MPCI_Send_response_packet (
   uint32_t            destination,
@@ -297,13 +238,6 @@ void _MPCI_Send_response_packet (
   (*_MPCI_table->send_packet)( destination, the_packet );
 }
 
-/*
- *  _MPCI_Receive_packet
- *
- *  This subprogram receives a packet by invoking the user provided
- *  MPCI receive callout.
- */
-
 MP_packet_Prefix  *_MPCI_Receive_packet ( void )
 {
   MP_packet_Prefix  *the_packet;
@@ -312,13 +246,6 @@ MP_packet_Prefix  *_MPCI_Receive_packet ( void )
 
   return the_packet;
 }
-
-/*
- *  _MPCI_Process_response
- *
- *  This subprogram obtains a packet by invoking the user provided
- *  MPCI get packet callout.
- */
 
 Thread_Control *_MPCI_Process_response (
   MP_packet_Prefix  *the_packet
@@ -338,7 +265,7 @@ Thread_Control *_MPCI_Process_response (
     case OBJECTS_LOCAL:
       _Thread_queue_Extract( &_MPCI_Remote_blocked_threads, the_thread );
       the_thread->Wait.return_code = the_packet->return_code;
-      _Thread_Unnest_dispatch();
+      _Objects_Put_without_thread_dispatch( &the_thread->Object );
     break;
   }
 
@@ -359,14 +286,20 @@ Thread _MPCI_Receive_server(
   MPCI_Packet_processor     the_function;
   Thread_Control           *executing;
 
-  executing = _Thread_Executing;
+  executing = _Thread_Get_executing();
 
   for ( ; ; ) {
 
     executing->receive_packet = NULL;
 
     _Thread_Disable_dispatch();
-    _CORE_semaphore_Seize( &_MPCI_Semaphore, 0, true, WATCHDOG_NO_TIMEOUT );
+    _CORE_semaphore_Seize(
+      &_MPCI_Semaphore,
+      executing,
+      0,
+      true,
+      WATCHDOG_NO_TIMEOUT
+    );
     _Thread_Enable_dispatch();
 
     for ( ; ; ) {
@@ -383,7 +316,7 @@ Thread _MPCI_Receive_server(
       the_function = _MPCI_Packet_processors[ the_packet->the_class ];
 
       if ( !the_function )
-        _Internal_error_Occurred(
+        _Terminate(
           INTERNAL_ERROR_CORE,
           true,
           INTERNAL_ERROR_BAD_PACKET
@@ -396,22 +329,12 @@ Thread _MPCI_Receive_server(
   return 0;   /* unreached - only to remove warnings */
 }
 
-/*
- *  _MPCI_Announce
- *
- */
-
 void _MPCI_Announce ( void )
 {
   _Thread_Disable_dispatch();
   (void) _CORE_semaphore_Surrender( &_MPCI_Semaphore, 0, 0 );
   _Thread_Enable_dispatch();
 }
-
-/*
- *  _MPCI_Internal_packets_Send_process_packet
- *
- */
 
 void _MPCI_Internal_packets_Send_process_packet (
    MPCI_Internal_Remote_operations operation
@@ -454,12 +377,6 @@ void _MPCI_Internal_packets_Send_process_packet (
  *
  */
 
-/*
- *
- *  _MPCI_Internal_packets_Process_packet
- *
- */
-
 void _MPCI_Internal_packets_Process_packet (
   MP_packet_Prefix  *the_packet_prefix
 )
@@ -481,7 +398,7 @@ void _MPCI_Internal_packets_Process_packet (
 
         _MPCI_Return_packet( the_packet_prefix );
 
-        _Internal_error_Occurred(
+        _Terminate(
           INTERNAL_ERROR_CORE,
           true,
           INTERNAL_ERROR_INCONSISTENT_MP_INFORMATION
@@ -507,11 +424,6 @@ void _MPCI_Internal_packets_Process_packet (
  *
  *  This subprogram is not needed since there are no objects
  *  deleted by this manager.
- *
- */
-
-/*
- *  _MPCI_Internal_packets_Get_packet
  *
  */
 

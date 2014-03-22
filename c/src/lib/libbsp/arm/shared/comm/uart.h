@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @ingroup arm_comm
+ *
+ *  @brief UART Support
+ */
 
 /*
  * This software is Copyright (C) 1998 by T.sqware - all rights limited
@@ -10,7 +17,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSPUART_H

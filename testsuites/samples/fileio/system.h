@@ -8,10 +8,11 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
+#include <rtems/test.h>
 #include "tmacros.h"
 
 /* functions */
@@ -45,13 +46,20 @@ rtems_task Init(
 #define CONFIGURE_APPLICATION_NEEDS_ATA_DRIVER
 #define CONFIGURE_ATA_DRIVER_TASK_PRIORITY  14
 #endif
-#define CONFIGURE_APPLICATION_NEEDS_LIBBLOCK
-#define CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS  2
-#define CONFIGURE_BDBUF_MAX_WRITE_BLOCKS       8
-#define CONFIGURE_SWAPOUT_TASK_PRIORITY        15
+
+#define CONFIGURE_MAXIMUM_POSIX_KEYS             1
+#define CONFIGURE_MAXIMUM_POSIX_KEY_VALUE_PAIRS  1
+
+#if FILEIO_BUILD
+  #define CONFIGURE_APPLICATION_NEEDS_LIBBLOCK
+  #define CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS  2
+  #define CONFIGURE_BDBUF_MAX_WRITE_BLOCKS       8
+  #define CONFIGURE_SWAPOUT_TASK_PRIORITY        15
+  #define CONFIGURE_FILESYSTEM_RFS
+  #define CONFIGURE_FILESYSTEM_DOSFS
+#endif
+
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
-#define CONFIGURE_FILESYSTEM_RFS
-#define CONFIGURE_FILESYSTEM_DOSFS
 
 /*
  * XXX: these values are higher than needed...
@@ -68,6 +76,9 @@ rtems_task Init(
 #define CONFIGURE_MALLOC_STATISTICS
 
 #define CONFIGURE_UNIFIED_WORK_AREAS
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
+
 #include <rtems/confdefs.h>
 
 /* end of include file */

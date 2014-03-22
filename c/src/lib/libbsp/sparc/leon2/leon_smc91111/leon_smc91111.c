@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup sparc_leon2
+ * @brief SMC91111 Driver
+ */
+
 #include <rtems.h>
 
 #include <bsp.h>
@@ -33,11 +39,6 @@ scmv91111_configuration_t leon_scmv91111_configuration = {
   1,                  /* fulldx */
   1                   /* autoneg */
 };
-
-int _rtems_smc91111_driver_attach(
-  struct rtems_bsdnet_ifconfig *config,
-  scmv91111_configuration_t    *scm_config
-);
 
 /*
  * Attach an SMC91111 driver to the system

@@ -20,10 +20,13 @@ include_HEADERS += include/leon.h
 include_HEADERS += ../../shared/include/coverhd.h
 
 noinst_LIBRARIES = libbspstart.a
-libbspstart_a_SOURCES = ../../sparc/shared/start.S
+libbspstart_a_SOURCES = ../../sparc/shared/start/start.S
 project_lib_DATA = start.$(OBJEXT)
 
-dist_project_lib_DATA += startup/linkcmds ../shared/startup/linkcmds.base
+dist_project_lib_DATA += ../shared/startup/linkcmds.base
+dist_project_lib_DATA += startup/linkcmds
+dist_project_lib_DATA += startup/linkcmds.leon3
+dist_project_lib_DATA += startup/linkcmds.ngmp
 
 noinst_LIBRARIES += libbsp.a
 libbsp_a_SOURCES =
@@ -32,9 +35,11 @@ libbsp_a_SOURCES =
 libbsp_a_SOURCES += ../../shared/bspclean.c ../../shared/bsplibc.c \
     ../../shared/bsppost.c ../../shared/bootcard.c startup/bspstart.c \
     ../../sparc/shared/bsppretaskinghook.c startup/bsppredriver.c \
-    ../../sparc/shared/bspgetworkarea.c ../../shared/sbrk.c startup/setvec.c \
+    ../../sparc/shared/startup/bspgetworkarea.c ../../shared/sbrk.c startup/setvec.c \
     startup/spurious.c startup/bspidle.S startup/bspdelay.c \
     ../../shared/bspinit.c ../../sparc/shared/startup/early_malloc.c
+libbsp_a_SOURCES += startup/bspreset.c
+libbsp_a_SOURCES += startup/cpucounter.c
 
 # ISR Handler
 libbsp_a_SOURCES += ../../sparc/shared/irq_asm.S
@@ -112,6 +117,11 @@ libbsp_a_SOURCES += ../../sparc/shared/i2c/i2cmst.c
 # timer
 libbsp_a_SOURCES += timer/timer.c
 
+# Cache
+libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
+libbsp_a_SOURCES += include/cache_.h
+libbsp_a_CPPFLAGS = -I$(srcdir)/include
+
 if HAS_SMP
 libbsp_a_SOURCES += smp/getcpuid.c
 libbsp_a_SOURCES += smp/smp_leon3.c
@@ -150,7 +160,6 @@ endif
 
 libbsp_a_LIBADD = \
     ../../../libcpu/@RTEMS_CPU@/access.rel \
-    ../../../libcpu/@RTEMS_CPU@/cache.rel \
     ../../../libcpu/@RTEMS_CPU@/reg_win.rel \
     ../../../libcpu/@RTEMS_CPU@/syscall.rel
 

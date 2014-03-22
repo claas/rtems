@@ -1,6 +1,8 @@
 /**
- * @file rtems/libio_.h
+ * @file
  *
+ * @brief LibIO Internal Interface
+ * 
  * This file is the libio internal interface.
  */
 
@@ -13,13 +15,15 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_LIBIO__H
 #define _RTEMS_RTEMS_LIBIO__H
 
+#include <sys/uio.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <rtems.h>
 #include <rtems/libio.h>
@@ -29,7 +33,22 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup LibIOInternal IO Internal Library
+ *
+ * @brief Internal IO library API and implementation.
+ *
+ */
+/**@{**/
+
 #define RTEMS_FILESYSTEM_SYMLOOP_MAX 32
+
+/*
+ * Not defined in newlib so provide here. Users should use dup2 and
+ * not this non-portable fcntl command. Provided here to allow the
+ * RTEMS implementation to work.
+ */
+#define F_DUP2FD 20
 
 /*
  *  Semaphore to protect the io table
@@ -37,16 +56,6 @@ extern "C" {
 
 #define RTEMS_LIBIO_SEM         rtems_build_name('L', 'B', 'I', 'O')
 #define RTEMS_LIBIO_IOP_SEM(n)  rtems_build_name('L', 'B', 'I', n)
-
-/**
- * @brief Event to signal an unmount process completion.
- *
- * This event should equal the RTEMS_BDBUF_TRANSFER_SYNC event to avoid too
- * many events reserved for the file system.
- *
- * @see rtems_filesystem_do_unmount() and unmount().
- */
-#define RTEMS_FILESYSTEM_UNMOUNT_EVENT RTEMS_EVENT_1
 
 extern rtems_id                          rtems_libio_semaphore;
 
@@ -71,8 +80,8 @@ extern rtems_filesystem_mount_table_entry_t rtems_filesystem_null_mt_entry;
  * The purpose of this location is to deliver the error return status for a
  * previous error condition which must set the errno accordingly.
  *
- * The usage of this null location instead of the NULL pointer eliminates a lot
- * of branches.
+ * The usage of this null location instead of the NULL pointer eliminates 
+ * a lot of branches.
  *
  * The user environment root and current directory are statically initialized
  * with the null location.  Due to that all file system services are in a
@@ -202,7 +211,7 @@ void rtems_filesystem_location_clone(
  *
  * @param[in] loc The location of the node.
  *
- * @return The node type.
+ * @retval type The node type.
  *
  * @see rtems_filesystem_instance_lock().
  */
@@ -217,8 +226,8 @@ rtems_filesystem_node_types_t rtems_filesystem_node_type(
  *
  * @param[in] loc The location to free.
  *
- * @note The file system root location is released by the file system instance
- * destruction handler (see @ref rtems_filesystem_fsunmount_me_t).
+ * @note The file system root location is released by the file system
+ * instance destruction handler (see @ref rtems_filesystem_fsunmount_me_t).
  *
  * @see rtems_filesystem_freenode_t.
  */
@@ -249,12 +258,16 @@ static inline void rtems_filesystem_mt_unlock( void )
   rtems_libio_unlock();
 }
 
+extern rtems_interrupt_lock rtems_filesystem_mt_entry_lock_control;
+
 #define rtems_filesystem_mt_entry_declare_lock_context( ctx ) \
-  rtems_interrupt_level ctx
+  rtems_interrupt_lock_context ctx
 
-#define rtems_filesystem_mt_entry_lock( ctx ) rtems_interrupt_disable( ctx )
+#define rtems_filesystem_mt_entry_lock( ctx ) \
+  rtems_interrupt_lock_acquire( &rtems_filesystem_mt_entry_lock_control, &ctx )
 
-#define rtems_filesystem_mt_entry_unlock( ctx ) rtems_interrupt_enable( ctx )
+#define rtems_filesystem_mt_entry_unlock( ctx ) \
+  rtems_interrupt_lock_release( &rtems_filesystem_mt_entry_lock_control, &ctx )
 
 static inline void rtems_filesystem_instance_lock(
   const rtems_filesystem_location_info_t *loc
@@ -278,12 +291,26 @@ static inline void rtems_filesystem_instance_unlock(
  *  File Descriptor Routine Prototypes
  */
 
+/**
+ * This routine searches the IOP Table for an unused entry.  If it
+ * finds one, it returns it.  Otherwise, it returns NULL.
+ */
 rtems_libio_t *rtems_libio_allocate(void);
 
+/**
+ * Convert UNIX fnctl(2) flags to ones that RTEMS drivers understand
+ */
 uint32_t rtems_libio_fcntl_flags( int fcntl_flags );
 
+/**
+ * Convert RTEMS internal flags to UNIX fnctl(2) flags
+ */
 int rtems_libio_to_fcntl_flags( uint32_t flags );
 
+/**
+ * This routine frees the resources associated with an IOP (file descriptor)
+ * and clears the slot in the IOP Table.
+ */
 void rtems_libio_free(
   rtems_libio_t *iop
 );
@@ -347,7 +374,7 @@ void rtems_filesystem_eval_path_cleanup_with_parent(
  * current location.  The previous start and current locations are released.
  *
  * @param[in, out] ctx The path evaluation context.
- * @param[in, out] newstartloc_ptr Pointer to new start location.
+ * @param[in, out] newstartloc_ptr Pointer to the new start location.
  */
 void rtems_filesystem_eval_path_restart(
   rtems_filesystem_eval_path_context_t *ctx,
@@ -416,7 +443,7 @@ void rtems_filesystem_initialize(void);
  * corresponding mount entry.
  *
  * @param[out] dst The destination location.
- * @param[in] src The source location.
+ * @param[in] src The  source location.
  *
  * @retval dst The destination location.
  *
@@ -548,11 +575,15 @@ int rtems_filesystem_mknod(
 
 int rtems_filesystem_chdir( rtems_filesystem_location_info_t *loc );
 
+int rtems_filesystem_chmod(
+  const rtems_filesystem_location_info_t *loc,
+  mode_t mode
+);
+
 int rtems_filesystem_chown(
-  const char *path,
+  const rtems_filesystem_location_info_t *loc,
   uid_t owner,
-  gid_t group,
-  int eval_follow_link
+  gid_t group
 );
 
 static inline bool rtems_filesystem_is_ready_for_unmount(
@@ -592,7 +623,7 @@ void rtems_filesystem_do_unmount(
   rtems_filesystem_mount_table_entry_t *mt_entry
 );
 
-static inline bool rtems_filesystem_location_is_root(
+static inline bool rtems_filesystem_location_is_instance_root(
   const rtems_filesystem_location_info_t *loc
 )
 {
@@ -767,9 +798,9 @@ void rtems_filesystem_eval_path_error(
  * @brief Checks that the locations exist in the same file system instance.
  *
  * @retval 0 The locations exist and are in the same file system instance.
- * @retval -1 An error occured.  The @c errno indicates the error.
+ * @retval -1 An error occurred.  The @c errno indicates the error.
  */
-int rtems_filesystem_location_exists_in_same_fs_instance_as(
+int rtems_filesystem_location_exists_in_same_instance_as(
   const rtems_filesystem_location_info_t *a,
   const rtems_filesystem_location_info_t *b
 );
@@ -809,6 +840,62 @@ static inline bool rtems_filesystem_is_parent_directory(
 {
   return tokenlen == 2 && token [0] == '.' && token [1] == '.';
 }
+
+static inline ssize_t rtems_libio_iovec_eval(
+  int fd,
+  const struct iovec *iov,
+  int iovcnt,
+  uint32_t flags,
+  rtems_libio_t **iopp
+)
+{
+  ssize_t        total;
+  int            v;
+  rtems_libio_t *iop;
+
+  rtems_libio_check_fd( fd );
+  iop = rtems_libio_iop( fd );
+  rtems_libio_check_is_open( iop );
+  rtems_libio_check_permissions_with_error( iop, flags, EBADF );
+
+  *iopp = iop;
+
+  /*
+   *  Argument validation on IO vector
+   */
+  if ( iov == NULL )
+    rtems_set_errno_and_return_minus_one( EINVAL );
+
+  if ( iovcnt <= 0 )
+    rtems_set_errno_and_return_minus_one( EINVAL );
+
+  if ( iovcnt > IOV_MAX )
+    rtems_set_errno_and_return_minus_one( EINVAL );
+
+  /*
+   *  OpenGroup says that you are supposed to return EINVAL if the
+   *  sum of the iov_len values in the iov array would overflow a
+   *  ssize_t.
+   */
+  total = 0;
+  for ( v = 0 ; v < iovcnt ; ++v ) {
+    size_t len = iov[ v ].iov_len;
+
+    if ( len > ( size_t ) ( SSIZE_MAX - total ) ) {
+      rtems_set_errno_and_return_minus_one( EINVAL );
+    }
+
+    total += ( ssize_t ) len;
+
+    if ( iov[ v ].iov_base == NULL && len != 0 ) {
+      rtems_set_errno_and_return_minus_one( EINVAL );
+    }
+  }
+
+  return total;
+}
+
+/** @} */
 
 #ifdef __cplusplus
 }

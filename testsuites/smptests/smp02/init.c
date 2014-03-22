@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15,6 +15,15 @@
 #include "system.h"
 
 #include <stdio.h>
+#include <inttypes.h>
+
+const char rtems_test_name[] = "SMP 2";
+
+static void success(void)
+{
+  TEST_END();
+  rtems_test_exit( 0 );
+}
 
 rtems_task Init(
   rtems_task_argument argument
@@ -22,13 +31,18 @@ rtems_task Init(
 {
   int               i;
   char              ch;
-  int               cpu_num;
+  uint32_t          cpu_num;
   rtems_id          id;
   rtems_status_code status;
   char              str[80];
 
+  TEST_BEGIN();
+
   locked_print_initialize();
-  locked_printf( "\n\n***  SMP02 TEST ***\n" );
+
+  if ( rtems_smp_get_processor_count() == 1 ) {
+    success();
+  }
 
   /* Create/verify synchronisation semaphore */
   status = rtems_semaphore_create(
@@ -45,7 +59,7 @@ rtems_task Init(
   status = rtems_semaphore_obtain( Semaphore, RTEMS_WAIT, 0);
   directive_failed( status,"rtems_semaphore_obtain of SEM1\n");
 
-  for ( i=1; i < rtems_smp_get_number_of_processors(); i++ ){
+  for ( i=1; i < rtems_smp_get_processor_count(); i++ ){
 
     /* Create and start tasks for each CPU */
     ch = '0' + i;
@@ -59,8 +73,8 @@ rtems_task Init(
       &id
     );
 
-    cpu_num = bsp_smp_processor_id();
-    locked_printf(" CPU %d start task TA%c\n", cpu_num, ch);
+    cpu_num = rtems_smp_get_current_processor();
+    locked_printf(" CPU %" PRIu32 " start task TA%c\n", cpu_num, ch);
     status = rtems_task_start( id, Test_task, i+1 );
     directive_failed( status, str );
   }
@@ -94,6 +108,5 @@ rtems_task Init(
     }
   }
 
-  locked_printf( "*** END OF TEST SMP02 ***\n" );
-  rtems_test_exit( 0 );
+  success();
 }

@@ -1,12 +1,17 @@
-/*
- *  Rate Monotonic Manager -- Get Status
+/**
+ *  @file
  *
+ *  @brief RTEMS Rate Monotonic Get Status
+ *  @ingroup ClassicRateMon
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,29 +22,12 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/ratemon.h>
+#include <rtems/rtems/ratemonimpl.h>
 #include <rtems/score/thread.h>
 
 #ifndef __RTEMS_USE_TICKS_FOR_STATISTICS__
   #include <rtems/score/timespec.h>
 #endif
-
-/*
- *  rtems_rate_monotonic_get_status
- *
- *  This directive allows a thread to obtain status information on a
- *  period.
- *
- *  Input parameters:
- *    id     - rate monotonic id
- *    status - pointer to status control block
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- *
- */
 
 rtems_status_code rtems_rate_monotonic_get_status(
   rtems_id                            id,
@@ -84,7 +72,7 @@ rtems_status_code rtems_rate_monotonic_get_status(
             the_period, &since_last_period, &executed
           );
         if (!valid_status) {
-          _Thread_Enable_dispatch();
+          _Objects_Put( &the_period->Object );
           return RTEMS_NOT_DEFINED;
         }
 
@@ -101,7 +89,7 @@ rtems_status_code rtems_rate_monotonic_get_status(
         #endif
       }
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_period->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

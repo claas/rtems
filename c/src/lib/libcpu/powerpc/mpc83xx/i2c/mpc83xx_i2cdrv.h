@@ -11,7 +11,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 | this file contains the MPC83xx I2C driver declarations          |
@@ -49,6 +49,7 @@ typedef struct mpc83xx_i2c_softc {
   rtems_irq_number     irq_number;  /* IRQ number used for this module */
   uint32_t             base_frq;    /* input frq for baud rate divider */
   rtems_id             irq_sema_id; /* SEMA used for IRQ signalling    */
+  void               (*probe)(struct mpc83xx_i2c_softc *self);
 } mpc83xx_i2c_softc_t ;
 
 typedef struct {

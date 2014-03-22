@@ -1,43 +1,28 @@
+/**
+ * @file
+ *
+ * @brief  Thread Queue Dequeue Priority
+ * @ingroup ScoreThreadQ
+ */
+
 /*
- *  Thread Queue Handler
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
-
-/*
- *  _Thread_queue_Dequeue_priority
- *
- *  This routine removes a thread from the specified PRIORITY based
- *  threadq, unblocks it, and cancels its timeout timer.
- *
- *  Input parameters:
- *    the_thread_queue - pointer to thread queue
- *
- *  Output parameters:
- *    returns - thread dequeued or NULL
- *
- *  INTERRUPT LATENCY:
- *    only case
- */
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/chainimpl.h>
+#include <rtems/score/isrlevel.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 Thread_Control *_Thread_queue_Dequeue_priority(
   Thread_queue_Control *the_thread_queue
@@ -106,13 +91,13 @@ dequeue:
 
   if ( !_Watchdog_Is_active( &the_thread->Timer ) ) {
     _ISR_Enable( level );
-    _Thread_Unblock( the_thread );
   } else {
     _Watchdog_Deactivate( &the_thread->Timer );
     _ISR_Enable( level );
     (void) _Watchdog_Remove( &the_thread->Timer );
-    _Thread_Unblock( the_thread );
   }
+
+  _Thread_Unblock( the_thread );
 
 #if defined(RTEMS_MULTIPROCESSING)
   if ( !_Objects_Is_local_id( the_thread->Object.id ) )

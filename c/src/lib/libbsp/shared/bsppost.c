@@ -9,19 +9,14 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
-#include <fcntl.h>
-
-#include <rtems.h>
 #include <rtems/libio.h>
-#include <rtems/libcsupport.h>
 
 #include <bsp/bootcard.h>
 
 void bsp_postdriver_hook(void)
 {
-  if (rtems_libio_supp_helper)
-    (*rtems_libio_supp_helper)();
+  (*rtems_libio_post_driver_helper)();
 }

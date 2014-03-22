@@ -35,6 +35,8 @@ startup_rel_SOURCES = ../../shared/bsplibc.c ../../shared/bsppost.c \
     startup/bspstart.c ../../shared/bspclean.c startup/bspreset.c \
     ../../shared/bspgetworkarea.c ../../shared/bsppredriverhook.c \
     ../../shared/bsppretaskinghook.c ../../shared/bootcard.c
+libbsp_a_SOURCES += ../../shared/cpucounterread.c
+libbsp_a_SOURCES += ../../shared/cpucounterdiff.c
 startup_rel_CPPFLAGS = $(AM_CPPFLAGS) -DARM9 -I$(srcdir)/libnds/include
 startup_rel_LDFLAGS = $(RTEMS_RELLDFLAGS)
 
@@ -252,6 +254,11 @@ coproc.bin: coproc/coproc.S coproc/coproc.c libnds7.rel
 	$(OBJCOPY) -O binary coproc.elf coproc.bin
 endif
 project_lib_DATA += coproc.bin
+
+# Cache
+libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
+libbsp_a_SOURCES += ../../shared/include/cache_.h
+libbsp_a_CPPFLAGS = -I$(srcdir)/../../shared/include
 
 libbsp_a_LIBADD = clock.rel console.rel gnatsupp.rel startup.rel irq.rel \
     timer.rel libnds9.rel rtc.rel fb.rel touchscreen.rel sound.rel \

@@ -7,17 +7,17 @@
  */
 
 /*
- * Copyright (c) 2010 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2010-2013 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
- *  Obere Lagerstr. 30
+ *  Dornierstr. 4
  *  82178 Puchheim
  *  Germany
  *  <rtems@embedded-brains.de>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_QORIQ_BSP_H
@@ -28,6 +28,8 @@
 #ifndef ASM
 
 #include <rtems.h>
+
+#include <bsp/default-initial-extension.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,10 +59,12 @@ int qoriq_if_intercom_attach_detach(
 #define RTEMS_BSP_NETWORK_DRIVER_NAME3 "tsec3"
 #define RTEMS_BSP_NETWORK_DRIVER_NAME4 "intercom1"
 
-#endif /* ASM */
+void qoriq_secondary_cpu_initialize(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* ASM */
 
 #endif /* LIBBSP_POWERPC_QORIQ_BSP_H */

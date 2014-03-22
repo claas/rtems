@@ -18,7 +18,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 #include <rtems.h>
 #include <libchip/rtc.h>
@@ -52,7 +52,7 @@ bool mc146818a_probe(
 /*
  * Initialize chip
  */
-void mc146818a_initialize(
+static void mc146818a_initialize(
   int minor
 )
 {
@@ -69,7 +69,7 @@ void mc146818a_initialize(
 /*
  * Read time from chip
  */
-int mc146818a_get_time(
+static int mc146818a_get_time(
   int                minor,
   rtems_time_of_day *time
 )
@@ -129,7 +129,7 @@ int mc146818a_get_time(
 /*
  * Set time into chip
  */
-int mc146818a_set_time(
+static int mc146818a_set_time(
   int                      minor,
   const rtems_time_of_day *time
 )

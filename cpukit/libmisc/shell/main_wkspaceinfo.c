@@ -6,10 +6,9 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -20,6 +19,7 @@
 #include <rtems/malloc.h>
 #include <rtems/shell.h>
 #include <rtems/score/protectedheap.h>
+#include <rtems/score/wkspace.h>
 #include "internal.h"
 
 void rtems_shell_print_unified_work_area_message(void)

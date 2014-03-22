@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -20,12 +20,16 @@
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <sys/uio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 
 #include <rtems/imfs.h>
 #include <rtems/malloc.h>
+#include <rtems/libcsupport.h>
+
+const char rtems_test_name[] = "FSIMFSGENERIC 1";
 
 typedef enum {
   TEST_NEW,
@@ -40,13 +44,13 @@ typedef enum {
   TEST_FSYNC,
   TEST_FDATASYNC,
   TEST_FCNTL,
+  TEST_READV,
+  TEST_WRITEV,
   TEST_CLOSED,
   TEST_FSTAT_UNLINK,
   TEST_REMOVED,
   TEST_DESTROYED
 } test_state;
-
-static test_state global_state = TEST_NEW;
 
 static int handler_open(
   rtems_libio_t *iop,
@@ -69,7 +73,7 @@ static int handler_close(
 {
   test_state *state = IMFS_generic_get_context_by_iop(iop);
 
-  rtems_test_assert(*state == TEST_FCNTL);
+  rtems_test_assert(*state == TEST_WRITEV);
   *state = TEST_CLOSED;
 
   return 0;
@@ -203,6 +207,36 @@ static int handler_fcntl(
   return 0;
 }
 
+static ssize_t handler_readv(
+  rtems_libio_t *iop,
+  const struct iovec *iov,
+  int iovcnt,
+  ssize_t total
+)
+{
+  test_state *state = IMFS_generic_get_context_by_iop(iop);
+
+  rtems_test_assert(*state == TEST_FCNTL);
+  *state = TEST_READV;
+
+  return 0;
+}
+
+static ssize_t handler_writev(
+  rtems_libio_t *iop,
+  const struct iovec *iov,
+  int iovcnt,
+  ssize_t total
+)
+{
+  test_state *state = IMFS_generic_get_context_by_iop(iop);
+
+  rtems_test_assert(*state == TEST_READV);
+  *state = TEST_WRITEV;
+
+  return 0;
+}
+
 static const rtems_filesystem_file_handlers_r node_handlers = {
   .open_h = handler_open,
   .close_h = handler_close,
@@ -214,7 +248,9 @@ static const rtems_filesystem_file_handlers_r node_handlers = {
   .ftruncate_h = handler_ftruncate,
   .fsync_h = handler_fsync,
   .fdatasync_h = handler_fdatasync,
-  .fcntl_h = handler_fcntl
+  .fcntl_h = handler_fcntl,
+  .readv_h = handler_readv,
+  .writev_h = handler_writev
 };
 
 static IMFS_jnode_t *node_initialize(
@@ -233,10 +269,7 @@ static IMFS_jnode_t *node_initialize(
   return node;
 }
 
-static IMFS_jnode_t *node_remove(
-  IMFS_jnode_t *node,
-  const IMFS_jnode_t *root_node
-)
+static IMFS_jnode_t *node_remove(IMFS_jnode_t *node)
 {
   test_state *state = IMFS_generic_get_context_by_node(node);
 
@@ -266,18 +299,23 @@ static const IMFS_node_control node_control = {
 
 static void test_imfs_make_generic_node(void)
 {
+  test_state state = TEST_NEW;
   int rv = 0;
   int fd = 0;
   const char *path = "generic";
   char buf [1];
   ssize_t n = 0;
   off_t off = 0;
+  struct iovec iov = {
+    .iov_base = &buf [0],
+    .iov_len = (int) sizeof(buf)
+  };
 
   rv = IMFS_make_generic_node(
     path,
     S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO,
     &node_control,
-    &global_state
+    &state
   );
   rtems_test_assert(rv == 0);
 
@@ -308,21 +346,59 @@ static void test_imfs_make_generic_node(void)
   rv = fcntl(fd, F_GETFD);
   rtems_test_assert(rv >= 0);
 
+  rv = readv(fd, &iov, 1);
+  rtems_test_assert(rv == 0);
+
+  rv = writev(fd, &iov, 1);
+  rtems_test_assert(rv == 0);
+
   rv = close(fd);
   rtems_test_assert(rv == 0);
 
   rv = unlink(path);
   rtems_test_assert(rv == 0);
 
-  rtems_test_assert(global_state == TEST_DESTROYED);
+  rtems_test_assert(state == TEST_DESTROYED);
+}
+
+static IMFS_jnode_t *node_initialize_error(
+  IMFS_jnode_t *node,
+  const IMFS_types_union *info
+)
+{
+  errno = EIO;
+
+  return NULL;
+}
+
+static IMFS_jnode_t *node_remove_inhibited(IMFS_jnode_t *node)
+{
+  rtems_test_assert(false);
+
+  return node;
+}
+
+static IMFS_jnode_t *node_destroy_inhibited(IMFS_jnode_t *node)
+{
+  rtems_test_assert(false);
+
+  return node;
 }
 
 static const IMFS_node_control node_invalid_control = {
   .imfs_type = IMFS_DIRECTORY,
   .handlers = &node_handlers,
-  .node_initialize = node_initialize,
-  .node_remove = node_remove,
-  .node_destroy = node_destroy
+  .node_initialize = node_initialize_error,
+  .node_remove = node_remove_inhibited,
+  .node_destroy = node_destroy_inhibited
+};
+
+static const IMFS_node_control node_initialization_error_control = {
+  .imfs_type = IMFS_GENERIC,
+  .handlers = &node_handlers,
+  .node_initialize = node_initialize_error,
+  .node_remove = node_remove_inhibited,
+  .node_destroy = node_destroy_inhibited
 };
 
 static void test_imfs_make_generic_node_errors(void)
@@ -334,6 +410,9 @@ static void test_imfs_make_generic_node_errors(void)
     (rtems_filesystem_mount_table_entry_t *) rtems_chain_first(chain);
   const char *type = mt_entry->type;
   void *opaque = NULL;
+  rtems_resource_snapshot before;
+
+  rtems_resource_snapshot_take(&before);
 
   errno = 0;
   rv = IMFS_make_generic_node(
@@ -344,6 +423,7 @@ static void test_imfs_make_generic_node_errors(void)
   );
   rtems_test_assert(rv == -1);
   rtems_test_assert(errno == EINVAL);
+  rtems_test_assert(rtems_resource_snapshot_check(&before));
 
   errno = 0;
   rv = IMFS_make_generic_node(
@@ -354,41 +434,54 @@ static void test_imfs_make_generic_node_errors(void)
   );
   rtems_test_assert(rv == -1);
   rtems_test_assert(errno == EINVAL);
+  rtems_test_assert(rtems_resource_snapshot_check(&before));
 
-  mt_entry->type = "XXX";
   errno = 0;
+  mt_entry->type = "XXX";
   rv = IMFS_make_generic_node(
     path,
     S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO,
     &node_control,
     NULL
   );
+  mt_entry->type = type;
   rtems_test_assert(rv == -1);
   rtems_test_assert(errno == ENOTSUP);
-  mt_entry->type = type;
+  rtems_test_assert(rtems_resource_snapshot_check(&before));
 
-  opaque = rtems_heap_greedy_allocate(NULL, 0);
   errno = 0;
+  opaque = rtems_heap_greedy_allocate(NULL, 0);
   rv = IMFS_make_generic_node(
     path,
     S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO,
     &node_control,
     NULL
   );
+  rtems_heap_greedy_free(opaque);
   rtems_test_assert(rv == -1);
   rtems_test_assert(errno == ENOMEM);
-  rtems_heap_greedy_free(opaque);
+  rtems_test_assert(rtems_resource_snapshot_check(&before));
+
+  errno = 0;
+  rv = IMFS_make_generic_node(
+    path,
+    S_IFCHR | S_IRWXU | S_IRWXG | S_IRWXO,
+    &node_initialization_error_control,
+    NULL
+  );
+  rtems_test_assert(rv == -1);
+  rtems_test_assert(errno == EIO);
+  rtems_test_assert(rtems_resource_snapshot_check(&before));
 }
 
 static void Init(rtems_task_argument arg)
 {
-  printf("\n\n*** TEST FSIMFSGENERIC 1 ***\n");
+  TEST_BEGIN();
 
   test_imfs_make_generic_node();
   test_imfs_make_generic_node_errors();
 
-  printf("*** END OF TEST FSIMFSGENERIC 1 ***\n");
-
+  TEST_END();
   rtems_test_exit(0);
 }
 
@@ -400,6 +493,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
 
 #define CONFIGURE_MAXIMUM_TASKS 1
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

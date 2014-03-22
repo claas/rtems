@@ -1,36 +1,25 @@
 /*
- *  Obtain Object Name Given ID
+ *  @file
  *
- *
+ *  @brief Object id to name
+ *  @ingroup Score
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2003.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/threadimpl.h>
 
-/*
- *  _Objects_Id_to_name
- *
- *  DESCRIPTION:
- *
- *  This routine returns the name associated with the given ID.
- *
- *  INPUT:
- *
- *  id   - id of object to lookup name
- *  name - pointer to location in which to store name
- *
- */
 Objects_Name_or_id_lookup_errors _Objects_Id_to_name (
   Objects_Id      id,
   Objects_Name   *name
@@ -47,7 +36,7 @@ Objects_Name_or_id_lookup_errors _Objects_Id_to_name (
    *  Caller is trusted for name != NULL.
    */
 
-  tmpId = (id == OBJECTS_ID_OF_SELF) ? _Thread_Executing->Object.id : id;
+  tmpId = (id == OBJECTS_ID_OF_SELF) ? _Thread_Get_executing()->Object.id : id;
 
   the_api = _Objects_Get_API( tmpId );
   if ( !_Objects_Is_api_valid( the_api ) )
@@ -72,6 +61,6 @@ Objects_Name_or_id_lookup_errors _Objects_Id_to_name (
     return OBJECTS_INVALID_ID;
 
   *name = the_object->name;
-  _Thread_Enable_dispatch();
+  _Objects_Put( the_object );
   return OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL;
 }

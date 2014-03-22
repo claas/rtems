@@ -3,7 +3,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -34,9 +34,7 @@ void bsp_start_default( void )
   /* disable interrupts */
   XSCALE_INT_ICMR = 0x0;
   rtems_exception_init_mngt();
-  if (bsp_interrupt_initialize() != RTEMS_SUCCESSFUL) {
-    _CPU_Fatal_halt(0xe);
-  }
+  bsp_interrupt_initialize();
 } /* bsp_start */
 
 /*
@@ -44,11 +42,3 @@ void bsp_start_default( void )
  *  can override the actual bsp_start routine used.
  */
 void bsp_start (void) __attribute__ ((weak, alias("bsp_start_default")));
-
-
-void bsp_reset( void )
-{
-#if ON_SKYEYE == 1
-  SKYEYE_MAGIC_ADDRESS = 0xff;
-#endif
-}

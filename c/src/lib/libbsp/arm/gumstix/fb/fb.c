@@ -3,7 +3,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <stdlib.h>
@@ -99,7 +99,7 @@ frame_buffer_initialize(rtems_device_major_number major,
   /*
    * Register the device
    */
-  status = rtems_io_register_name ("/dev/fb0", major, 0);
+  status = rtems_io_register_name (FRAMEBUFFER_DEVICE_0_NAME, major, 0);
   if (status != RTEMS_SUCCESSFUL)
     {
       printk("Error registering FBSKYEYE device!\n");

@@ -16,8 +16,10 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
+
+#include <rtems/counter.h>
 
 #include <libchip/serial.h>
 
@@ -27,6 +29,7 @@
 #include <bsp/vectors.h>
 #include <bsp/bootcard.h>
 #include <bsp/irq-generic.h>
+#include <bsp/linker-symbols.h>
 #include <bsp/u-boot.h>
 
 /* Configuration parameters for console driver, ... */
@@ -80,9 +83,6 @@ void bsp_start( void)
   ppc_cpu_id_t myCpu;
   ppc_cpu_revision_t myCpuRevision;
 
-  uintptr_t interrupt_stack_start = (uintptr_t) bsp_interrupt_stack_start;
-  uintptr_t interrupt_stack_size = (uintptr_t) bsp_interrupt_stack_size;
-
   /*
    * Get CPU identification dynamically. Note that the get_ppc_cpu_type() function
    * store the result in global variables so that it can be used latter...
@@ -119,6 +119,7 @@ void bsp_start( void)
 #endif /* HAS_UBOOT */
   bsp_time_base_frequency = BSP_bus_frequency / 4;
   bsp_clicks_per_usec = bsp_time_base_frequency / 1000000;
+  rtems_counter_initialize_converter(bsp_time_base_frequency);
 
   /* Initialize some console parameters */
   for (i = 0; i < Console_Configuration_Count; ++i) {
@@ -134,14 +135,10 @@ void bsp_start( void)
 #ifndef BSP_DATA_CACHE_ENABLED
   ppc_exc_cache_wb_check = 0;
 #endif
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-    interrupt_stack_start,
-    interrupt_stack_size
+  ppc_exc_initialize(
+    (uintptr_t) bsp_section_work_begin,
+    rtems_configuration_get_interrupt_stack_size()
   );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
 
   /* Install default handler for the decrementer exception */
   sc = ppc_exc_set_handler( ASM_DEC_VECTOR, mpc83xx_decrementer_exception_handler);
@@ -150,10 +147,7 @@ void bsp_start( void)
   }
 
   /* Initalize interrupt support */
-  sc = bsp_interrupt_initialize();
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot intitialize interrupts\n");
-  }
+  bsp_interrupt_initialize();
 
 #ifdef SHOW_MORE_INIT_SETTINGS
   printk("Exit from bspstart\n");

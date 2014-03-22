@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief POSIX Error Translation in Message Queue
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  POSIX Message Queue Error Translation
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,7 +25,7 @@
 
 #include <rtems/system.h>
 #include <rtems/score/coremsg.h>
-#include <rtems/posix/mqueue.h>
+#include <rtems/posix/mqueueimpl.h>
 
 /*
  *  _POSIX_Message_queue_Translate_core_message_queue_return_code

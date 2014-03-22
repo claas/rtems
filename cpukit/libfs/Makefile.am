@@ -33,6 +33,10 @@ libdefaultfs_a_SOURCES = \
     src/defaults/default_node_type.c \
     src/defaults/default_ftruncate_directory.c \
     src/defaults/default_handlers.c src/defaults/default_ops.c
+libdefaultfs_a_SOURCES += src/defaults/default_kqfilter.c
+libdefaultfs_a_SOURCES += src/defaults/default_poll.c
+libdefaultfs_a_SOURCES += src/defaults/default_readv.c
+libdefaultfs_a_SOURCES += src/defaults/default_writev.c
 
 noinst_LIBRARIES += libimfs.a
 libimfs_a_SOURCES =
@@ -80,7 +84,9 @@ libdosfs_a_SOURCES += src/dosfs/msdos_create.c src/dosfs/msdos_dir.c \
     src/dosfs/msdos_handlers_file.c src/dosfs/msdos_init.c \
     src/dosfs/msdos_initsupp.c src/dosfs/msdos_misc.c \
     src/dosfs/msdos_mknod.c src/dosfs/msdos_node_type.c \
-    src/dosfs/msdos_rmnod.c \
+    src/dosfs/msdos_rmnod.c src/dosfs/msdos_statvfs.c \
+    src/dosfs/msdos_conv_default.c \
+    src/dosfs/msdos_conv_utf8.c \
     src/dosfs/msdos_conv.c src/dosfs/msdos.h src/dosfs/msdos_format.c \
     src/dosfs/dosfs.h src/dosfs/msdos_rename.c
 endif
@@ -94,11 +100,40 @@ librfs_a_SOURCES = \
     src/rfs/rtems-rfs-group.c src/rfs/rtems-rfs-inode.c \
     src/rfs/rtems-rfs-rtems-dev.c src/rfs/rtems-rfs-rtems-utils.c \
     src/rfs/rtems-rfs-rtems.c src/rfs/rtems-rfs-shell.c \
-    src/rfs/rtems-rfs-bitmaps-ut.c src/rfs/rtems-rfs-dir.c \
+    src/rfs/rtems-rfs-dir.c \
     src/rfs/rtems-rfs-file-system.c src/rfs/rtems-rfs-format.c \
     src/rfs/rtems-rfs-link.c src/rfs/rtems-rfs-mutex.c \
     src/rfs/rtems-rfs-rtems-dir.c src/rfs/rtems-rfs-rtems-file.c \
     src/rfs/rtems-rfs-trace.c
+
+# JFFS2
+noinst_LIBRARIES += libjffs2.a
+libjffs2_a_SOURCES =
+libjffs2_a_SOURCES += src/jffs2/src/build.c
+libjffs2_a_SOURCES += src/jffs2/src/compat-crc32.c
+libjffs2_a_SOURCES += src/jffs2/src/compat-rbtree.c
+libjffs2_a_SOURCES += src/jffs2/src/compr.c
+libjffs2_a_SOURCES += src/jffs2/src/compr_rtime.c
+libjffs2_a_SOURCES += src/jffs2/src/compr_zlib.c
+libjffs2_a_SOURCES += src/jffs2/src/debug.c
+libjffs2_a_SOURCES += src/jffs2/src/dir-rtems.c
+libjffs2_a_SOURCES += src/jffs2/src/erase.c
+libjffs2_a_SOURCES += src/jffs2/src/flashio.c
+libjffs2_a_SOURCES += src/jffs2/src/fs-rtems.c
+libjffs2_a_SOURCES += src/jffs2/src/gc.c
+libjffs2_a_SOURCES += src/jffs2/src/malloc-rtems.c
+libjffs2_a_SOURCES += src/jffs2/src/nodelist.c
+libjffs2_a_SOURCES += src/jffs2/src/nodemgmt.c
+libjffs2_a_SOURCES += src/jffs2/src/read.c
+libjffs2_a_SOURCES += src/jffs2/src/readinode.c
+libjffs2_a_SOURCES += src/jffs2/src/scan.c
+libjffs2_a_SOURCES += src/jffs2/src/write.c
+libjffs2_a_CFLAGS =
+libjffs2_a_CFLAGS += -Wno-pointer-sign
+libjffs2_a_CPPFLAGS =
+libjffs2_a_CPPFLAGS += $(AM_CPPFLAGS) -I$(srcdir)/src/jffs2/include
+libjffs2_a_CPPFLAGS += -D__ECOS
+libjffs2_a_CPPFLAGS += '-DKBUILD_MODNAME="JFFS2"'
 
 # ---
 include $(srcdir)/preinstall.am

@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <stdio.h>
@@ -959,7 +959,7 @@ int mc68360_scc_create_chip( PPMCQ1BoardData BoardData, uint8_t int_vector )
   return RTEMS_SUCCESSFUL;
 }
 
-console_fns mc68360_scc_fns = {
+const console_fns mc68360_scc_fns = {
   libchip_serial_default_probe,        /* deviceProbe */
   mc68360_scc_open,                    /* deviceFirstOpen */
   NULL,                                /* deviceLastClose */
@@ -971,7 +971,7 @@ console_fns mc68360_scc_fns = {
   TRUE                                 /* deviceOutputUsesInterrupts */
 };
 
-console_fns mc68360_scc_polled = {
+const console_fns mc68360_scc_polled = {
   libchip_serial_default_probe,             /* deviceProbe */
   mc68360_scc_open,                         /* deviceFirstOpen */
   mc68360_scc_close,                        /* deviceLastClose */

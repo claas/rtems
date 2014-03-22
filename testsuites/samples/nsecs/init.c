@@ -10,7 +10,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/time.h>
 
 #define CONFIGURE_INIT
@@ -32,6 +33,8 @@
 
 #include "tmacros.h"
 #include "pritime.h"
+
+const char rtems_test_name[] = "NANOSECOND CLOCK";
 
 static char *my_ctime( time_t t )
 {
@@ -61,7 +64,7 @@ rtems_task Init(
   rtems_time_of_day time;
   int index;
 
-  puts( "\n\n*** NANOSECOND CLOCK TEST ***" );
+  TEST_BEGIN();
 
   time.year   = 2007;
   time.month  = 03;
@@ -81,13 +84,9 @@ rtems_task Init(
   for (index=0 ; index <10 ; index++ ) {
     struct timespec start, stop;
     struct timespec diff;
-#if 0
+
     clock_gettime( CLOCK_REALTIME, &start );
     clock_gettime( CLOCK_REALTIME, &stop );
-#else
-    _TOD_Get( &start );
-    _TOD_Get( &stop );
-#endif
 
     subtract_em( &start, &stop, &diff );
     printf( "Start: %s:%ld\nStop : %s:%ld",
@@ -140,7 +139,7 @@ rtems_task Init(
 
   sleep(1);
 
-  puts( "*** END OF NANOSECOND CLOCK TEST ***" );
+  TEST_END();
   exit(0);
 }
 

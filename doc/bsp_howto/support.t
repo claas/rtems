@@ -34,8 +34,7 @@ file from the PowerPC psim BSP:
 The first section of this file renames the built-in definition of
 some specification variables so they can be augmented without
 embedded their original definition.  The subsequent sections
-specify what behavior is expected when the @code{-qrtems} or
-@code{-qrtems_debug} option is specified.
+specify what behavior is expected when the @code{-qrtems} option is specified.
 
 The @code{*startfile} section specifies that the BSP specific file
 @code{start.o} will be used instead of @code{crt0.o}.  In addition,
@@ -179,23 +178,25 @@ this operation.
 @findex CONFIGURE_MALLOC_BSP_SUPPORTS_SBRK
 If your BSP does not want to support dynamic heap extension, then you do not have to do anything special.  However, if you want to support @code{sbrk}, you must provide an implementation of this method and define @code{CONFIGURE_MALLOC_BSP_SUPPORTS_SBRK} in @code{bsp.h}.  This informs @code{rtems/confdefs.h} to configure the Malloc Family Extensions which support @code{sbrk}.
 
-@section bsp_cleanup(uint32_t status) - Cleanup the Hardware
+@section bsp_fatal_extension() - Cleanup the Hardware
 
-The @code{bsp_cleanup()} is the last C code invoked.  Most of the BSPs
-use the same shared version of @code{bsp_cleanup()} that does nothing.
-This implementation is located in the following file:
+The @code{bsp_fatal_extension()} is an optional BSP specific initial extension
+invoked once a fatal system state is reached.  Most of the BSPs use the same
+shared version of @code{bsp_fatal_extension()} that does nothing or performs a
+system reset.  This implementation is located in the following file:
 
 @example
 c/src/lib/libbsp/shared/bspclean.c
 @end example
 
-The @code{bsp_cleanup()} routine can be used to return to a ROM monitor,
-insure that interrupt sources are disabled, etc..  This routine is the
-last place to ensure a clean shutdown of the hardware.  The @code{status}
-argument is the value passed to the service which initiated shutting
-down RTEMS.  All of the non-fatal shutdown sequences ultimately pass
-their exit status to @code{rtems_shutdown_executive} and this is what
-is passed to this routine.
+The @code{bsp_fatal_extension()} routine can be used to return to a ROM
+monitor, insure that interrupt sources are disabled, etc..  This routine is the
+last place to ensure a clean shutdown of the hardware.  The fatal source,
+internal error indicator, and the fatal code arguments are available to
+evaluate the fatal condition.  All of the non-fatal shutdown sequences
+ultimately pass their exit status to @code{rtems_shutdown_executive} and this
+is what is passed to this routine in case the fatal source is
+RTEMS_FATAL_SOURCE_EXIT.
 
 On some BSPs, it prints a message indicating that the application
 completed execution and waits for the user to press a key before
@@ -282,3 +283,84 @@ Interrupt Controller model which does not require the BSP to implement
 @code{set_vector}.  BSPs for these architectures must provide a different
 set of support routines.
 
+@section Interrupt Delay Profiling
+
+The RTEMS profiling needs support by the BSP for the interrupt delay times.  In
+case profiling is enabled via the RTEMS build configuration option
+@code{--enable-profiling} (in this case the pre-processor symbol
+@code{RTEMS_PROFILING} is defined) a BSP may provide data for the interrupt
+delay times.  The BSP can feed interrupt delay times with the
+@code{_Profiling_Update_max_interrupt_delay()} function
+(@code{#include <rtems/score/profiling.h>}).  For an example please have a look
+at @code{c/src/lib/libbsp/sparc/leon3/clock/ckinit.c}.
+
+@section Programmable Interrupt Controller API
+
+A BSP can use the PIC API to install Interrupt Service Routines through
+a set of generic methods. In order to do so, the header files
+libbsp/shared/include/irq-generic.h and libbsp/shared/include/irq-info.h
+must be included by the bsp specific irq.h file present in the include/
+directory. The irq.h acts as a BSP interrupt support configuration file which
+is used to define some important MACROS. It contains the declarations for
+any required global functions like bsp_interrupt_dispatch(). Thus later on,
+every call to the PIC interface requires including <bsp/irq.h>
+
+The generic interrupt handler table is intitalized by invoking the
+@code{bsp_interrupt_initialize()} method from bsp_start() in the bspstart.c
+file which sets up this table to store the ISR addresses, whose size is based
+on the definition of macros, BSP_INTERRUPT_VECTOR_MIN & BSP_INTERRUPT_VECTOR_MAX
+in include/bsp.h
+
+For the generic handler table to properly function, some bsp specific code is
+required, that should be present in irq/irq.c . The bsp-specific functions required
+to be writen by the BSP developer are :
+
+@itemize @bullet
+
+@findex bsp_interrupt_facility_initialize()
+@item @code{bsp_interrupt_facility_initialize()} contains bsp specific interrupt
+initialization code(Clear Pending interrupts by modifying registers, etc.).
+This method is called from bsp_interrupt_initialize() internally while setting up
+the table.
+
+@findex bsp_interrupt_handler_default()
+@item @code{bsp_interrupt_handler_default()} acts as a fallback handler when
+no ISR address has been provided corresponding to a vector in the table.
+
+@findex bsp_interrupt_dispatch()
+@item @code{bsp_interrupt_dispatch()} service the ISR by handling
+any bsp specific code & calling the generic method bsp_interrupt_handler_dispatch()
+which in turn services the interrupt by running the ISR after looking it up in
+the table. It acts as an entry to the interrupt switchboard, since the bsp
+branches to this function at the time of occurrence of an interrupt.
+
+@findex bsp_interrupt_vector_enable()
+@item @code{bsp_interrupt_vector_enable()} enables interrupts and is called in
+irq-generic.c while setting up the table.
+
+@findex bsp_interrupt_vector_disable()
+@item @code{bsp_interrupt_vector_disable()} disables interrupts and is called in
+irq-generic.c while setting up the table & during other important parts.
+
+@end itemize
+
+An interrupt handler is installed or removed with the help of the following functions :
+
+@example
+@group
+rtems_status_code rtems_interrupt_handler_install(   /* returns status code */
+  rtems_vector_number vector,                        /* interrupt vector */
+  const char *info,                           /* custom identification text */
+  rtems_option options,                              /* Type of Interrupt */
+  rtems_interrupt_handler handler,                   /* interrupt handler */
+  void *arg  /* parameter to be passed to handler at the time of invocation */
+)
+
+rtems_status_code rtems_interrupt_handler_remove(   /* returns status code */
+  rtems_vector_number vector,                       /* interrupt vector */
+  rtems_interrupt_handler handler,                  /* interrupt handler */
+  void *arg                          /* parameter to be passed to handler */
+)
+
+@end group
+@end example

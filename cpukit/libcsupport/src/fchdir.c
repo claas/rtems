@@ -1,6 +1,11 @@
-/*
- *  fchdir() - compatible with SVr4, 4.4BSD and X/OPEN - Change Directory
+/**
+ *  @file
  *
+ *  @brief Change Directory
+ *  @ingroup libcsupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
@@ -9,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,6 +25,9 @@
 
 #include <rtems/libio_.h>
 
+/**
+ *  compatible with SVr4, 4.4BSD and X/OPEN - Change Directory
+ */
 int fchdir( int fd )
 {
   int rv = 0;

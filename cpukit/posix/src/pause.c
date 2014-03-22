@@ -1,30 +1,30 @@
-/*
- *  3.4.2 Suspend Process Execution, P1003.1b-1993, p. 81
+/**
+ * @file
  *
+ * @brief Suspend Process Execution
+ * @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <pthread.h>
+#include <stddef.h>
 #include <signal.h>
-#include <errno.h>
+#include <unistd.h>
 
-#include <rtems/system.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/psignal.h>
-
-/*
- *  3.4.2 Suspend Process Execution, P1003.1b-1993, p. 81
+/**
+ * 3.4.2 Suspend Process Execution, P1003.1b-1993, p. 81
  */
-
 int pause( void )
 {
   sigset_t  all_signals;

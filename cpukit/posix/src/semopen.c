@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Function Creates New POSIX semaphore or Opens an existing Semaphore
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,8 +27,7 @@
 #include <limits.h>
 
 #include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/posix/semaphore.h>
+#include <rtems/posix/semaphoreimpl.h>
 #include <rtems/posix/time.h>
 #include <rtems/seterr.h>
 
@@ -36,7 +42,6 @@
  *  NOTE: When oflag is O_CREAT, then optional third and fourth
  *        parameters must be present.
  */
-
 sem_t *sem_open(
   const char *name,
   int         oflag,
@@ -45,8 +50,15 @@ sem_t *sem_open(
   /* unsigned int value */
 )
 {
+  /*
+   * mode is set but never used. GCC gives a warning for this
+   * and we need to tell GCC not to complain. But we have to
+   * have it because we have to work through the variable
+   * arguments to get to attr.
+   */
+  mode_t                     mode RTEMS_COMPILER_UNUSED_ATTRIBUTE;
+
   va_list                    arg;
-  mode_t                     mode;
   unsigned int               value = 0;
   int                        status;
   Objects_Id                 the_semaphore_id;

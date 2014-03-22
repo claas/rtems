@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function Fetches State of POSIX Per-Process Timers
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  14.2.4 Per-Process Timers, P1003.1b-1993, p. 267
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,12 +23,10 @@
 #include <time.h>
 #include <errno.h>
 
-#include <rtems/system.h>
+#include <rtems/posix/timerimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/seterr.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/timespec.h>
-#include <rtems/posix/timer.h>
 
 /*
  *          - When a timer is initialized, the value of the time in
@@ -61,7 +66,7 @@ int timer_gettime(
 
       value->it_interval  = ptimer->timer_data.it_interval;
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &ptimer->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

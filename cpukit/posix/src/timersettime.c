@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function Arms or Disarms the Timer Identified by timerid 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  14.2.4 Per-Process Timers, P1003.1b-1993, p. 267
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,19 +23,18 @@
 #include <time.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/seterr.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/tod.h>
 #include <rtems/posix/time.h>
 #include <rtems/posix/ptimer.h>
-#include <rtems/posix/timer.h>
+#include <rtems/posix/timerimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/watchdogimpl.h>
+#include <rtems/seterr.h>
 
 int timer_settime(
   timer_t                  timerid,
   int                      flags,
-  const struct itimerspec *value,
-  struct itimerspec       *ovalue
+  const struct itimerspec *__restrict value,
+  struct itimerspec       *__restrict ovalue
 )
 {
   POSIX_Timer_Control *ptimer;
@@ -88,7 +94,7 @@ int timer_settime(
          /* Indicates that the timer is created and stopped */
          ptimer->state = POSIX_TIMER_STATE_CREATE_STOP;
          /* Returns with success */
-        _Thread_Enable_dispatch();
+        _Objects_Put( &ptimer->Object );
         return 0;
        }
 
@@ -105,7 +111,7 @@ int timer_settime(
          ptimer
        );
        if ( !activated ) {
-         _Thread_Enable_dispatch();
+         _Objects_Put( &ptimer->Object );
          return 0;
        }
 
@@ -120,7 +126,7 @@ int timer_settime(
        /* Indicate that the time is running */
        ptimer->state = POSIX_TIMER_STATE_CREATE_RUN;
        _TOD_Get( &ptimer->time );
-       _Thread_Enable_dispatch();
+      _Objects_Put( &ptimer->Object );
        return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

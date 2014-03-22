@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -13,6 +13,7 @@
 
 #include <fcntl.h>
 #include <tmacros.h>
+#include <limits.h>
 #include "test_support.h"
 #include <rtems/libcsupport.h>
 

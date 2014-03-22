@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_IRQ_H
@@ -46,7 +46,7 @@ extern "C" {
 #define MPC55XX_IRQ_SOFTWARE_GET_REQUEST(i) (i)
 #define MPC55XX_IRQ_SOFTWARE_NUMBER (MPC55XX_IRQ_SOFTWARE_MAX + 1U)
 
-#if MPC55XX_CHIP_TYPE / 10 == 551
+#if MPC55XX_CHIP_FAMILY == 551
   #define MPC55XX_IRQ_MAX 293U
 
   /* eDMA */
@@ -89,7 +89,7 @@ extern "C" {
     ((mod) == 0 ? 82U : MPC55XX_IRQ_INVALID)
 
   /* eSCI */
-  #define MPC55XX_IRQ_ESCI_BASE(mod) \
+  #define MPC55XX_IRQ_ESCI(mod) \
     ((mod) == 0 ? 113U : \
       ((mod) == 1 ? 114U : \
         ((mod) == 2 ? 115U : \
@@ -111,7 +111,7 @@ extern "C" {
   /* FlexRay */
   #define MPC55XX_IRQ_FLEXRAY_BASE(mod) \
     ((mod) == 0 ? 284U : MPC55XX_IRQ_INVALID)
-#elif MPC55XX_CHIP_TYPE / 10 == 564
+#elif MPC55XX_CHIP_FAMILY == 564
   #define MPC55XX_IRQ_MAX 255U
 
   /* eDMA */
@@ -210,12 +210,35 @@ extern "C" {
 
   /* SWG */
   #define MPC55XX_IRQ_SWG 255U
+#elif MPC55XX_CHIP_FAMILY == 566
+  #define MPC55XX_IRQ_MAX 315U
+
+  /* eDMA */
+  #define MPC55XX_IRQ_EDMA_ERROR(group) \
+    ((group) == 0 ? 10U : MPC55XX_IRQ_INVALID)
+  #define MPC55XX_IRQ_EDMA(ch) \
+    ((unsigned) (ch) < 32U ? 11U + (ch) : MPC55XX_IRQ_INVALID)
+
+  /* PIT */
+  #define MPC55XX_IRQ_PIT_CHANNEL(ch) \
+    ((unsigned) (ch) < 9U ? 148U + (ch) : MPC55XX_IRQ_INVALID)
+
+  /* eMIOS */
+  #define MPC55XX_IRQ_EMIOS(ch) \
+    ((unsigned) (ch) < 24U ? 58U + (ch) : \
+      ((unsigned) (ch) < 32U ? 262U + (ch) : MPC55XX_IRQ_INVALID))
+
+  /* eSCI */
+  #define MPC55XX_IRQ_ESCI(mod) \
+    ((unsigned) (mod) < 4U ? 113U + (mod) : \
+      ((unsigned) (mod) < 8U ? 270U + (mod) : \
+        ((unsigned) (mod) < 12U ? 306U + (mod) : MPC55XX_IRQ_INVALID)))
 #else
-  #if MPC55XX_CHIP_TYPE / 10 == 555
+  #if MPC55XX_CHIP_FAMILY == 555
     #define MPC55XX_IRQ_MAX 307U
-  #elif MPC55XX_CHIP_TYPE / 10 == 556
+  #elif MPC55XX_CHIP_FAMILY == 556
     #define MPC55XX_IRQ_MAX 360U
-  #elif MPC55XX_CHIP_TYPE / 10 == 567
+  #elif MPC55XX_CHIP_FAMILY == 567
     #define MPC55XX_IRQ_MAX 479U
   #else
     #error "unsupported chip type"
@@ -269,7 +292,7 @@ extern "C" {
       ((mod) == 1 ? 394U : MPC55XX_IRQ_INVALID))
 
   /* eSCI */
-  #define MPC55XX_IRQ_ESCI_BASE(mod) \
+  #define MPC55XX_IRQ_ESCI(mod) \
     ((mod) == 0 ? 146U : \
       ((mod) == 1 ? 149U : \
         ((mod) == 2 ? 473U : MPC55XX_IRQ_INVALID)))
@@ -332,11 +355,8 @@ extern "C" {
 #define MPC55XX_IRQ_EQADC_RFDF(mod, fifo) \
   (MPC55XX_IRQ_EQADC_BASE(mod) + 1U + (fifo) * 5U + 4U)
 
-/* eSCI */
-#define MPC55XX_IRQ_ESCI(mod) (MPC55XX_IRQ_ESCI_BASE(mod) + 0U)
-
 /* FlexCAN */
-#if MPC55XX_CHIP_TYPE / 10 == 564
+#if MPC55XX_CHIP_FAMILY == 564
   #define MPC55XX_IRQ_CAN_ERR(mod) (MPC55XX_IRQ_CAN_BASE(mod) + 0U)
   #define MPC55XX_IRQ_CAN_BOFF_TWRN_RWRN(mod) (MPC55XX_IRQ_CAN_BASE(mod) + 1U)
   #define MPC55XX_IRQ_CAN_BUF_0_3(mod) (MPC55XX_IRQ_CAN_BASE(mod) + 3U)
@@ -375,7 +395,7 @@ extern "C" {
 #define MPC55XX_IRQ_FLEXPWM_REF(mod) (MPC55XX_IRQ_FLEXPWM_BASE(mod) + 13U)
 
 /* FlexRay */
-#if MPC55XX_CHIP_TYPE / 10 == 564
+#if MPC55XX_CHIP_FAMILY == 564
   #define MPC55XX_IRQ_FLEXRAY_LRNEIF_DRNEIF(mod) (MPC55XX_IRQ_FLEXRAY_BASE(mod) + 0U)
   #define MPC55XX_IRQ_FLEXRAY_LRCEIF_DRCEIF(mod) (MPC55XX_IRQ_FLEXRAY_BASE(mod) + 1U)
   #define MPC55XX_IRQ_FLEXRAY_FAFAIF(mod) (MPC55XX_IRQ_FLEXRAY_BASE(mod) + 2U)

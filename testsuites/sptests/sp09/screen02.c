@@ -11,7 +11,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -82,6 +82,15 @@ void Screen2()
     RTEMS_INVALID_ADDRESS,
     "rtems_clock_get_uptime NULL param"
   );
+
+  puts( "TA1 - rtems_clock_get_uptime_timeval" );
+  rtems_clock_get_uptime_timeval( &tv );
+
+  puts( "TA1 - rtems_clock_get_uptime_seconds" );
+  rtems_clock_get_uptime_seconds();
+
+  puts( "TA1 - rtems_clock_get_uptime_nanoseconds" );
+  rtems_clock_get_uptime_nanoseconds();
 
   puts( "TA1 - rtems_clock_get_tod_timeval - RTEMS_INVALID_ADDRESS" );
   status = rtems_clock_get_tod_timeval( NULL );

@@ -55,6 +55,8 @@ ASSOCIATION_C_FILES = src/assoclocalbyname.c \
 BASE_FS_C_FILES = src/base_fs.c src/mount.c src/unmount.c src/libio.c \
     src/mount-mgr.c src/mount-mktgt.c src/libio_init.c \
     src/privateenv.c \
+    src/libio_helper_null.c \
+    src/libio_exit.c \
     src/open_dev_console.c src/__usrenv.c src/rtems_mkdir.c
 
 TERMIOS_C_FILES = src/cfgetispeed.c src/cfgetospeed.c src/cfsetispeed.c \
@@ -62,7 +64,8 @@ TERMIOS_C_FILES = src/cfgetispeed.c src/cfgetospeed.c src/cfsetispeed.c \
     src/tcflow.c src/tcflush.c src/tcgetpgrp.c src/tcsendbreak.c \
     src/tcsetpgrp.c src/termios.c src/termiosinitialize.c \
     src/termios_baud2index.c src/termios_baud2num.c src/termios_num2baud.c \
-    src/termios_setinitialbaud.c src/termios_baudtable.c
+    src/termios_setinitialbaud.c src/termios_baudtable.c src/cfsetspeed.c \
+    src/cfmakeraw.c
 
 SYSTEM_CALL_C_FILES = src/open.c src/close.c src/read.c src/write.c \
     src/write_r.c \
@@ -98,8 +101,10 @@ MALLOC_C_FILES = src/malloc_initialize.c src/calloc.c src/malloc.c \
     src/mallocinfo.c src/malloc_walk.c src/malloc_get_statistics.c \
     src/malloc_report_statistics.c src/malloc_report_statistics_plugin.c \
     src/malloc_statistics_helpers.c src/posix_memalign.c \
-    src/rtems_memalign.c src/malloc_deferred.c src/malloc_sbrk_helpers.c \
+    src/rtems_memalign.c src/malloc_deferred.c \
     src/malloc_dirtier.c src/malloc_p.h src/rtems_malloc.c \
+    src/rtems_heap_extend_via_sbrk.c \
+    src/rtems_heap_null_extend.c \
     src/rtems_heap_extend.c \
     src/rtems_heap_greedy.c
 
@@ -131,9 +136,9 @@ libcsupport_a_SOURCES = src/gxx_wrappers.c src/getchark.c src/printk.c \
     src/sup_fs_mount_iterate.c \
     src/sup_fs_node_type.c \
     src/sup_fs_deviceio.c \
-    src/sup_fs_deviceerrno.c \
     src/clonenode.c \
     src/freenode.c \
+    src/resource_snapshot.c \
     $(BSD_LIBC_C_FILES) $(BASE_FS_C_FILES) $(MALLOC_C_FILES) \
     $(ERROR_C_FILES) $(ASSOCIATION_C_FILES)
 

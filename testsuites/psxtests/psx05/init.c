@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -16,7 +16,8 @@
 #define CONFIGURE_INIT
 #include "system.h"
 #include <errno.h>
-#include <rtems/posix/priority.h>
+
+#include <rtems/score/todimpl.h>
 
 #define MUTEX_BAD_ID 0xfffffffe
 
@@ -139,7 +140,7 @@ void *POSIX_Init(
   Init_id = pthread_self();
   printf( "Init's ID is 0x%08" PRIxpthread_t "\n", Init_id );
 
-  /* tes pthread_mutex_attr_init */
+  /* test pthread_mutex_attr_init */
 
   puts( "Init: pthread_mutexattr_init - EINVAL (NULL attr)" );
   status = pthread_mutexattr_init( NULL );

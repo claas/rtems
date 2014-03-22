@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function closes the Message Queue 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  NOTE:  The structure of the routines is identical to that of POSIX
  *         Message_queues to leave the option of having unnamed message
@@ -16,7 +23,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -34,7 +41,7 @@
 #include <rtems/system.h>
 #include <rtems/score/watchdog.h>
 #include <rtems/seterr.h>
-#include <rtems/posix/mqueue.h>
+#include <rtems/posix/mqueueimpl.h>
 #include <rtems/posix/time.h>
 
 /*
@@ -71,7 +78,7 @@ int mq_close(
         &_POSIX_Message_queue_Information_fds, &the_mq_fd->Object );
       _POSIX_Message_queue_Free_fd( the_mq_fd );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_mq_fd->Object );
       return 0;
    }
 

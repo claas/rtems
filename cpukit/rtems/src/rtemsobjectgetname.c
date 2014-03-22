@@ -1,27 +1,35 @@
-/*
- *  RTEMS Object Helper -- Obtain Name of Object as String
+/**
+ *  @file
  *
- *  COPYRIGHT (c) 1989-2008.
+ *  @brief Obtain Object Name as String
+ *  @ingroup ClassicClassInfo
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/object.h>
+#include <rtems/score/objectimpl.h>
 
 /*
- *  This method obtain the name of an object and returns its name
- *  in the form of a C string.  It attempts to be careful about
- *  overflowing the user's string and about returning unprintable characters.
+ * This is implemented as a macro. This body is provided to support
+ * bindings from non-C based languages.
  */
+char *rtems_object_get_name(
+  Objects_Id     id,
+  size_t         length,
+  char          *name
+);
+
 char *rtems_object_get_name(
   Objects_Id     id,
   size_t         length,

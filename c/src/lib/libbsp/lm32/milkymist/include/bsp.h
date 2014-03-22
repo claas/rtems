@@ -1,10 +1,18 @@
+/**
+ * @file
+ *
+ * @ingroup lm32_milkymist
+ *
+ * @brief Global BSP definitions.
+ */
+
 /*  bsp.h
  *
  *  This include file contains all board IO definitions.
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2011 Sebastien Bourdeauducq
  */
@@ -14,10 +22,19 @@
 
 #include <stdint.h>
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/console.h>
 #include <rtems/clockdrv.h>
+
+/**
+ * @defgroup lm32_milkymist Milkymist Support
+ * 
+ * @ingroup bsp_lm32
+ * 
+ * @brief Milkymist support package.
+ */
 
 #ifdef __cplusplus
 extern "C" {

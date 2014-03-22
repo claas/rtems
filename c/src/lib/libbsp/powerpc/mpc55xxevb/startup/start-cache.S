@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <libcpu/powerpc-utility.h>
@@ -96,7 +96,7 @@ get_data_cache_invalidation_status:
 	bne	get_data_cache_invalidation_status
 
 	/* Save data cache settings */
-#if MPC55XX_CHIP_TYPE / 10 != 567
+#if MPC55XX_CHIP_FAMILY != 567
 	/* FIXME: CORG??? 0x00180011 */
 	LWI	r6, 0x00100001
 #else

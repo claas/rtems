@@ -1,45 +1,26 @@
+/**
+ * @file
+ *
+ * @brief Surrenders a Unit to a Semaphore
+ *
+ * @ingroup ScoreSemaphore
+ */
+
 /*
- *  CORE Semaphore Handler
- *
- *  DESCRIPTION:
- *
- *  This package is the implementation of the CORE Semaphore Handler.
- *  This core object utilizes standard Dijkstra counting semaphores to provide
- *  synchronization and mutual exclusion capabilities.
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/coresem.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-
-/*
- *  _CORE_semaphore_Surrender
- *
- *  Input parameters:
- *    the_semaphore            - the semaphore to be flushed
- *    id                       - id of parent semaphore
- *    api_semaphore_mp_support - api dependent MP support actions
- *
- *  Output parameters:
- *    CORE_SEMAPHORE_STATUS_SUCCESSFUL - if successful
- *    core error code                  - if unsuccessful
- *
- *  Output parameters:
- */
+#include <rtems/score/coresemimpl.h>
+#include <rtems/score/objectimpl.h>
 
 CORE_semaphore_Status _CORE_semaphore_Surrender(
   CORE_semaphore_Control                *the_semaphore,

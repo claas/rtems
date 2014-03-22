@@ -1,5 +1,10 @@
-/*  AMBA Plug & Play Bus Vendor and Device IDs.
- *
+/**
+ * @file
+ * @ingroup amba
+ * @brief AMBA Plug & Play Bus Vendor and Device IDs
+ */
+
+/*
  *  COPYRIGHT (c) 2008.
  *  Gaisler Research
  *
@@ -8,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

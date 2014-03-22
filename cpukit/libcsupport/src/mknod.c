@@ -1,16 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief Create a Special or Ordinary File 
+ *  @ingroup libcsupport
+ */
+
 /*
- *  mknod()
- *
- *  This routine is not defined in the POSIX 1003.1b standard but is
- *  commonly supported on most UNIX and POSIX systems.  It is the
- *  foundation for creating file system objects.
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -55,6 +56,11 @@ int rtems_filesystem_mknod(
   return rv;
 }
 
+/**
+ * This routine is not defined in the POSIX 1003.1b standard but is
+ *  commonly supported on most UNIX and POSIX systems.  It is the
+ *  foundation for creating file system objects.
+ */
 int mknod( const char *path, mode_t mode, dev_t dev )
 {
   int rv = 0;

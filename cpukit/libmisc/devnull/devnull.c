@@ -1,7 +1,13 @@
-/*  /dev/null
+/**
+ * @file
  *
- *  Derived from rtems' stub driver.
+ * @brief Null Device Driver Init Routine
+ * @ingroup libmisc_devnull Device Driver
  *
+ * Derived from rtems' stub driver.
+ */
+
+/*
  *  Author: Ralf Corsepius (corsepiu@faw.uni-ulm.de)
  *
  *  COPYRIGHT (c) 1989-2000.
@@ -9,7 +15,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H

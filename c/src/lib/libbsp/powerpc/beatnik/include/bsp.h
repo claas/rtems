@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  S. Kate Feng 2003-2007 : Modified it to support the mvme5500 BSP.
  *
@@ -15,6 +15,7 @@
 #define LIBBSP_BEATNIK_BSP_H
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/console.h>

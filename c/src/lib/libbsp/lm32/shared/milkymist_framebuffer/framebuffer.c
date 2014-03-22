@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) Yann Sionneau <yann.sionneau@telecom-sudparis.eu> (GSoC 2010)
  *  Telecom SudParis
@@ -21,8 +21,7 @@
 #include "../include/system_conf.h"
 #include <rtems/libio.h>
 #include <rtems/fb.h>
-
-#define FRAMEBUFFER_DEVICE_NAME "/dev/fb"
+#include <rtems/framebuffer.h>
 
 static unsigned short int framebufferA[1024*768]
   __attribute__((aligned(32)));
@@ -149,7 +148,7 @@ rtems_device_driver frame_buffer_initialize(
   fb_fix.smem_start = (volatile char *)frontbuffer;
   MM_WRITE(MM_VGA_BASEADDRESS, (unsigned int)frontbuffer);
 
-  status = rtems_io_register_name(FRAMEBUFFER_DEVICE_NAME, major, 0);
+  status = rtems_io_register_name(FRAMEBUFFER_DEVICE_0_NAME, major, 0);
   if (status != RTEMS_SUCCESSFUL) {
     printk("Error registering frame buffer device!\n");
     rtems_fatal_error_occurred( status );

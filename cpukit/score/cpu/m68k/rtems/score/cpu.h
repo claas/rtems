@@ -1,17 +1,19 @@
 /**
- * @file rtems/score/cpu.h
+ * @file 
+ * 
+ * @brief Motorola M68K CPU Dependent Source
+ * 
+ * This include file contains information pertaining to the Motorola
+ * m68xxx processor family.
  */
 
 /*
- *  This include file contains information pertaining to the Motorola
- *  m68xxx processor family.
- *
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_CPU_H
@@ -110,6 +112,8 @@ extern "C" {
 #define CPU_BIG_ENDIAN                           TRUE
 #define CPU_LITTLE_ENDIAN                        FALSE
 
+#define CPU_PER_CPU_CONTROL_SIZE 0
+
 #if ( CPU_HARDWARE_FP == TRUE ) && !defined( __mcoldfire__ )
   #if defined( __mc68060__ )
     #define M68K_FP_STATE_SIZE 16
@@ -121,6 +125,10 @@ extern "C" {
 #ifndef ASM
 
 /* structures */
+
+typedef struct {
+  /* There is no CPU specific per-CPU state */
+} CPU_Per_CPU_control;
 
 /*
  *  Basic integer context for the m68k family.
@@ -251,9 +259,9 @@ typedef struct {
       memset( *(_fp_area), 0, sizeof( Context_Control_fp ) )
   #else
     /*
-     *  FP context save area for the M68881/M68882 and 68060 numeric coprocessors.
+     *  FP context save area for the M68881/M68882 and 68060 numeric
+     *  coprocessors.
      */
-
     typedef struct {
       /*
        * M68K_FP_STATE_SIZE bytes for FSAVE/FRESTORE
@@ -380,6 +388,8 @@ SCORE_EXTERN _CPU_ISR_handler_entry _CPU_ISR_jump_table[256];
  */
 #define CPU_PRIORITY_MAXIMUM             M68K_CPU_PRIORITY_MAXIMUM
 
+#define CPU_SIZEOF_POINTER 4
+
 /*
  *  m68k is pretty tolerant of alignment.  Just put things on 4 byte boundaries.
  */
@@ -438,30 +448,15 @@ uint32_t   _CPU_ISR_Get_level( void );
  *     + initialize an FP context area
  */
 
-#if (defined(__mcoldfire__) && ( M68K_HAS_FPU == 1 ))
-#define _CPU_Context_Initialize( _the_context, _stack_base, _size, \
-                                 _isr, _entry_point, _is_fp ) \
-   do { \
-     uint32_t   _stack; \
-     \
-     (_the_context)->sr      = 0x3000 | ((_isr) << 8); \
-     _stack                  = (uint32_t)(_stack_base) + (_size) - 4; \
-     (_the_context)->a7_msp  = (void *)_stack; \
-     *(void **)_stack        = (void *)(_entry_point); \
-     (_the_context)->fpu_dis = (_is_fp == TRUE) ? 0x00 : 0x10;          \
-   } while ( 0 )
-#else
-#define _CPU_Context_Initialize( _the_context, _stack_base, _size,      \
-                                 _isr, _entry_point, _is_fp )           \
-   do {                                                                 \
-     uint32_t   _stack;                                                 \
-                                                                        \
-     (_the_context)->sr      = 0x3000 | ((_isr) << 8);                  \
-     _stack                  = (uint32_t)(_stack_base) + (_size) - 4;   \
-     (_the_context)->a7_msp  = (void *)_stack;                          \
-     *(void **)_stack        = (void *)(_entry_point);                  \
-   } while ( 0 )
-#endif
+void _CPU_Context_Initialize(
+  Context_Control *the_context,
+  void *stack_area_begin,
+  size_t stack_area_size,
+  uint32_t new_level,
+  void (*entry_point)( void ),
+  bool is_fp,
+  void *tls_area
+);
 
 /* end of Context handler macros */
 
@@ -706,6 +701,39 @@ void _CPU_Context_save_fp(
 void _CPU_Context_restore_fp(
   Context_Control_fp **fp_context_ptr
 );
+
+static inline void _CPU_Context_volatile_clobber( uintptr_t pattern )
+{
+  /* TODO */
+}
+
+static inline void _CPU_Context_validate( uintptr_t pattern )
+{
+  while (1) {
+    /* TODO */
+  }
+}
+
+/**
+ *  This method prints the CPU exception frame.
+ *
+ *  @param[in] frame points to the frame to be printed
+ */
+void _CPU_Exception_frame_print(
+  const CPU_Exception_frame *frame
+);
+
+typedef uint32_t CPU_Counter_ticks;
+
+CPU_Counter_ticks _CPU_Counter_read( void );
+
+static inline CPU_Counter_ticks _CPU_Counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+)
+{
+  return second - first;
+}
 
 #if (M68K_HAS_FPSP_PACKAGE == 1)
 /*

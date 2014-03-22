@@ -1,3 +1,11 @@
+/**
+ * @file
+ * 
+ * @ingroup lm32_milkymist
+ *
+ * @brief System configuration.
+ */
+
 /*  system_conf.h
  *  Global System conf
  *
@@ -5,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2010, 2011 Sebastien Bourdeauducq
  */

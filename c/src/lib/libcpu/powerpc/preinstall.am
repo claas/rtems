@@ -54,11 +54,10 @@ $(PROJECT_INCLUDE)/bsp/$(dirstamp):
 	@: > $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 PREINSTALL_DIRS += $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 
-if !mpc5xx
 $(PROJECT_INCLUDE)/bsp/vectors.h: new-exceptions/bspsupport/vectors.h $(PROJECT_INCLUDE)/bsp/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/bsp/vectors.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/bsp/vectors.h
-endif
+
 if shared
 $(PROJECT_INCLUDE)/libcpu/io.h: shared/include/io.h $(PROJECT_INCLUDE)/libcpu/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libcpu/io.h
@@ -297,6 +296,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc556x.h
 $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc564xL.h: mpc55xx/include/fsl-mpc564xL.h $(PROJECT_INCLUDE)/mpc55xx/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc564xL.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc564xL.h
+
+$(PROJECT_INCLUDE)/mpc55xx/fsl-mpc5668.h: mpc55xx/include/fsl-mpc5668.h $(PROJECT_INCLUDE)/mpc55xx/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc5668.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc5668.h
 
 $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc567x.h: mpc55xx/include/fsl-mpc567x.h $(PROJECT_INCLUDE)/mpc55xx/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/mpc55xx/fsl-mpc567x.h

@@ -1,3 +1,9 @@
+/**
+ *  @file
+ *
+ *  @brief M32C CPU Assembly File
+ */
+
 /*  cpu_asm.c  ===> cpu_asm.S or cpu_asm.s
  *
  *  This file contains the basic algorithms for all assembly code used
@@ -14,7 +20,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /*

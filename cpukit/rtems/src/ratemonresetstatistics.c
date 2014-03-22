@@ -1,12 +1,17 @@
-/*
- *  Rate Monotonic Manager -- Reset Statistics
+/**
+ * @file
  *
+ * @brief RTEMS Rate Monotonic Reset Statistics
+ * @ingroup ClassicRateMon Rate Monotonic Scheduler
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,8 +22,7 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/ratemon.h>
+#include <rtems/rtems/ratemonimpl.h>
 #include <rtems/score/thread.h>
 
 /*
@@ -48,7 +52,7 @@ rtems_status_code rtems_rate_monotonic_reset_statistics(
 
     case OBJECTS_LOCAL:
       _Rate_monotonic_Reset_statistics( the_period );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_period->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

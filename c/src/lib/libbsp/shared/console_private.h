@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _PC386_CONSOLE_PRIVATE_h
@@ -20,19 +20,13 @@
 
 #include <rtems.h>
 
+#include <libchip/serial.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern rtems_device_minor_number  BSPPrintkPort;
-
-/**
- *  @brief bsp_console_select
- *
- *  This function selects the port to be used as console
- *
- */
-void bsp_console_select(void);
 
 /**
  *  @brief bsp_com_outch

@@ -20,16 +20,17 @@ HeapSize          = DEFINED(HeapSize)      ? HeapSize      : 0; /* 0=Use def */
 
 MEMORY
 {
-  VECTORS         : ORIGIN = 0x00000000, LENGTH = 8K
-  RAM             : ORIGIN = 0x00002000, LENGTH = 2048M - 8K
+  VECTORS         : ORIGIN = 0x00000000, LENGTH = 512
+  RAM             : ORIGIN = 0x00000200, LENGTH = 2048M - 512
 }
 
 
 SECTIONS
 {
-  __exeentry      = download_entry;
-  __exestart      = 0x100;
-  .vectors __exestart : { *(.vectors)                           } > VECTORS
+  bsp_exc_vector_base = 0;
+  __exeentry          = download_entry;
+  __exestart          = bsp_exc_vector_base;
+  .vectors bsp_exc_vector_base : { *(.vectors)                  } > VECTORS
 
   /* Read-only sections, merged into text segment: */
   .interp         : { *(.interp)                                } > RAM
@@ -92,6 +93,23 @@ SECTIONS
   /* Miscellaneous read-only data */
   .rodata         : { *(.rodata.* .gnu.linkonce.r*)                    } > RAM
   .rodata1        : { *(.rodata1)                                      } > RAM
+
+  .tdata : {
+    _TLS_Data_begin = .;
+    *(.tdata .tdata.* .gnu.linkonce.td.*)
+    _TLS_Data_end = .;
+  } >RAM
+
+  .tbss : {
+    _TLS_BSS_begin = .;
+    *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon)
+    _TLS_BSS_end = .;
+  } >RAM
+
+  _TLS_Data_size = _TLS_Data_end - _TLS_Data_begin;
+  _TLS_BSS_size = _TLS_BSS_end - _TLS_BSS_begin;
+  _TLS_Size = _TLS_BSS_end - _TLS_Data_begin;
+  _TLS_Alignment = ALIGNOF (.tdata);
 
   /* Initialised small data addressed as offsets from r2 */
 _SDA2_BASE_ = __SDATA2_START__ + 0x8000;

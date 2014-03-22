@@ -1,49 +1,28 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Task Wake When
+ *  @ingroup ClassicTasks
+ */
+
 /*
- *  RTEMS Task Manager
- *
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/support.h>
-#include <rtems/rtems/modes.h>
-#include <rtems/rtems/clock.h>
-#include <rtems/score/object.h>
-#include <rtems/score/stack.h>
-#include <rtems/score/states.h>
 #include <rtems/rtems/tasks.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/sysstate.h>
-
-/*
- *  rtems_task_wake_when
- *
- *  This directive blocks the requesting thread until the given date and
- *  time is reached.
- *
- *  Input parameters:
- *    time_buffer - pointer to the time and date structure
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/rtems/clock.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 rtems_status_code rtems_task_wake_when(
   rtems_time_of_day *time_buffer
@@ -51,7 +30,7 @@ rtems_status_code rtems_task_wake_when(
 {
   Watchdog_Interval   seconds;
 
-  if ( !_TOD.is_set )
+  if ( !_TOD_Is_set() )
     return RTEMS_NOT_DEFINED;
 
   if ( !time_buffer )

@@ -1,56 +1,30 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Task Create
+ *  @ingroup ClassicTasks
+ */
+
 /*
- *  RTEMS Task Manager
- *
- *
- *  COPYRIGHT (c) 1989-2008.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
+#include <rtems/rtems/tasksimpl.h>
+#include <rtems/rtems/attrimpl.h>
+#include <rtems/rtems/modesimpl.h>
 #include <rtems/rtems/support.h>
-#include <rtems/rtems/modes.h>
-#include <rtems/score/object.h>
-#include <rtems/score/stack.h>
-#include <rtems/score/states.h>
-#include <rtems/rtems/tasks.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/sysstate.h>
 #include <rtems/score/apimutex.h>
-
-/*
- *  rtems_task_create
- *
- *  This directive creates a thread by allocating and initializing a
- *  thread control block and a stack.  The newly created thread is
- *  placed in the dormant state.
- *
- *  Input parameters:
- *    name             - user defined thread name
- *    initial_priority - thread priority
- *    stack_size       - stack size in bytes
- *    initial_modes    - initial thread mode
- *    attribute_set    - thread attributes
- *    id               - pointer to thread id
- *
- *  Output parameters:
- *    id               - thread id
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/score/sysstate.h>
+#include <rtems/score/threadimpl.h>
 
 rtems_status_code rtems_task_create(
   rtems_name           name,
@@ -61,7 +35,7 @@ rtems_status_code rtems_task_create(
   rtems_id            *id
 )
 {
-  register Thread_Control *the_thread;
+  Thread_Control          *the_thread;
   bool                     is_fp;
 #if defined(RTEMS_MULTIPROCESSING)
   Objects_MP_Control      *the_global_object = NULL;

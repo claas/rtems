@@ -1,12 +1,17 @@
-/*
- *  POSIX Spinlock Manager -- Destroy a Spinlock
+/**
+ *  @file
  *
+ *  @brief Destroy a Spinlock
+ *  @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,23 +22,19 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/spinlock.h>
+#include <rtems/posix/spinlockimpl.h>
 
-/*
- *  pthread_spin_destroy
- *
+/**
  *  This directive allows a thread to delete a spinlock specified by
  *  the spinlock id.  The spinlock is freed back to the inactive
  *  spinlock chain.
  *
- *  Input parameters:
- *    spinlock - spinlock id
+ *  @param[in] spinlock is the spinlock id
  *
- *  Output parameters:
- *    0           - if successful
- *    error code  - if unsuccessful
+ *  @return This method returns 0 if there was not an
+ *  error. Otherwise, a status code is returned indicating the
+ *  source of the error.
  */
-
 int pthread_spin_destroy(
   pthread_spinlock_t *spinlock
 )
@@ -49,7 +50,7 @@ int pthread_spin_destroy(
 
     case OBJECTS_LOCAL:
       if ( _CORE_spinlock_Is_busy( &the_spinlock->Spinlock ) ) {
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_spinlock->Object );
         return EBUSY;
       }
 
@@ -57,7 +58,7 @@ int pthread_spin_destroy(
 
       _POSIX_Spinlock_Free( the_spinlock );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_spinlock->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

@@ -2,12 +2,12 @@
  *  Partition Manager
  *
  *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,10 +18,8 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/score/address.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/part.h>
+#include <rtems/rtems/partimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/sysstate.h>
 
 /*
  *  rtems_partition_return_buffer
@@ -43,7 +41,7 @@ rtems_status_code rtems_partition_return_buffer(
   void     *buffer
 )
 {
-  register Partition_Control *the_partition;
+   Partition_Control           *the_partition;
   Objects_Locations           location;
 
   the_partition = _Partition_Get( id, &location );
@@ -53,10 +51,10 @@ rtems_status_code rtems_partition_return_buffer(
       if ( _Partition_Is_buffer_valid( buffer, the_partition ) ) {
         _Partition_Free_buffer( the_partition, buffer );
         the_partition->number_of_used_blocks -= 1;
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_partition->Object );
         return RTEMS_SUCCESSFUL;
       }
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_partition->Object );
       return RTEMS_INVALID_ADDRESS;
 
 #if defined(RTEMS_MULTIPROCESSING)

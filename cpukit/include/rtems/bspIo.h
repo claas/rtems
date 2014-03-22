@@ -1,6 +1,8 @@
 /**
  * @file rtems/bspIo.h
  *
+ * @brief Interface to Kernel Print Methods
+ *
  * This include file defines the interface to kernel print methods.
  */
 
@@ -10,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 #ifndef _RTEMS_BSPIO_H
 #define _RTEMS_BSPIO_H

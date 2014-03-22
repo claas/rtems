@@ -1,6 +1,11 @@
-/*
- *  RTEMS threads compatibility routines for libgcc2.
+/**
+ *  @file
  *
+ *  @brief RTEMS Threads Compatibility Routines for Libgcc2
+ *  @ingroup GxxWrappersSupport
+ */
+
+/*
  *  by: Rosimildo da Silva (rdasilva@connecttel.com)
  *
  *  Used ideas from:
@@ -24,6 +29,7 @@
 #endif
 
 #include <rtems/gxx_wrappers.h>
+#include <rtems/score/onceimpl.h>
 
 #include <stdlib.h>
 
@@ -38,19 +44,7 @@ int rtems_gxx_once(__gthread_once_t *once, void (*func) (void))
     printk( "gxx_wrappers: once=%x, func=%x\n", *once, func );
   #endif
 
-  if ( *(volatile __gthread_once_t *)once == 0 ) {
-    rtems_mode saveMode;
-    __gthread_once_t o;
-
-    rtems_task_mode(RTEMS_NO_PREEMPT, RTEMS_PREEMPT_MASK, &saveMode);
-    if ( (o = *(volatile __gthread_once_t *)once) == 0 ) {
-      *(volatile __gthread_once_t *)once = 1;
-    }
-    rtems_task_mode(saveMode, RTEMS_PREEMPT_MASK, &saveMode);
-    if ( o == 0 )
-      (*func)();
-  }
-  return 0;
+  return _Once( once, func );
 }
 
 int rtems_gxx_key_create (__gthread_key_t *key, void (*dtor) (void *))
@@ -128,7 +122,7 @@ void *rtems_gxx_getspecific(__gthread_key_t key)
      */
     status = rtems_task_variable_add( RTEMS_SELF, (void **)key, key->dtor );
     if ( status != RTEMS_SUCCESSFUL ) {
-      _Internal_error_Occurred(
+      _Terminate(
         INTERNAL_ERROR_CORE,
         true,
         INTERNAL_ERROR_GXX_KEY_ADD_FAILED
@@ -199,7 +193,7 @@ void rtems_gxx_mutex_init (__gthread_mutex_t *mutex)
         status
       );
     #endif
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_GXX_MUTEX_INIT_FAILED

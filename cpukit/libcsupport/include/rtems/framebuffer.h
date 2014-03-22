@@ -1,6 +1,8 @@
 /**
  * @file rtems/framebuffer.h
  *
+ * @brief Frame Buffer Device Driver for all Boards
+ *
  * This file describes the Frame Buffer Device Driver for all boards.
  */
 
@@ -10,11 +12,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __RTEMS_FRAMEBUFFER_h__
 #define __RTEMS_FRAMEBUFFER_h__
+
+#include <rtems/io.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +29,14 @@ extern "C" {
  *  that is available to applications.
  */
 #define FRAMEBUFFER_DEVICE_NAME "/dev/fb"
+
+/**
+ * @brief Standard device file path of first frame buffer device.
+ *
+ * This device is the default frame buffer device for the Microwindows Screen
+ * Driver.
+ */
+#define FRAMEBUFFER_DEVICE_0_NAME "/dev/fb0"
 
 /**
  *  This macro defines the standard device driver table entry for

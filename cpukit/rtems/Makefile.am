@@ -1,8 +1,6 @@
 include $(top_srcdir)/automake/multilib.am
 include $(top_srcdir)/automake/compile.am
 
-AM_CPPFLAGS += -D__RTEMS_INSIDE__
-
 noinst_LIBRARIES = librtems.a
 librtems_a_CPPFLAGS = $(AM_CPPFLAGS)
 
@@ -15,30 +13,49 @@ include_rtems_rtemsdir = $(includedir)/rtems/rtems
 include_rtems_rtems_HEADERS =
 
 include_rtems_rtems_HEADERS += include/rtems/rtems/asr.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/asrimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/attr.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/attrimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/barrier.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/barrierimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/cache.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/clock.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/config.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/dpmem.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/dpmemimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/event.h
-include_rtems_rtems_HEADERS += include/rtems/rtems/eventset.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/eventimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/intr.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/message.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/messageimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/modes.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/modesimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/object.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/options.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/optionsimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/part.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/partimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/ratemon.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/ratemonimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/region.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/regionimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/rtemsapi.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/sem.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/semimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/signal.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/signalimpl.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/smp.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/status.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/statusimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/support.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/tasks.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/tasksimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/timer.h
+include_rtems_rtems_HEADERS += include/rtems/rtems/timerimpl.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/types.h
+if HAS_SMP
+include_rtems_rtems_HEADERS += include/rtems/rtems/atomic.h
+endif
 include_rtems_rtems_HEADERS += mainpage.h
 
 if HAS_MP
@@ -52,28 +69,6 @@ include_rtems_rtems_HEADERS += include/rtems/rtems/semmp.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/signalmp.h
 include_rtems_rtems_HEADERS += include/rtems/rtems/taskmp.h
 endif
-
-if HAS_SMP
-include_rtems_rtems_HEADERS += include/rtems/rtems/smp.h
-endif
-
-include_rtems_rtems_HEADERS += inline/rtems/rtems/asr.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/attr.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/barrier.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/dpmem.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/event.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/eventset.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/message.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/modes.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/options.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/part.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/ratemon.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/region.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/sem.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/status.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/support.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/tasks.inl
-include_rtems_rtems_HEADERS += inline/rtems/rtems/timer.inl
 
 ## src
 librtems_a_SOURCES = src/rtemsbuildid.c
@@ -154,6 +149,9 @@ librtems_a_SOURCES += src/clockgettickssinceboot.c
 librtems_a_SOURCES += src/clockgettod.c
 librtems_a_SOURCES += src/clockgettodtimeval.c
 librtems_a_SOURCES += src/clockgetuptime.c
+librtems_a_SOURCES += src/clockgetuptimetimeval.c
+librtems_a_SOURCES += src/clockgetuptimeseconds.c
+librtems_a_SOURCES += src/clockgetuptimenanoseconds.c
 librtems_a_SOURCES += src/clockset.c
 librtems_a_SOURCES += src/clocksetnsecshandler.c
 librtems_a_SOURCES += src/clocktick.c
@@ -209,6 +207,8 @@ librtems_a_SOURCES += src/eventsend.c
 librtems_a_SOURCES += src/eventsurrender.c
 librtems_a_SOURCES += src/eventtimeout.c
 librtems_a_SOURCES += src/eventdata.c
+librtems_a_SOURCES += src/systemeventsend.c
+librtems_a_SOURCES += src/systemeventreceive.c
 
 ## SIGNAL_C_FILES
 librtems_a_SOURCES += src/signal.c
@@ -255,6 +255,7 @@ librtems_a_SOURCES += src/workspacegreedy.c
 librtems_a_SOURCES += src/modes.c
 
 librtems_a_SOURCES += src/status.c
+librtems_a_SOURCES += src/statustext.c
 
 if HAS_MP
 # We only build multiprocessing related files if HAS_MP was defined
@@ -267,6 +268,13 @@ librtems_a_SOURCES += src/semmp.c
 librtems_a_SOURCES += src/signalmp.c
 librtems_a_SOURCES += src/taskmp.c
 endif
+
+## SMP Files
+if HAS_SMP
+librtems_a_SOURCES += src/tasksetaffinity.c
+librtems_a_SOURCES += src/taskgetaffinity.c
+endif
+
 
 include $(srcdir)/preinstall.am
 include $(top_srcdir)/automake/local.am

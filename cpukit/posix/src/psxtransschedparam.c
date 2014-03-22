@@ -1,9 +1,17 @@
-/*  COPYRIGHT (c) 1989-2009.
+/**
+ * @file
+ *
+ * @brief Translate sched_param into SuperCore Terms
+ * @ingroup POSIX_PTHREAD Private POSIX Threads
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -14,8 +22,8 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/priority.h>
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/posix/priorityimpl.h>
 #include <rtems/posix/time.h>
 
 int _POSIX_Thread_Translate_sched_param(

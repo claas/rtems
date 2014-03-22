@@ -1,12 +1,17 @@
-/*
- *  IMFS Initialization
+/**
+ * @file
  *
+ * @brief IMFS Node Support
+ * @ingroup IMFS
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,7 +20,9 @@
 
 #include "imfs.h"
 
+#include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*
  *  IMFS_determine_bytes_per_block
@@ -84,6 +91,7 @@ int IMFS_initialize_support(
       mt_entry->mt_fs_root->location.node_access = root_node;
       IMFS_Set_handlers( &mt_entry->mt_fs_root->location );
     } else {
+      free(fs_info);
       errno = ENOMEM;
       rv = -1;
     }
@@ -125,11 +133,21 @@ void IMFS_node_free( const rtems_filesystem_location_info_t *loc )
 {
   IMFS_jnode_t *node = loc->node_access;
 
-  if ( node->reference_count == 1 ) {
+  --node->reference_count;
+
+  if ( node->reference_count == 0 ) {
     IMFS_node_destroy( node );
-  } else {
-    --node->reference_count;
   }
+}
+
+static IMFS_jnode_t *IMFS_node_initialize_enosys(
+  IMFS_jnode_t *node,
+  const IMFS_types_union *info
+)
+{
+  errno = ENOSYS;
+
+  return NULL;
 }
 
 IMFS_jnode_t *IMFS_node_initialize_default(
@@ -141,8 +159,7 @@ IMFS_jnode_t *IMFS_node_initialize_default(
 }
 
 IMFS_jnode_t *IMFS_node_remove_default(
-  IMFS_jnode_t *node,
-  const IMFS_jnode_t *root_node
+  IMFS_jnode_t *node
 )
 {
   return node;
@@ -153,10 +170,10 @@ IMFS_jnode_t *IMFS_node_destroy_default( IMFS_jnode_t *node )
   return node;
 }
 
-const IMFS_node_control IMFS_node_control_default = {
+const IMFS_node_control IMFS_node_control_enosys = {
   .imfs_type = IMFS_INVALID_NODE,
   .handlers = &rtems_filesystem_handlers_default,
-  .node_initialize = IMFS_node_initialize_default,
+  .node_initialize = IMFS_node_initialize_enosys,
   .node_remove = IMFS_node_remove_default,
   .node_destroy = IMFS_node_destroy_default
 };

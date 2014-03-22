@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief Checks that the Locations Exist in the Same File System Instance
+ *  @ingroup LibIOInternal
+ */
+
 /*
  * Copyright (c) 2012 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,7 +25,7 @@
 
 #include <rtems/libio_.h>
 
-int rtems_filesystem_location_exists_in_same_fs_instance_as(
+int rtems_filesystem_location_exists_in_same_instance_as(
   const rtems_filesystem_location_info_t *a,
   const rtems_filesystem_location_info_t *b
 )

@@ -1,12 +1,17 @@
-/*
- *  RTEMS Malloc Family -- Dirty Memory from Malloc
+/**
+ *  @file
  *
+ *  @brief Dirty Memory Function
+ *  @ingroup MallocSupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,6 +23,7 @@
 #include "malloc_p.h"
 
 #include <errno.h>
+#include <string.h>
 
 void rtems_malloc_dirty_memory(
   void   *start,

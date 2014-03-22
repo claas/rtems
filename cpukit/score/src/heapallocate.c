@@ -14,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -22,8 +22,7 @@
 #endif
 
 #include <rtems/system.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/heap.h>
+#include <rtems/score/heapimpl.h>
 
 #ifndef HEAP_PROTECTION
   #define _Heap_Protection_free_delayed_blocks( heap, alloc_begin ) false

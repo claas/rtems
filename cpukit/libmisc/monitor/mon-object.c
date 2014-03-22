@@ -17,11 +17,16 @@
 #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #include <rtems.h>
 #include <rtems/monitor.h>
+#include <rtems/extensionimpl.h>
+#include <rtems/rtems/messageimpl.h>
+#include <rtems/rtems/partimpl.h>
+#include <rtems/rtems/regionimpl.h>
+#include <rtems/rtems/semimpl.h>
+#include <rtems/rtems/tasksimpl.h>
 #if defined(RTEMS_POSIX_API)
-  #include <rtems/posix/pthread.h>
+  #include <rtems/posix/pthreadimpl.h>
 #endif
 
 #include <stdio.h>
@@ -184,6 +189,7 @@ rtems_monitor_object_lookup(
     return 0;
 }
 
+#if defined(RTEMS_MULTIPROCESSING)
 static rtems_id
 rtems_monitor_object_canonical_next_remote(
     rtems_monitor_object_type_t type,
@@ -223,6 +229,7 @@ failed:
     return RTEMS_OBJECT_ID_FINAL;
 
 }
+#endif
 
 
 rtems_id
@@ -232,8 +239,8 @@ rtems_monitor_object_canonical_next(
     void                        *canonical
 )
 {
-  rtems_id  next_id;
-  void     *raw_item;
+  rtems_id    next_id;
+  const void *raw_item;
 
 #if defined(RTEMS_MULTIPROCESSING)
     if ( ! _Objects_Is_local_id(id) ) {
@@ -247,7 +254,7 @@ rtems_monitor_object_canonical_next(
     {
       next_id = id;
 
-      raw_item = (void *) info->next(
+      raw_item = info->next(
         info->object_information,
         canonical,
         &next_id

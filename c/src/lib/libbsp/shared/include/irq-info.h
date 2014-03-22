@@ -16,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_SHARED_IRQ_INFO_H
@@ -28,14 +28,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/**
- * @defgroup bsp_interrupt BSP Interrupt Information
- *
- * @ingroup rtems_interrupt_extension
- *
- * @{
- */
 
 /**
  * @brief Prints interrupt information via the printk plugin @a print with the

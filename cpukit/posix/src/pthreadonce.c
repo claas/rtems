@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Call to function by Thread will call init_routine with no Arguments
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  16.1.8 Dynamic Package Initialization, P1003.1c/Draft 10, p. 154
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,9 +23,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <rtems.h>
-#include <rtems/system.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/onceimpl.h>
 
 int pthread_once(
   pthread_once_t  *once_control,
@@ -28,15 +33,8 @@ int pthread_once(
   if ( !once_control || !init_routine )
     return EINVAL;
 
-  if ( !once_control->init_executed ) {
-    rtems_mode saveMode;
-    rtems_task_mode(RTEMS_NO_PREEMPT, RTEMS_PREEMPT_MASK, &saveMode);
-    if ( !once_control->init_executed ) {
-      once_control->is_initialized = true;
-      once_control->init_executed = true;
-      (*init_routine)();
-    }
-    rtems_task_mode(saveMode, RTEMS_PREEMPT_MASK, &saveMode);
-  }
-  return 0;
+  if ( once_control->is_initialized != 1 )
+    return EINVAL;
+
+  return _Once( &once_control->init_executed, init_routine );
 }

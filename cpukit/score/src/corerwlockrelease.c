@@ -1,12 +1,18 @@
-/*
- *  SuperCore RWLock Handler -- Release a RWLock
+/**
+ * @file
  *
+ * @brief Releases the RWLock
+ *
+ * @ingroup ScoreRWLock
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -14,28 +20,16 @@
 #endif
 
 #include <rtems/system.h>
-#include <rtems/score/corerwlock.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/corerwlockimpl.h>
+#include <rtems/score/threadqimpl.h>
 #include <rtems/score/watchdog.h>
 
-/*
- *  _CORE_RWLock_Release
- *
- *  This function releases the rwlock.
- *
- *  Input parameters:
- *    the_rwlock    - the rwlock control block to initialize
- *
- *  Output parameters:  NONE
- */
-
 CORE_RWLock_Status _CORE_RWLock_Release(
-  CORE_RWLock_Control  *the_rwlock
+  CORE_RWLock_Control *the_rwlock,
+  Thread_Control      *executing
 )
 {
   ISR_Level       level;
-  Thread_Control *executing = _Thread_Executing;
   Thread_Control *next;
 
   /*

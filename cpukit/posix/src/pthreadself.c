@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function returns the ID of the Calling Thread 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  16.1.6 Get Calling Thread's ID, p1003.1c/Draft 10, p. 152
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -21,5 +28,5 @@
 
 pthread_t pthread_self( void )
 {
-  return _Thread_Executing->Object.id;
+  return _Thread_Get_executing()->Object.id;
 }

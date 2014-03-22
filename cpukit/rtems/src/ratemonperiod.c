@@ -1,25 +1,28 @@
-/*
- *  Rate Monotonic Manager - Period Blocking and Status
+/**
+ *  @file
  *
+ *  @brief Rate Monotonic Support
+ *  @ingroup ClassicRateMon
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/support.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/ratemon.h>
-#include <rtems/score/thread.h>
+#include <rtems/rtems/ratemonimpl.h>
+#include <rtems/score/schedulerimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 bool _Rate_monotonic_Get_status(
   Rate_monotonic_Control        *the_period,
@@ -224,21 +227,6 @@ static void _Rate_monotonic_Update_statistics(
   #endif
 }
 
-
-/*
- *  rtems_rate_monotonic_period
- *
- *  This directive allows a thread to manipulate a rate monotonic timer.
- *
- *  Input parameters:
- *    id     - rate monotonic id
- *    length - length of period (in ticks)
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
-
 rtems_status_code rtems_rate_monotonic_period(
   rtems_id       id,
   rtems_interval length
@@ -255,7 +243,7 @@ rtems_status_code rtems_rate_monotonic_period(
   switch ( location ) {
     case OBJECTS_LOCAL:
       if ( !_Thread_Is_executing( the_period->owner ) ) {
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_period->Object );
         return RTEMS_NOT_OWNER_OF_RESOURCE;
       }
 
@@ -273,7 +261,7 @@ rtems_status_code rtems_rate_monotonic_period(
             return_value = RTEMS_SUCCESSFUL;
             break;
         }
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_period->Object );
         return( return_value );
       }
 
@@ -297,7 +285,7 @@ rtems_status_code rtems_rate_monotonic_period(
         );
 
         _Watchdog_Insert_ticks( &the_period->Timer, length );
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_period->Object );
         return RTEMS_SUCCESSFUL;
       }
 
@@ -336,7 +324,7 @@ rtems_status_code rtems_rate_monotonic_period(
         if ( local_state == RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING )
           _Thread_Clear_state( _Thread_Executing, STATES_WAITING_FOR_PERIOD );
 
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_period->Object );
         return RTEMS_SUCCESSFUL;
       }
 
@@ -353,7 +341,7 @@ rtems_status_code rtems_rate_monotonic_period(
 
         _Watchdog_Insert_ticks( &the_period->Timer, length );
         _Scheduler_Release_job(the_period->owner, the_period->next_length);
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_period->Object );
         return RTEMS_TIMEOUT;
       }
 

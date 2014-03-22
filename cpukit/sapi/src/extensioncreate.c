@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -21,9 +21,9 @@
 
 #include <rtems/system.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/score/thread.h>
-#include <rtems/extension.h>
+#include <rtems/score/userextimpl.h>
+#include <rtems/extensionimpl.h>
 
 rtems_status_code rtems_extension_create(
   rtems_name                    name,

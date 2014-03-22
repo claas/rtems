@@ -1,10 +1,18 @@
+/**
+ * @file
+ *
+ * @ingroup i386_pc386
+ *
+ * @brief VGA definitions.
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _VGACONS_H_
@@ -32,7 +40,7 @@ bool vgacons_probe( int minor );
 /*
  * Driver function table
  */
-extern console_fns vgacons_fns;
+extern const console_fns vgacons_fns;
 
 #ifdef __cplusplus
 }

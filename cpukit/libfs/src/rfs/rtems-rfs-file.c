@@ -1,18 +1,18 @@
+/**
+ * @file
+ *
+ * @brief RTEMS File Systems File Routines
+ * @ingroup rtems_rfs
+ *
+ * These functions manage files.
+ */
+
 /*
  *  COPYRIGHT (c) 2010 Chris Johns <chrisj@rtems.org>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
- */
-/**
- * @file
- *
- * @ingroup rtems-rfs
- *
- * RTEMS File Systems File Routines.
- *
- * These functions manage files.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,6 +20,7 @@
 #endif
 
 #include <inttypes.h>
+#include <string.h>
 
 #include <rtems/rfs/rtems-rfs-block-pos.h>
 #include <rtems/rfs/rtems-rfs-file.h>
@@ -122,7 +123,7 @@ rtems_rfs_file_open (rtems_rfs_file_system*  fs,
     shared->ctime = rtems_rfs_inode_get_ctime (&shared->inode);
     shared->fs = fs;
 
-    rtems_chain_append (&fs->file_shares, &shared->link);
+    rtems_chain_append_unprotected (&fs->file_shares, &shared->link);
 
     rtems_rfs_inode_unload (fs, &shared->inode, false);
 
@@ -196,7 +197,7 @@ rtems_rfs_file_close (rtems_rfs_file_system* fs,
         rrc = rc;
     }
 
-    rtems_chain_extract (&handle->shared->link);
+    rtems_chain_extract_unprotected (&handle->shared->link);
     free (handle->shared);
   }
 

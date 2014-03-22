@@ -1,14 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief Get File Status
+ *  @ingroup libcsupport
+ */
+
 /*
- *  stat() - POSIX 1003.1b 5.6.2 - Get File Status
- *
- *  Reused from lstat().
- *
- *  COPYRIGHT (c) 1989-1999.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -31,6 +34,16 @@
 
 #include <rtems/libio_.h>
 
+/*
+ *  Prototype to avoid warnings
+ */
+int _STAT_NAME( const char *path, struct stat *buf );
+
+/**
+ *  POSIX 1003.1b 5.6.2 - Get File Status
+ * 
+ *  Reused from lstat().
+ */
 int _STAT_NAME( const char *path, struct stat *buf )
 {
   int rv = 0;
@@ -48,16 +61,22 @@ int _STAT_NAME( const char *path, struct stat *buf )
   return rv;
 }
 
-/*
- *  _stat_r, _lstat_r
- *
- *  This is the Newlib dependent reentrant version of stat() and lstat().
- */
-
 #if defined(RTEMS_NEWLIB)
 
 #include <reent.h>
 
+/*
+ *  Prototype to avoid warnings
+ */
+int _STAT_R_NAME(
+  struct _reent *ptr __attribute__((unused)),
+  const char    *path,
+  struct stat   *buf
+);
+
+/**
+ *  This is the Newlib dependent reentrant version of stat() and lstat().
+ */
 int _STAT_R_NAME(
   struct _reent *ptr __attribute__((unused)),
   const char    *path,

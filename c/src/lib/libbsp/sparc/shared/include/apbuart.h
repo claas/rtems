@@ -1,12 +1,18 @@
+/**
+ * @file
+ * @ingroup sparc_bsp
+ * @defgroup uart UART
+ * @ingroup uart
+ * @brief Driver interface for APBUART
+ */
+
 /*
- *  Driver interface for APBUART
- *
  *  COPYRIGHT (c) 2007.
  *  Gaisler Research
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

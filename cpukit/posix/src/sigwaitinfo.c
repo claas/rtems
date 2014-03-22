@@ -1,3 +1,9 @@
+/**
+ * @file
+ *
+ * @brief Suspends Execution of Calling Thread until Signals in set Deleivered
+ */
+
 /*
  *  3.3.8 Synchronously Accept a Signal, P1003.1b-1993, p. 76
  *
@@ -8,23 +14,19 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <stddef.h>
 #include <signal.h>
-#include <errno.h>
-
-#include <rtems/system.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/psignal.h>
 
 int sigwaitinfo(
-  const sigset_t  *set,
-  siginfo_t       *info
+  const sigset_t  *__restrict set,
+  siginfo_t       *__restrict info
 )
 {
   return sigtimedwait( set, info, NULL );

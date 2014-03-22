@@ -1,13 +1,17 @@
 /**
- *@file bf52x.h
+ * @file
  *
- *  This file defines basic MMR for the Blackfin 52x CPU.
- *  The MMR have been taken from the ADSP-BF52x Blackfin Processor
- *  Hardware Reference from Analog Devices. Mentioned Chapters
- *  refer to this Documentation.
+ * @brief Basic MMR for the Blackfin 52x CPU
  *
- *	Based on bf533.h
+ * This file defines basic MMR for the Blackfin 52x CPU.
+ * The MMR have been taken from the ADSP-BF52x Blackfin Processor
+ * Hardware Reference from Analog Devices. Mentioned Chapters
+ * refer to this Documentation.
  *
+ * Based on bf533.h
+ */
+
+/*
  *  COPYRIGHT (c) 2006.
  *  Atos Automacao Industrial LTDA.
  *             modified by Alain Schaefer <alain.schaefer@easc.ch>
@@ -15,14 +19,11 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *
- * @author    Rohan Kangralkar, ECE Department Northeastern University
- * @date	  02/15/2011
- *
- * HISTORY:
- *
+ * Author:    Rohan Kangralkar, ECE Department Northeastern University
+ * Date:	  02/15/2011
  */
 
 #ifndef _RTEMS_BFIN_52x_H

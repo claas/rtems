@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 
@@ -16,6 +16,7 @@
 #include <rtems/libio.h>
 #include <bsp.h>
 #include <libcpu/rtcRegs.h>
+#include <rtems/score/todimpl.h>
 
 /* The following are inside RTEMS -- we are violating visibility!!!
  * Perhaps an API could be defined to get days since 1 Jan.

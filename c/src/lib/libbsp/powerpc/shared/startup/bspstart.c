@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Modified to support the MCP750.
  *  Modifications Copyright (C) 1999 Eric Valette. valette@crf.canon.fr
@@ -19,6 +19,7 @@
 
 #include <bsp.h>
 #include <rtems/bspIo.h>
+#include <rtems/counter.h>
 #include <bsp/consoleIo.h>
 #include <libcpu/spr.h>
 #include <bsp/residual.h>
@@ -135,7 +136,6 @@ unsigned int get_eumbbar(void) {
 
 void bsp_start( void )
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
 #if !defined(mvme2100)
   unsigned l2cr;
 #endif
@@ -232,14 +232,7 @@ void bsp_start( void )
   /*
    * Initialize default raw exception handlers.
    */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-    intrStackStart,
-    intrStackSize
-  );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
+  ppc_exc_initialize(intrStackStart, intrStackSize);
 
   boardManufacturer   =  checkPrepBoardType(&residualCopy);
   if (boardManufacturer != PREP_Motorola) {
@@ -346,6 +339,9 @@ void bsp_start( void )
    *  initialize the device driver parameters
    */
   bsp_clicks_per_usec 	 = BSP_bus_frequency/(BSP_time_base_divisor * 1000);
+  rtems_counter_initialize_converter(
+    BSP_bus_frequency / (BSP_time_base_divisor / 1000)
+  );
 
   /*
    * Initalize RTEMS IRQ system

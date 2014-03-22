@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief RTEMS Default File System reposits the offset of the open file fd
+ * @ingroup LibIOFSOps File System Operations 
+ */
+
 /*
  * Copyright (c) 2012 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -26,7 +33,6 @@ off_t rtems_filesystem_default_lseek_file(
 {
   off_t rv = 0;
   off_t reference_offset;
-  off_t new_offset;
   struct stat st;
 
   switch ( whence ) {
@@ -46,9 +52,10 @@ off_t rtems_filesystem_default_lseek_file(
       rv = -1;
       break;
   }
-  new_offset = reference_offset + offset;
 
   if ( rv == 0 ) {
+    off_t new_offset = reference_offset + offset;
+
     if (
       (offset >= 0 && new_offset >= reference_offset)
         || (offset < 0 && new_offset < reference_offset)

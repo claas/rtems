@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Setting Cancelability State
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -19,7 +26,7 @@
 #include <rtems/score/isr.h>
 #include <rtems/score/thread.h>
 #include <rtems/posix/cancel.h>
-#include <rtems/posix/pthread.h>
+#include <rtems/posix/pthreadimpl.h>
 #include <rtems/posix/threadsup.h>
 
 /*
@@ -32,6 +39,7 @@ int pthread_setcancelstate(
 )
 {
   POSIX_API_Control *thread_support;
+  Thread_Control    *executing;
 
   /*
    *  Don't even think about deleting a resource from an ISR.
@@ -48,13 +56,15 @@ int pthread_setcancelstate(
   if ( state != PTHREAD_CANCEL_ENABLE && state != PTHREAD_CANCEL_DISABLE )
     return EINVAL;
 
-  thread_support = _Thread_Executing->API_Extensions[ THREAD_API_POSIX ];
-
   _Thread_Disable_dispatch();
+
+    executing = _Thread_Executing;
+    thread_support =  executing ->API_Extensions[ THREAD_API_POSIX ];
+
     *oldstate = thread_support->cancelability_state;
     thread_support->cancelability_state = state;
 
-    _POSIX_Thread_Evaluate_cancellation_and_enable_dispatch(_Thread_Executing);
+    _POSIX_Thread_Evaluate_cancellation_and_enable_dispatch( executing );
 
   /*
    *  _Thread_Enable_dispatch is invoked by above call.

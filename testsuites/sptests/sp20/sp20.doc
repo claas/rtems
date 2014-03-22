@@ -1,20 +1,21 @@
-#  COPYRIGHT (c) 1989-1999.
+#  COPYRIGHT (c) 1989-2013.
 #  On-Line Applications Research Corporation (OAR).
 #
 #  The license and distribution terms for this file may be
 #  found in the file LICENSE in this distribution or at
-#  http://www.rtems.com/license/LICENSE.
+#  http://www.rtems.org/license/LICENSE.
 #
 
 
 This file describes the directives and concepts tested by this test set.
 
-test set name:  test20
+test set name:  sp20
 
 directives:
 
-  rm_create, rm_period
+  rtems_rate_monotonic_manager_create
+  rtems_rate_monotonic_manager_period
 
 concepts:
 
-  a.  Verifies Rate Monotonic Manager behavior.
+  +  Verifies Rate Monotonic Manager behavior.

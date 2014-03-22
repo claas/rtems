@@ -97,6 +97,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/smc91111.h
 $(PROJECT_INCLUDE)/libchip/smc91111exp.h: network/smc91111exp.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/smc91111exp.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/smc91111exp.h
+
+$(PROJECT_INCLUDE)/libchip/dwmac.h: network/dwmac.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/dwmac.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/dwmac.h
 endif
 $(PROJECT_INCLUDE)/libchip/rtc.h: rtc/rtc.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/rtc.h
@@ -125,6 +129,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/i2c-ds1621.h
 $(PROJECT_INCLUDE)/libchip/i2c-2b-eeprom.h: i2c/i2c-2b-eeprom.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/i2c-2b-eeprom.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/i2c-2b-eeprom.h
+
+$(PROJECT_INCLUDE)/libchip/i2c-sc620.h: i2c/i2c-sc620.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/i2c-sc620.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/i2c-sc620.h
 
 $(PROJECT_INCLUDE)/libchip/spi-memdrv.h: i2c/spi-memdrv.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/spi-memdrv.h
@@ -161,6 +169,10 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/serial.h
 $(PROJECT_INCLUDE)/libchip/sersupp.h: serial/sersupp.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/sersupp.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/sersupp.h
+
+$(PROJECT_INCLUDE)/libchip/ns16550_p.h: serial/ns16550_p.h $(PROJECT_INCLUDE)/libchip/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/libchip/ns16550_p.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/libchip/ns16550_p.h
 
 if HAS_MP
 $(PROJECT_INCLUDE)/shm_driver.h: shmdr/shm_driver.h $(PROJECT_INCLUDE)/$(dirstamp)

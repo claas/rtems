@@ -1,17 +1,18 @@
 /**
  * @file
  *
- * @ingroup ClassicRTEMS
+ * @defgroup ClassicTypes Types
  *
- * @brief Types used by the Classic API.
+ * @ingroup ClassicRTEMS
+ * @brief Types used by Classic API.
  */
 
-/*  COPYRIGHT (c) 1989-2009.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2009.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_TYPES_H
@@ -25,12 +26,10 @@
 #include <rtems/score/heap.h>
 #include <rtems/score/object.h>
 #include <rtems/score/priority.h>
-#include <rtems/score/tod.h>
 #include <rtems/score/watchdog.h>
 #include <rtems/rtems/modes.h>
 #if defined(RTEMS_MULTIPROCESSING)
 #include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
 #endif
 
 #ifdef __cplusplus
@@ -39,9 +38,8 @@ extern "C" {
 
 /**
  * @addtogroup ClassicRTEMS
- *
- * @{
  */
+/**@{**/
 
 #ifdef RTEMS_DEPRECATED_TYPES
 /**

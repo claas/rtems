@@ -10,10 +10,12 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
+#include <libchip/rtc.h>
+#include <libchip/m48t08.h>
 
 #ifndef _M48T08_MULTIPLIER
 #define _M48T08_MULTIPLIER 1

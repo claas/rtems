@@ -13,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
 */
 #include <bsp.h>                /* Must be before libio.h */
 #include <rtems/libio.h>
@@ -45,7 +45,7 @@ static int     uart_set_attributes(int minor, const struct termios *t);
 unsigned long Console_Configuration_Count = NUM_DEVS;
 
 /* Pointers to functions for handling the UART. */
-console_fns uart_fns =
+const console_fns uart_fns =
 {
     libchip_serial_default_probe,
     uart_first_open,

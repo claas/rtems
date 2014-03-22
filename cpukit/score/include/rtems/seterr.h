@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/seterr.h
  *
+ *  @brief Data which Ease the Burden of Consistently Setting Errno
+ *
  *  This file contains macros and definitions which ease the burden
  *  of consistently setting errno and returning -1.
  */
@@ -11,11 +13,19 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SETERR_H
 #define _RTEMS_SETERR_H
+
+/**
+ *  @defgroup ScoreSetErr Set Errno
+ *
+ *  @ingroup Score
+ *
+ */
+/**@{*/
 
 #include <errno.h>
 
@@ -41,5 +51,6 @@
 #define rtems_set_errno_and_return_minus_one_cast( _error, _cast ) \
   do { errno = (_error); return (_cast) -1; } while(0)
 
+/**@}*/
 #endif
 /* end of include file */

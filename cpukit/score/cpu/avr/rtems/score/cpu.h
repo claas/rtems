@@ -1,17 +1,19 @@
 /**
- * @file rtems/score/cpu.h
+ * @file
+ *
+ * @brief Intel AVR CPU Department Source
+ *
+ * This include file contains information pertaining to the AVR
+ * processor.
  */
 
 /*
- *  This include file contains information pertaining to the AVR
- *  processor.
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_CPU_H
@@ -372,6 +374,8 @@ extern "C" {
 
 #define CPU_MODES_INTERRUPT_MASK   0x00000001
 
+#define CPU_PER_CPU_CONTROL_SIZE 0
+
 /*
  *  Processor defined structures required for cpukit/score.
  *
@@ -383,6 +387,10 @@ extern "C" {
 /* may need to put some structures here.  */
 
 #ifndef ASM
+
+typedef struct {
+  /* There is no CPU specific per-CPU state */
+} CPU_Per_CPU_control;
 
 /*
  * Contexts
@@ -526,6 +534,8 @@ SCORE_EXTERN Context_Control_fp  _CPU_Null_fp_context;
  *  Maximum priority of a thread. Note based from 0 which is the idle task.
  */
 #define CPU_PRIORITY_MAXIMUM             15
+
+#define CPU_SIZEOF_POINTER 2
 
 /*
  *  CPU's worst alignment requirement for data types on a byte boundary.  This
@@ -953,7 +963,8 @@ void _CPU_Context_Initialize(
   uint32_t          size,
   uint32_t          new_level,
   void             *entry_point,
-  bool              is_fp
+  bool              is_fp,
+  void             *tls_area
 );
 
 /*
@@ -1110,6 +1121,23 @@ void _CPU_Context_restore_fp(
   Context_Control_fp **fp_context_ptr
 );
 
+static inline void _CPU_Context_volatile_clobber( uintptr_t pattern )
+{
+  /* TODO */
+}
+
+static inline void _CPU_Context_validate( uintptr_t pattern )
+{
+  while (1) {
+    /* TODO */
+  }
+}
+
+/* FIXME */
+typedef CPU_Interrupt_frame CPU_Exception_frame;
+
+void _CPU_Exception_frame_print( const CPU_Exception_frame *frame );
+
 /*  The following routine swaps the endian format of an unsigned int.
  *  It must be static because it is referenced indirectly.
  *
@@ -1151,6 +1179,18 @@ static inline uint32_t CPU_swap_u32(
 
 #define CPU_swap_u16( value ) \
   (((value&0xff) << 8) | ((value >> 8)&0xff))
+
+typedef uint32_t CPU_Counter_ticks;
+
+CPU_Counter_ticks _CPU_Counter_read( void );
+
+static inline CPU_Counter_ticks _CPU_Counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+)
+{
+  return second - first;
+}
 
 #endif /* ASM */
 

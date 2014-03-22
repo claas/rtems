@@ -1,6 +1,8 @@
 /**
- * @file rtems/devnull.h
+ * @file
  *
+ * @brief RTEMS /dev/null Device Driver
+ * 
  * This include file defines the interface to the RTEMS /dev/null
  * device driver.
  */
@@ -13,13 +15,20 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_DEVNULL_H
 #define _RTEMS_DEVNULL_H
 
-#include <rtems/io.h> /* rtems_device_driver */
+#include <rtems/io.h>
+
+/**
+ *  @defgroup libmisc_devnull Null Device Driver
+ *
+ *  @ingroup libmisc
+ */
+/**@{*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +79,6 @@ rtems_device_driver null_control(
 #ifdef __cplusplus
 }
 #endif
-
+/**@}*/
 #endif
 /* end of include file */

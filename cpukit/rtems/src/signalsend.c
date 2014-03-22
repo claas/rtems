@@ -1,48 +1,35 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Send Signal
+ *  @ingroup ClassicSignal
+ */
+
 /*
- *  Signal Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/asr.h>
-#include <rtems/score/isr.h>
-#include <rtems/rtems/modes.h>
-#include <rtems/rtems/signal.h>
-#include <rtems/score/thread.h>
+#include <rtems/rtems/signalimpl.h>
+#include <rtems/rtems/asrimpl.h>
 #include <rtems/rtems/tasks.h>
-
-/*
- *  rtems_signal_send
- *
- *  This directive allows a thread to send signals to a thread.
- *
- *  Input parameters:
- *    id         - thread id
- *    signal_set - signal set
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/score/isr.h>
+#include <rtems/score/threadimpl.h>
 
 rtems_status_code rtems_signal_send(
   rtems_id          id,
   rtems_signal_set  signal_set
 )
 {
-  register Thread_Control *the_thread;
+  Thread_Control          *the_thread;
   Objects_Locations        location;
   RTEMS_API_Control       *api;
   ASR_Information         *asr;
@@ -59,17 +46,15 @@ rtems_status_code rtems_signal_send(
 
       if ( ! _ASR_Is_null_handler( asr->handler ) ) {
         if ( asr->is_enabled ) {
-          _ASR_Post_signals( signal_set, &asr->signals_posted );
-
-          if ( _ISR_Is_in_progress() && _Thread_Is_executing( the_thread ) )
-            _Thread_Dispatch_necessary = true;
+          _ASR_Post_signals( asr, signal_set, &asr->signals_posted );
+          _Thread_Signal_notification( the_thread );
         } else {
-          _ASR_Post_signals( signal_set, &asr->signals_pending );
+          _ASR_Post_signals( asr, signal_set, &asr->signals_pending );
         }
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_thread->Object );
         return RTEMS_SUCCESSFUL;
       }
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_thread->Object );
       return RTEMS_NOT_DEFINED;
 
 #if defined(RTEMS_MULTIPROCESSING)

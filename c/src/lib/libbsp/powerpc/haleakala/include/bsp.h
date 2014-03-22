@@ -36,7 +36,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *
  *
@@ -67,6 +67,7 @@ extern "C" {
   #include <rtems/iosupp.h>
   #include <bsp/irq.h>
   #include <bsp/vectors.h>
+  #include <bsp/default-initial-extension.h>
 
   /* Network Defines */
   #define RTEMS_BSP_NETWORK_DRIVER_NAME     "eth0"

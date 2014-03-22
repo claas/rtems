@@ -82,7 +82,7 @@ static void lan91cxx_phy_configure(struct lan91cxx_priv_data *cpd);
 #define max(l,r) ((l) > (r) ? (l) : (r))
 
 /* \ ------------- Interrupt ------------- \ */
-void lan91cxx_interrupt_handler(void *arg)
+static void lan91cxx_interrupt_handler(void *arg)
 {
 	struct lan91cxx_priv_data *cpd = arg;
 	unsigned short irq, event;
@@ -118,13 +118,13 @@ void lan91cxx_interrupt_handler(void *arg)
 			put_reg(cpd, LAN91CXX_INTERRUPT,
 				(irq & 0xff00) | LAN91CXX_INTERRUPT_TX_INT);
 
-			/*rtems_event_send (cpd->txDaemonTid, SMC91111_INTERRUPT_EVENT); */
+			/*rtems_bsdnet_event_send (cpd->txDaemonTid, SMC91111_INTERRUPT_EVENT); */
 			/*put_reg(cpd, LAN91CXX_INTERRUPT, (irq & 0xff00) | LAN91CXX_INTERRUPT_TX_INT); */
-			/*rtems_event_send (cpd->txDaemonTid, SMC91111_TX_WAIT_EVENT); */
+			/*rtems_bsdnet_event_send (cpd->txDaemonTid, SMC91111_TX_WAIT_EVENT); */
 		}
 		if (event & LAN91CXX_INTERRUPT_RCV_INT) {
 			db_printf("#*rx irq\n");
-			rtems_event_send(cpd->rxDaemonTid,
+			rtems_bsdnet_event_send(cpd->rxDaemonTid,
 					 SMC91111_INTERRUPT_EVENT);
 		}
 		if (event &
@@ -153,6 +153,9 @@ static void lan91cxx_recv(struct lan91cxx_priv_data *cpd, struct mbuf *m)
 	rxd_t *data = NULL, val;
 #if DEBUG & 64
 	rxd_t lp = 0;
+#else
+	/* start is only read with debug enabled */
+	(void)start;
 #endif
 	struct mbuf *n;
 	dbg_prefix = "<";
@@ -247,7 +250,6 @@ static void lan91cxx_recv(struct lan91cxx_priv_data *cpd, struct mbuf *m)
 			}
 		}
 		db64_printf(" \n");
-
 #endif
 	}
 	val = get_data(cpd);	/* Read control word (and potential data) unconditionally */
@@ -657,7 +659,7 @@ static void sendpacket(struct ifnet *ifp, struct mbuf *m)
 	dbg_prefix = "";
 }
 
-void smc91111_txDaemon(void *arg)
+static void smc91111_txDaemon(void *arg)
 {
 	struct lan91cxx_priv_data *cpd = arg;
 	struct ifnet *ifp = &cpd->arpcom.ac_if;
@@ -699,7 +701,7 @@ static void smc91111_start(struct ifnet *ifp)
 	if ((ifp->if_flags & (IFF_RUNNING | IFF_OACTIVE)) != IFF_RUNNING)
 		return;
 
-	rtems_event_send(cpd->txDaemonTid, START_TRANSMIT_EVENT);
+	rtems_bsdnet_event_send(cpd->txDaemonTid, START_TRANSMIT_EVENT);
 	ifp->if_flags |= IFF_OACTIVE;
 
 }
@@ -962,7 +964,7 @@ int _rtems_smc91111_driver_attach (struct rtems_bsdnet_ifconfig *config,
 	if_attach(ifp);
 	ether_ifattach(ifp);
 
-#ifdef DEBUG
+#if DEBUG
 	printf("SMC91111 : driver has been attached\n");
 #endif
 
@@ -1035,7 +1037,7 @@ int lan91cxx_hardware_init(struct lan91cxx_priv_data *cpd)
 			cpd->config.info,
 			cpd->config.options,
 			cpd->config.interrupt_wrapper,
-			cpd->config.arg
+			cpd
 		);
 		if (sc != RTEMS_SUCCESSFUL) {
 			printf("rtems_interrupt_handler_install returned %d.\n", sc);

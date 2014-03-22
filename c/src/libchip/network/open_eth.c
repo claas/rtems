@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -176,13 +176,13 @@ open_eth_interrupt_handler (rtems_vector_number v)
     if (status & (OETH_INT_RXF | OETH_INT_RXE))
       {
 	  oc.rxInterrupts++;
-	  rtems_event_send (oc.rxDaemonTid, INTERRUPT_EVENT);
+	  rtems_bsdnet_event_send (oc.rxDaemonTid, INTERRUPT_EVENT);
       }
 #ifdef OETH_SUSPEND_NOTXBUF
     if (status & (OETH_INT_MASK_TXB | OETH_INT_MASK_TXC | OETH_INT_MASK_TXE))
       {
 	  oc.txInterrupts++;
-	  rtems_event_send (oc.txDaemonTid, OPEN_ETH_TX_WAIT_EVENT);
+	  rtems_bsdnet_event_send (oc.txDaemonTid, OPEN_ETH_TX_WAIT_EVENT);
       }
 #endif
       /*
@@ -459,7 +459,7 @@ sendpacket (struct ifnet *ifp, struct mbuf *m)
           rtems_event_set events;
 	  rtems_bsdnet_event_receive (OPEN_ETH_TX_WAIT_EVENT,
 				      RTEMS_WAIT | RTEMS_EVENT_ANY,
-				      TOD_MILLISECONDS_TO_TICKS(500), &events);
+				      RTEMS_MILLISECONDS_TO_TICKS(500), &events);
 #endif
       }
 
@@ -517,7 +517,7 @@ sendpacket (struct ifnet *ifp, struct mbuf *m)
 /*
  * Driver transmit daemon
  */
-void
+static void
 open_eth_txDaemon (void *arg)
 {
     struct open_eth_softc *sc = (struct open_eth_softc *) arg;
@@ -561,7 +561,7 @@ open_eth_start (struct ifnet *ifp)
 {
     struct open_eth_softc *sc = ifp->if_softc;
 
-    rtems_event_send (sc->txDaemonTid, START_TRANSMIT_EVENT);
+    rtems_bsdnet_event_send (sc->txDaemonTid, START_TRANSMIT_EVENT);
     ifp->if_flags |= IFF_OACTIVE;
 }
 

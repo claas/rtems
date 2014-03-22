@@ -18,14 +18,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #define CONFIGURE_INIT
 #include "system.h"
 
@@ -35,6 +34,8 @@
 #include <errno.h>
 #include <rtems/score/protectedheap.h>
 #include <rtems/malloc.h>
+
+const char rtems_test_name[] = "MALLOCTEST";
 
 /*
  *  A simple test of realloc
@@ -133,6 +134,8 @@ static void test_heap_default_init(void)
 static void test_free( void *addr )
 {
   rtems_test_assert( _Heap_Free( &TestHeap, addr ) );
+
+  _Heap_Protection_free_all_delayed_blocks( &TestHeap );
 }
 
 static void test_heap_cases_1(void)
@@ -586,6 +589,30 @@ static void test_heap_allocate(void)
   p1 = test_init_and_alloc( alloc_size, alignment, boundary, NULL );
 }
 
+static void test_heap_free(void)
+{
+  Heap_Control *heap = &TestHeap;
+  void *p;
+  Heap_Block *block;
+  bool ok;
+
+  _Heap_Initialize( heap, &TestHeapMemory[0], sizeof(TestHeapMemory), 0 );
+
+  p = _Heap_Allocate( heap, 1 );
+  rtems_test_assert( p != NULL );
+
+  block = _Heap_Block_of_alloc_area( (uintptr_t) p, heap->page_size );
+
+  /*
+   * This will kick the next block outside of the heap area and the next
+   * _Heap_Free() will detect this.
+   */
+  block->size_and_flag += sizeof(TestHeapMemory);
+
+  ok = _Heap_Free( heap, p );
+  rtems_test_assert( !ok );
+}
+
 static void *test_create_used_block( void )
 {
   uintptr_t const alloc_size = 3 * TEST_DEFAULT_PAGE_SIZE;
@@ -911,7 +938,7 @@ static void test_heap_resize_block(void)
   p3 = test_alloc_one_page();
   rtems_test_assert( p3 );
 
-  _Heap_Free( &TestHeap, p2 );
+  test_free( p2 );
   new_alloc_size = 5 * TEST_DEFAULT_PAGE_SIZE / 2;
   test_simple_resize_block( p1, new_alloc_size, HEAP_RESIZE_UNSATISFIED );
 
@@ -948,19 +975,31 @@ static void test_heap_extend(void)
   bool ret = false;
   Heap_Control *heap = &TestHeap;
   uint8_t *area_begin = TestHeapMemory;
+  uint8_t *sub_area_begin;
+  uint8_t *sub_area_end;
 
   _Heap_Initialize( heap, area_begin + 768, 256, 0 );
+  sub_area_begin = (uint8_t *) heap->first_block;
+  sub_area_end = (uint8_t *) heap->first_block->prev_size;
 
   puts( "heap extend - link below" );
   ret = _Protected_heap_Extend( heap, area_begin + 0, 256 );
   test_heap_assert( ret, true );
 
+  puts( "heap extend - merge below overlap" );
+  ret = _Protected_heap_Extend( heap, sub_area_begin - 128, 256 );
+  test_heap_assert( ret, false );
+
   puts( "heap extend - merge below" );
-  ret = _Protected_heap_Extend( heap, area_begin + 512, 256 );
+  ret = _Protected_heap_Extend( heap, sub_area_begin - 256, 256 );
   test_heap_assert( ret, true );
 
+  puts( "heap extend - merge above overlap" );
+  ret = _Protected_heap_Extend( heap, sub_area_end - 128, 256 );
+  test_heap_assert( ret, false );
+
   puts( "heap extend - merge above" );
-  ret = _Protected_heap_Extend( heap, area_begin + 1024, 256 );
+  ret = _Protected_heap_Extend( heap, sub_area_end, 256 );
   test_heap_assert( ret, true );
 
   puts( "heap extend - link above" );
@@ -984,12 +1023,73 @@ static void test_heap_extend(void)
   test_heap_assert( ret, true );
 }
 
+static void test_heap_extend_allocation_order(void)
+{
+  Heap_Control *heap = &TestHeap;
+  uintptr_t size = 256;
+  uintptr_t gap = 256;
+  uint8_t *init_area_begin = TestHeapMemory;
+  uint8_t *extend_area_begin = init_area_begin + size + gap;
+  bool ret;
+  uint8_t *p;
+
+  _Heap_Initialize( heap, init_area_begin, size, 0 );
+
+  ret = _Protected_heap_Extend( heap, extend_area_begin, size );
+  test_heap_assert( ret, true );
+
+  p = _Heap_Allocate( heap, 1 );
+  rtems_test_assert( (uintptr_t) (p - init_area_begin) < size );
+}
+
+static void test_heap_extend_allocation_order_with_empty_heap(void)
+{
+  Heap_Control *heap = &TestHeap;
+  uintptr_t size = 256;
+  uintptr_t gap = 256;
+  uint8_t *init_area_begin = TestHeapMemory;
+  uint8_t *extend_area_begin = init_area_begin + size + gap;
+  bool ret;
+  uint8_t *p;
+
+  _Heap_Initialize( heap, init_area_begin, size, 0 );
+
+  _Heap_Greedy_allocate( heap, NULL, 0 );
+
+  ret = _Protected_heap_Extend( heap, extend_area_begin, size );
+  test_heap_assert( ret, true );
+
+  p = _Heap_Allocate( heap, 1 );
+  rtems_test_assert( (uintptr_t) (p - extend_area_begin) < size );
+}
+
+static void test_heap_no_extend(void)
+{
+  uintptr_t extended_space = _Heap_No_extend( NULL, 0, 0, 0 );
+  rtems_test_assert( extended_space == 0 );
+}
+
+static void free_all_delayed_blocks( void )
+{
+  rtems_resource_snapshot unused;
+
+  rtems_resource_snapshot_take( &unused );
+}
+
+static void do_free( void *p )
+{
+  free( p );
+  free_all_delayed_blocks();
+}
+
 static void test_heap_info(void)
 {
   size_t                  s1, s2;
   void                   *p1;
   int                     sc;
   Heap_Information_block  the_info;
+
+  free_all_delayed_blocks();
 
   s1 = malloc_free_space();
   p1 = malloc( 512 );
@@ -998,7 +1098,7 @@ static void test_heap_info(void)
   rtems_test_assert( s1 );
   rtems_test_assert( s2 );
   rtems_test_assert( s2 <= s1 );
-  free( p1 );
+  do_free( p1 );
 
   puts( "malloc_free_space - verify free space returns to previous value" );
   s2 = malloc_free_space();
@@ -1022,7 +1122,7 @@ static void test_heap_info(void)
   rtems_test_assert( s1 );
   rtems_test_assert( s2 );
   rtems_test_assert( s2 <= s1 );
-  free( p1 );
+  do_free( p1 );
 
   puts( "malloc_info - verify free space returns to previous value" );
   sc = malloc_info( &the_info );
@@ -1057,6 +1157,25 @@ static void test_rtems_heap_allocate_aligned_with_boundary(void)
   p = rtems_heap_allocate_aligned_with_boundary(1, 1, 1);
   _Thread_Enable_dispatch();
   rtems_test_assert( p == NULL );
+}
+
+static void test_heap_size_with_overhead(void)
+{
+  uintptr_t s;
+
+  puts( "_Heap_Size_with_overhead" );
+
+  s = _Heap_Size_with_overhead(0, 0, 0);
+  rtems_test_assert(s == HEAP_BLOCK_HEADER_SIZE + CPU_ALIGNMENT - 1);
+
+  s = _Heap_Size_with_overhead(CPU_ALIGNMENT, 0, 0);
+  rtems_test_assert(s == HEAP_BLOCK_HEADER_SIZE + CPU_ALIGNMENT - 1);
+
+  s = _Heap_Size_with_overhead(CPU_ALIGNMENT, 0, 2 * CPU_ALIGNMENT);
+  rtems_test_assert(s == HEAP_BLOCK_HEADER_SIZE + 2 * CPU_ALIGNMENT - 1);
+
+  s = _Heap_Size_with_overhead(CPU_ALIGNMENT, 123, 0);
+  rtems_test_assert(s == HEAP_BLOCK_HEADER_SIZE + CPU_ALIGNMENT - 1 + 123);
 }
 
 /*
@@ -1101,6 +1220,29 @@ static void test_posix_memalign(void)
 
 }
 
+static void test_greedy_allocate(void)
+{
+  Heap_Control *heap = &TestHeap;
+  uintptr_t block_size = 1;
+  void *p;
+
+  _Heap_Initialize( heap, &TestHeapMemory[0], sizeof(TestHeapMemory), 0 );
+
+  _Heap_Greedy_allocate( heap, &block_size, 1 );
+
+  p = _Heap_Allocate( heap, 1 );
+  rtems_test_assert( p != NULL );
+
+  p = _Heap_Allocate( heap, 1 );
+  rtems_test_assert( p == NULL );
+
+  /* The internal allocation fails */
+  _Heap_Greedy_allocate( heap, &block_size, 1 );
+
+  p = _Heap_Allocate( heap, 1 );
+  rtems_test_assert( p == NULL );
+}
+
 rtems_task Init(
   rtems_task_argument argument
 )
@@ -1109,7 +1251,7 @@ rtems_task Init(
   rtems_time_of_day time;
   rtems_status_code status;
 
-  puts( "\n\n*** MALLOC TEST ***" );
+  TEST_BEGIN();
 
   build_time( &time, 12, 31, 1988, 9, 0, 0, 0 );
   status = rtems_clock_set( &time );
@@ -1138,13 +1280,19 @@ rtems_task Init(
   test_heap_initialize();
   test_heap_block_allocate();
   test_heap_allocate();
+  test_heap_free();
   test_heap_resize_block();
   test_realloc();
   test_heap_cases_1();
   test_heap_extend();
+  test_heap_extend_allocation_order();
+  test_heap_extend_allocation_order_with_empty_heap();
+  test_heap_no_extend();
   test_heap_info();
+  test_heap_size_with_overhead();
   test_protected_heap_info();
   test_rtems_heap_allocate_aligned_with_boundary();
+  test_greedy_allocate();
 
   test_posix_memalign();
 

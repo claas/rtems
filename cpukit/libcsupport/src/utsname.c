@@ -1,3 +1,19 @@
+/**
+ * @file
+ *
+ * @brief Get System Name
+ * @ingroup utsname Service
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-1999.
+ *  On-Line Applications Research Corporation (OAR).
+ *
+ *  The license and distribution terms for this file may be
+ *  found in the file LICENSE in this distribution or at
+ *  http://www.rtems.org/license/LICENSE.
+ */
+
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -7,8 +23,7 @@
 #include <sys/utsname.h>
 #include <inttypes.h>
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
+#include <rtems/score/objectimpl.h>
 #include <rtems/seterr.h>
 
 /*

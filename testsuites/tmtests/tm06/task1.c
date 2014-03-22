@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2009.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -129,7 +129,7 @@ rtems_task Task_1(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_task_resume: task readied -- returns to caller",
+    "rtems_task_resume: task readied returns to caller",
     end_time,
     OPERATION_COUNT,
     0,

@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @brief Sets States for a Thread
+ *
+ * @ingroup ScoreThread
+ */
+
 /*
  *  Thread Handler / Thread Set State
  *
@@ -6,51 +14,35 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/scheduler.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/isrlevel.h>
+#include <rtems/score/schedulerimpl.h>
 
-/*
- *  INTERRUPT LATENCY:
- *    ready chain
- *    select map
- */
 void _Thread_Set_state(
   Thread_Control *the_thread,
   States_Control  state
 )
 {
   ISR_Level      level;
+  States_Control current_state;
 
   _ISR_Disable( level );
-  if ( !_States_Is_ready( the_thread->current_state ) ) {
-    the_thread->current_state =
-       _States_Set( state, the_thread->current_state );
-    _ISR_Enable( level );
-    return;
+
+  current_state = the_thread->current_state;
+  if ( _States_Is_ready( current_state ) ) {
+    the_thread->current_state = state;
+
+    _Scheduler_Block( the_thread );
+  } else {
+    the_thread->current_state = _States_Set( state, current_state);
   }
-
-  the_thread->current_state = state;
-
-  _Scheduler_Block( the_thread );
 
   _ISR_Enable( level );
 }

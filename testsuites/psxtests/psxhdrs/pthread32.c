@@ -7,7 +7,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -27,6 +27,7 @@ void cleanup_routine(
   void *argument
 )
 {
+  (void) argument;
 }
 
 void test( void )
@@ -36,4 +37,5 @@ void test( void )
   argument = 0;
 
   pthread_cleanup_push( cleanup_routine, &argument );
+  pthread_cleanup_pop( 1 );
 }

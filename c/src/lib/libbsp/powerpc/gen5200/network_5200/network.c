@@ -14,7 +14,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 | this file contains the networking driver                        |
@@ -213,7 +213,7 @@ static mpc5200_fec_context enet_driver[NIFACES];
 
 static void mpc5200_fec_send_event(rtems_id task)
 {
-  rtems_event_send(task, FEC_EVENT);
+  rtems_bsdnet_event_send(task, FEC_EVENT);
 }
 
 static void mpc5200_fec_wait_for_event(void)

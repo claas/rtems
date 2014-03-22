@@ -1,3 +1,9 @@
+/**
+ *  @file
+ *
+ *  @brief CPU Initialize Context
+ */
+
 /*
  * Copyright (c) 2011 Sebastian Huber.  All rights reserved.
  *
@@ -9,7 +15,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -18,11 +24,11 @@
 
 #include <string.h>
 
+#include <rtems/score/armv7m.h>
 #include <rtems/score/thread.h>
+#include <rtems/score/tls.h>
 
 #ifdef ARM_MULTILIB_ARCH_V7M
-
-#include <rtems/score/armv7m.h>
 
 void _CPU_Context_Initialize(
   Context_Control *context,
@@ -30,7 +36,8 @@ void _CPU_Context_Initialize(
   size_t stack_area_size,
   uint32_t new_level,
   void (*entry_point)( void ),
-  bool is_fp
+  bool is_fp,
+  void *tls_area
 )
 {
   char *stack_area_end = (char *) stack_area_begin + stack_area_size;
@@ -39,6 +46,10 @@ void _CPU_Context_Initialize(
 
   context->register_lr = entry_point;
   context->register_sp = stack_area_end;
+
+  if ( tls_area != NULL ) {
+    _TLS_TCB_at_area_begin_initialize( tls_area );
+  }
 }
 
 #endif /* ARM_MULTILIB_ARCH_V7M */

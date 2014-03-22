@@ -1,12 +1,17 @@
-/*
- *  Operations Table for Directories for the IMFS
+/**
+ * @file
  *
+ * @brief Operations Table for Directories
+ * @ingroup IMFS
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -45,17 +50,21 @@ static int IMFS_stat_directory(
 }
 
 static const rtems_filesystem_file_handlers_r IMFS_directory_handlers = {
-  rtems_filesystem_default_open,
-  rtems_filesystem_default_close,
-  imfs_dir_read,
-  rtems_filesystem_default_write,
-  rtems_filesystem_default_ioctl,
-  rtems_filesystem_default_lseek_directory,
-  IMFS_stat_directory,
-  rtems_filesystem_default_ftruncate_directory,
-  rtems_filesystem_default_fsync_or_fdatasync_success,
-  rtems_filesystem_default_fsync_or_fdatasync_success,
-  rtems_filesystem_default_fcntl
+  .open_h = rtems_filesystem_default_open,
+  .close_h = rtems_filesystem_default_close,
+  .read_h = imfs_dir_read,
+  .write_h = rtems_filesystem_default_write,
+  .ioctl_h = rtems_filesystem_default_ioctl,
+  .lseek_h = rtems_filesystem_default_lseek_directory,
+  .fstat_h = IMFS_stat_directory,
+  .ftruncate_h = rtems_filesystem_default_ftruncate_directory,
+  .fsync_h = rtems_filesystem_default_fsync_or_fdatasync_success,
+  .fdatasync_h = rtems_filesystem_default_fsync_or_fdatasync_success,
+  .fcntl_h = rtems_filesystem_default_fcntl,
+  .kqfilter_h = rtems_filesystem_default_kqfilter,
+  .poll_h = rtems_filesystem_default_poll,
+  .readv_h = rtems_filesystem_default_readv,
+  .writev_h = rtems_filesystem_default_writev
 };
 
 static IMFS_jnode_t *IMFS_node_initialize_directory(
@@ -74,14 +83,13 @@ static bool IMFS_is_mount_point( const IMFS_jnode_t *node )
 }
 
 static IMFS_jnode_t *IMFS_node_remove_directory(
-  IMFS_jnode_t *node,
-  const IMFS_jnode_t *root_node
+  IMFS_jnode_t *node
 )
 {
   if ( !rtems_chain_is_empty( &node->info.directory.Entries ) ) {
     errno = ENOTEMPTY;
     node = NULL;
-  } else if ( node == root_node || IMFS_is_mount_point( node ) ) {
+  } else if ( IMFS_is_mount_point( node ) ) {
     errno = EBUSY;
     node = NULL;
   }

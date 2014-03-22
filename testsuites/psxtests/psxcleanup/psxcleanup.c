@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -209,13 +209,12 @@ void *WriterThread(void *arg)
   puts("cleanup push for write");
   pthread_cleanup_push(release_write_lock, &l->lock);
 
+  /* Thread has write lock. */
+  release_write_lock(&l->lock);
+
   /* do nothing */
   puts("do nothing cleanup pop for write");
   pthread_cleanup_pop(0);
-
-  /* Thread has write lock. */
-  puts("cleanup pop for write");
-  pthread_cleanup_pop(1);
   return NULL;
 }
 
@@ -250,13 +249,6 @@ void *POSIX_Init(
   posix_service_failed( status, "pthread_create Writer" );
 
   sleep(1);
-
-  /*************** ERROR CASES  ***************/
-  puts("Call pthread_cleanup_push with NULL handler");
-  pthread_cleanup_push(NULL, NULL);
-
-  puts("Call pthread_cleanup_pop with no push");
-  pthread_cleanup_pop(1);
 
   /*************** END OF TEST *****************/
   puts( "*** END OF POSIX CLEANUP TEST ***\n" );

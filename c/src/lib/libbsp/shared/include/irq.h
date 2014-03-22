@@ -18,19 +18,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_SHARED_IRQ_CONFIG_H
 #define LIBBSP_SHARED_IRQ_CONFIG_H
 
 #include <stdint.h>
-
-/**
- * @addtogroup bsp_interrupt
- *
- * @{
- */
 
 /**
  * @brief Minimum vector number.
@@ -79,7 +73,5 @@
  * vector validator check routine.
  */
 #undef BSP_INTERRUPT_CUSTOM_VALID_VECTOR
-
-/** @} */
 
 #endif /* LIBBSP_SHARED_IRQ_CONFIG_H */

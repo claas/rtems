@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
@@ -20,7 +20,7 @@
 #include <pxa255.h>
 
 #if ON_SKYEYE==1
-  #define CLOCK_DRIVER_USE_FAST_IDLE
+  #define CLOCK_DRIVER_USE_FAST_IDLE 1
 #endif
 
 static unsigned long period_num;
@@ -50,9 +50,9 @@ static void clock_isr_on(const rtems_irq_connect_data *unused)
   XSCALE_OS_TIMER_IER |= 0x1;
 
 #if ON_SKYEYE==1
-  period_num = (TIMER_RATE* Configuration.microseconds_per_tick)/100000;
+  period_num = (TIMER_RATE* rtems_configuration_get_microseconds_per_tick())/100000;
 #else
-  period_num = (TIMER_RATE* Configuration.microseconds_per_tick)/10000;
+  period_num = (TIMER_RATE* rtems_configuration_get_microseconds_per_tick())/10000;
 #endif
 
   XSCALE_OS_TIMER_MR0 = XSCALE_OS_TIMER_TCR + period_num;
@@ -103,9 +103,9 @@ rtems_irq_connect_data clock_isr_data = {
 void Clock_driver_support_initialize_hardware(void)
 {
 #if ON_SKYEYE==1
-  period_num = (TIMER_RATE* Configuration.microseconds_per_tick)/100000;
+  period_num = (TIMER_RATE* rtems_configuration_get_microseconds_per_tick())/100000;
 #else
-  period_num = (TIMER_RATE* Configuration.microseconds_per_tick)/10000;
+  period_num = (TIMER_RATE* rtems_configuration_get_microseconds_per_tick())/10000;
 #endif
 }
 

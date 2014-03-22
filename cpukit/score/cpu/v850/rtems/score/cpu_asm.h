@@ -1,11 +1,10 @@
 /**
- * @file rtems/score/cpu_asm.h
- */
-
-/*
- *  Very loose template for an include file for the cpu_asm.? file
- *  if it is implemented as a ".S" file (preprocessed by cpp) instead
- *  of a ".s" file (preprocessed by gm4 or gasp).
+ * @file
+ *
+ * @brief V850 Assembly File
+ * Very loose template for an include file for the cpu_asm.? file
+ * if it is implemented as a ".S" file (preprocessed by cpp) instead
+ * of a ".s" file (preprocessed by gm4 or gasp).
  */
 
 /*
@@ -14,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_CPU_ASM_H

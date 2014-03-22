@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @ingroup lpc32xx
+ * @ingroup arm_lpc32xx
  *
  * @brief High speed UART driver (14-clock).
  */
@@ -16,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
@@ -189,7 +189,7 @@ static int lpc32xx_hsu_set_attributes(int minor, const struct termios *term)
   return 0;
 }
 
-console_fns lpc32xx_hsu_fns = {
+const console_fns lpc32xx_hsu_fns = {
   .deviceProbe = libchip_serial_default_probe,
   .deviceFirstOpen = lpc32xx_hsu_first_open,
   .deviceLastClose = NULL,

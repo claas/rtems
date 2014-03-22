@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Delete Timer
+ *  @ingroup ClassicTimer
+ */
+
 /*
- *  Timer Manager - rtems_timer_delete directive
- *
- *
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,24 +21,9 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/score/thread.h>
-#include <rtems/rtems/timer.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/watchdog.h>
-
-/*
- *  rtems_timer_delete
- *
- *  This directive allows a thread to delete a timer.
- *
- *  Input parameters:
- *    id - timer id
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/rtems/timerimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 rtems_status_code rtems_timer_delete(
   rtems_id id
@@ -50,7 +39,7 @@ rtems_status_code rtems_timer_delete(
       _Objects_Close( &_Timer_Information, &the_timer->Object );
       (void) _Watchdog_Remove( &the_timer->Ticker );
       _Timer_Free( the_timer );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_timer->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

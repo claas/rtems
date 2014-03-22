@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -27,6 +27,8 @@
 #include <utime.h>
 
 #include <rtems/libio_.h>
+
+const char rtems_test_name[] = "FSNOFS 1";
 
 static int node_count(const rtems_chain_control *chain)
 {
@@ -333,7 +335,7 @@ static void test_user_env(void)
 
 static void Init(rtems_task_argument arg)
 {
-  printk("\n\n*** TEST FSNOFS 1 ***\n");
+  rtems_test_begink();
 
   rtems_libio_init();
 
@@ -345,8 +347,7 @@ static void Init(rtems_task_argument arg)
   test_path_ops();
   test_user_env();
 
-  printk("*** END OF TEST FSNOFS 1 ***\n");
-
+  rtems_test_endk();
   exit(0);
 }
 
@@ -355,6 +356,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_APPLICATION_DISABLE_FILESYSTEM
 
 #define CONFIGURE_MAXIMUM_TASKS 1
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

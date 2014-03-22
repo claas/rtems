@@ -1,13 +1,17 @@
+/**
+ * @file
+ *
+ * @ingroup ScoreWatchdog
+ * @brief Watchdog Tickle
+ */
+ 
 /*
- *  Watchdog Handler
- *
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,19 +20,7 @@
 
 #include <rtems/system.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/watchdog.h>
-
-/*
- *  _Watchdog_Tickle
- *
- *  This routine decrements the delta counter in response to a tick.  The
- *  delta chain is updated accordingly.
- *
- *  Input parameters:
- *    header - pointer to the delta chain to be tickled
- *
- *  Output parameters: NONE
- */
+#include <rtems/score/watchdogimpl.h>
 
 void _Watchdog_Tickle(
   Chain_Control *header

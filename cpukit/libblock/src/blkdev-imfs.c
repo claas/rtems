@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Block Device IMFS
+ * @ingroup libblock
+ */
+
 /*
  * Copyright (c) 2012 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -213,7 +220,11 @@ static const rtems_filesystem_file_handlers_r rtems_blkdev_imfs_node = {
   .ftruncate_h = rtems_filesystem_default_ftruncate,
   .fsync_h = rtems_blkdev_imfs_fsync_or_fdatasync,
   .fdatasync_h = rtems_blkdev_imfs_fsync_or_fdatasync,
-  .fcntl_h = rtems_filesystem_default_fcntl
+  .fcntl_h = rtems_filesystem_default_fcntl,
+  .kqfilter_h = rtems_filesystem_default_kqfilter,
+  .poll_h = rtems_filesystem_default_poll,
+  .readv_h = rtems_filesystem_default_readv,
+  .writev_h = rtems_filesystem_default_writev
 };
 
 static IMFS_jnode_t *rtems_blkdev_imfs_initialize(
@@ -262,8 +273,8 @@ static const IMFS_node_control rtems_blkdev_imfs_control = {
 
 rtems_status_code rtems_blkdev_create(
   const char *device,
-  uint32_t block_size,
-  rtems_blkdev_bnum block_count,
+  uint32_t media_block_size,
+  rtems_blkdev_bnum media_block_count,
   rtems_block_device_ioctl handler,
   void *driver_data
 )
@@ -274,8 +285,8 @@ rtems_status_code rtems_blkdev_create(
   if (ctx != NULL) {
     sc = rtems_disk_init_phys(
       &ctx->dd,
-      block_size,
-      block_count,
+      media_block_size,
+      media_block_count,
       handler,
       driver_data
     );
@@ -306,13 +317,13 @@ rtems_status_code rtems_blkdev_create(
 
 rtems_status_code rtems_blkdev_create_partition(
   const char *partition,
-  const char *device,
-  rtems_blkdev_bnum block_begin,
-  rtems_blkdev_bnum block_count
+  const char *parent_block_device,
+  rtems_blkdev_bnum media_block_begin,
+  rtems_blkdev_bnum media_block_count
 )
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
-  int fd = open(device, O_RDWR);
+  int fd = open(parent_block_device, O_RDWR);
 
   if (fd >= 0) {
     int rv;
@@ -330,8 +341,8 @@ rtems_status_code rtems_blkdev_create_partition(
           sc = rtems_disk_init_log(
             &ctx->dd,
             phys_dd,
-            block_begin,
-            block_count
+            media_block_begin,
+            media_block_count
           );
 
           if (sc == RTEMS_SUCCESSFUL) {

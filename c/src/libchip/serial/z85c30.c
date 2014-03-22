@@ -25,11 +25,12 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
 #include <rtems/libio.h>
+#include <rtems/score/sysstate.h>
 #include <stdlib.h>
 
 #include <libchip/serial.h>
@@ -40,12 +41,12 @@
  * Flow control is only supported when using interrupts
  */
 
-console_flow z85c30_flow_RTSCTS = {
+const console_flow z85c30_flow_RTSCTS = {
   z85c30_negate_RTS,    /* deviceStopRemoteTx */
   z85c30_assert_RTS     /* deviceStartRemoteTx */
 };
 
-console_flow z85c30_flow_DTRCTS = {
+const console_flow z85c30_flow_DTRCTS = {
   z85c30_negate_DTR,    /* deviceStopRemoteTx */
   z85c30_assert_DTR     /* deviceStartRemoteTx */
 };
@@ -54,7 +55,7 @@ console_flow z85c30_flow_DTRCTS = {
  * Exported driver function table
  */
 
-console_fns z85c30_fns = {
+const console_fns z85c30_fns = {
   libchip_serial_default_probe,  /* deviceProbe */
   z85c30_open,                   /* deviceFirstOpen */
   NULL,                          /* deviceLastClose */
@@ -66,7 +67,7 @@ console_fns z85c30_fns = {
   true                           /* deviceOutputUsesInterrupts */
 };
 
-console_fns z85c30_fns_polled = {
+const console_fns z85c30_fns_polled = {
   libchip_serial_default_probe,      /* deviceProbe */
   z85c30_open,                       /* deviceFirstOpen */
   z85c30_close,                      /* deviceLastClose */
@@ -704,11 +705,9 @@ Z85C30_STATIC void z85c30_initialize_interrupts(
 )
 {
   uint32_t       ulCtrlPort1;
-  uint32_t       ulCtrlPort2;
   setRegister_f  setReg;
 
   ulCtrlPort1 = Console_Port_Tbl[minor]->ulCtrlPort1;
-  ulCtrlPort2 = Console_Port_Tbl[minor]->ulCtrlPort2;
   setReg      = Console_Port_Tbl[minor]->setRegister;
 
 

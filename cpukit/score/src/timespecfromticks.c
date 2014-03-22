@@ -1,22 +1,26 @@
+/**
+ *  @file
+ *
+ *  @brief Convert Ticks to Timespec
+ *  @ingroup Timespec
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <time.h>
-
-#include <rtems/system.h>
-#include <rtems/config.h>
 #include <rtems/score/timespec.h>
-#include <rtems/score/tod.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/config.h>
 
 void _Timespec_From_ticks(
   uint32_t         ticks,

@@ -1,3 +1,10 @@
+/**
+ * @file
+ * @defgroup amba AMBA Driver Handler
+ * @ingroup sparc_leon3
+ * @brief AMBA Plag & Play Bus Driver Macros
+ */
+
 /*
  *  AMBA Plag & Play Bus Driver Macros
  *
@@ -8,7 +15,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __AMBA_H__
@@ -33,6 +40,8 @@ extern "C" {
 
 /* The AMBA Plug&Play info of the bus that the LEON3 sits on */
 extern struct ambapp_bus ambapp_plb;
+
+void amba_initialize(void);
 
 #ifdef __cplusplus
 }

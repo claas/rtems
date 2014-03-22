@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems/bspIo.h>
@@ -35,7 +35,7 @@ console_tbl Console_Configuration_Ports [] = {
   #endif
   #ifdef STM32F4_ENABLE_USART_2
     {
-      .sDeviceName = "/dev/ttyS2",
+      .sDeviceName = "/dev/ttyS1",
       .deviceType = SERIAL_CUSTOM,
       .pDeviceFns = &stm32f4_usart_fns,
       .ulCtrlPort1 = (uint32_t) STM32F4_USART_2,

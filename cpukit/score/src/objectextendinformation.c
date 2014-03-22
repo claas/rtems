@@ -1,30 +1,28 @@
+/**
+ * @file
+ *
+ * @brief Extend Set of Objects
+ * @ingroup ScoreObject
+ */
+
 /*
- *  Object Handler
- *
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
+#include <rtems/score/objectimpl.h>
 #include <rtems/score/address.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/object.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/objectmp.h>
-#endif
-#include <rtems/score/thread.h>
+#include <rtems/score/chainimpl.h>
+#include <rtems/score/isrlevel.h>
 #include <rtems/score/wkspace.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/isr.h>
 
 #include <string.h>  /* for memcpy() */
 
@@ -113,6 +111,8 @@ void _Objects_Extend_information(
     Objects_Control **local_table;
     void             *old_tables;
     size_t            block_size;
+    uintptr_t         object_blocks_size;
+    uintptr_t         inactive_per_block_size;
 
     /*
      *  Growing the tables means allocating a new area, doing a copy and
@@ -137,25 +137,43 @@ void _Objects_Extend_information(
     block_count++;
 
     /*
-     *  Allocate the tables and break it up.
+     *  Allocate the tables and break it up. The tables are:
+     *      1. object_blocks        : void*
+     *      2. inactive_per_blocks : uint32_t
+     *      3. local_table         : Objects_Name*
      */
-    block_size = block_count *
-           (sizeof(void *) + sizeof(uint32_t) + sizeof(Objects_Name *)) +
-          ((maximum + minimum_index) * sizeof(Objects_Control *));
-    object_blocks = (void**) _Workspace_Allocate( block_size );
-
-    if ( !object_blocks ) {
-      _Workspace_Free( new_object_block );
-      return;
+    object_blocks_size = (uintptr_t)_Addresses_Align_up(
+        (void*)(block_count * sizeof(void*)),
+        CPU_ALIGNMENT
+    );
+    inactive_per_block_size =
+        (uintptr_t)_Addresses_Align_up(
+            (void*)(block_count * sizeof(uint32_t)),
+            CPU_ALIGNMENT
+        );
+    block_size = object_blocks_size + inactive_per_block_size +
+        ((maximum + minimum_index) * sizeof(Objects_Control *));
+    if ( information->auto_extend ) {
+      object_blocks = _Workspace_Allocate( block_size );
+      if ( !object_blocks ) {
+        _Workspace_Free( new_object_block );
+        return;
+      }
+    } else {
+      object_blocks = _Workspace_Allocate_or_fatal_error( block_size );
     }
 
     /*
      *  Break the block into the various sections.
      */
     inactive_per_block = (uint32_t *) _Addresses_Add_offset(
-        object_blocks, block_count * sizeof(void*) );
+        object_blocks,
+        object_blocks_size
+    );
     local_table = (Objects_Control **) _Addresses_Add_offset(
-        inactive_per_block, block_count * sizeof(uint32_t) );
+        inactive_per_block,
+        inactive_per_block_size
+    );
 
     /*
      *  Take the block count down. Saves all the (block_count - 1)

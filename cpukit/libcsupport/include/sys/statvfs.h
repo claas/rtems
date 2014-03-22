@@ -1,10 +1,12 @@
 /**
- * @file sys/statvfs.h
+ * @file 
+ *
+ * @brief Interface to the statvfs() Set of API Methods
  *
  * This include file defines the interface to the statvfs() set of
  * API methods. The statvfs as defined by the SUS:
  *
- *  - http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/statvfs.h.html
+ * - http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/statvfs.h.html
  */
 
 /*
@@ -12,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /*
@@ -48,7 +50,7 @@ struct statvfs
   unsigned long f_namemax; /**< Maximum filename length. */
 };
 
-extern int statvfs(const char *, struct statvfs *);
+extern int statvfs(const char *__restrict , struct statvfs *__restrict);
 extern int fstatvfs(int, struct statvfs *);
 
 #ifdef __cplusplus

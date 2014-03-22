@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -19,10 +19,15 @@
 
 int lchown( const char *path, uid_t owner, gid_t group )
 {
-  return rtems_filesystem_chown(
-    path,
-    owner,
-    group,
-    RTEMS_FS_FOLLOW_HARD_LINK
-  );
+  int rv;
+  rtems_filesystem_eval_path_context_t ctx;
+  int eval_flags = RTEMS_FS_FOLLOW_HARD_LINK;
+  const rtems_filesystem_location_info_t *currentloc =
+    rtems_filesystem_eval_path_start( &ctx, path, eval_flags );
+
+  rv = rtems_filesystem_chown( currentloc, owner, group );
+
+  rtems_filesystem_eval_path_cleanup( &ctx );
+
+  return rv;
 }

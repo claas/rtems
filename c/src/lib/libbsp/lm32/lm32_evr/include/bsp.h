@@ -1,15 +1,18 @@
-/*  bsp.h
+/**
+ * @file
  *
- *  This include file contains all board IO definitions.
+ * @ingroup lm32_evr
  *
- *  XXX : put yours in here
- *
+ * @brief Global BSP definitions.
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Jukka Pietarinen <jukka.pietarinen@mrf.fi>, 2008,
  *  Micro-Research Finland Oy
@@ -20,10 +23,19 @@
 
 #include <stdint.h>
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/console.h>
 #include <rtems/clockdrv.h>
+
+/**
+ * @defgroup lm32_evr EVR Support
+ *
+ * @ingroup bsp_lm32
+ *
+ * @brief EVR support package.
+ */
 
 #if defined(RTEMS_NETWORKING)
 #include <rtems/rtems_bsdnet.h>
@@ -56,15 +68,6 @@ extern int rtems_tsmac_driver_attach(struct rtems_bsdnet_ifconfig *config,
 
 #define TSMAC_FORCE_10BASET
 #endif
-
-  /*
-   *  Simple spin delay in microsecond units for device drivers.
-   *  This is very dependent on the clock speed of the target.
-   */
-
-#define rtems_bsp_delay( microseconds ) \
-  { \
-  }
 
 /* functions */
 #if 0

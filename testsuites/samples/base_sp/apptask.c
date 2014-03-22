@@ -13,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,6 +41,6 @@ rtems_task Application_task(
     "and has id of 0x%" PRIxrtems_id "\n", argument, tid
   );
 
-  printf( "*** END OF SAMPLE SINGLE PROCESSOR APPLICATION ***\n" );
+  TEST_END();
   exit( 0 );
 }

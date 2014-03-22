@@ -1,39 +1,30 @@
+/**
+ *  @file
+ *
+ *  @brief Semaphore MP Support
+ *  @ingroup ClassicSEM
+ */
+
 /*
- *  Multiprocessing Support for the Semaphore Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/rtems/sem.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
-#include <rtems/rtems/support.h>
+#include <rtems/rtems/semimpl.h>
+#include <rtems/rtems/optionsimpl.h>
 
 RTEMS_STATIC_ASSERT(
   sizeof(Semaphore_MP_Packet) <= MP_PACKET_MINIMUM_PACKET_SIZE,
   Semaphore_MP_Packet
 );
-
-/*
- *  _Semaphore_MP_Send_process_packet
- *
- */
 
 void _Semaphore_MP_Send_process_packet (
   Semaphore_MP_Remote_operations  operation,
@@ -75,11 +66,6 @@ void _Semaphore_MP_Send_process_packet (
       break;
   }
 }
-
-/*
- *  _Semaphore_MP_Send_request_packet
- *
- */
 
 rtems_status_code _Semaphore_MP_Send_request_packet (
   Semaphore_MP_Remote_operations operation,
@@ -128,11 +114,6 @@ rtems_status_code _Semaphore_MP_Send_request_packet (
   return RTEMS_SUCCESSFUL;
 }
 
-/*
- *  _Semaphore_MP_Send_response_packet
- *
- */
-
 void _Semaphore_MP_Send_response_packet (
   Semaphore_MP_Remote_operations  operation,
   Objects_Id                      semaphore_id,
@@ -170,12 +151,6 @@ void _Semaphore_MP_Send_response_packet (
 
   }
 }
-
-/*
- *
- *  _Semaphore_MP_Process_packet
- *
- */
 
 void _Semaphore_MP_Process_packet (
   rtems_packet_prefix  *the_packet_prefix
@@ -257,11 +232,6 @@ void _Semaphore_MP_Process_packet (
   }
 }
 
-/*
- *  _Semaphore_MP_Send_object_was_deleted
- *
- */
-
 void _Semaphore_MP_Send_object_was_deleted (
   Thread_Control *the_proxy
 )
@@ -275,11 +245,6 @@ void _Semaphore_MP_Send_object_was_deleted (
   );
 
 }
-
-/*
- *  _Semaphore_MP_Send_extract_proxy
- *
- */
 
 void _Semaphore_MP_Send_extract_proxy (
   void           *argument
@@ -296,25 +261,10 @@ void _Semaphore_MP_Send_extract_proxy (
 
 }
 
-/*
- *  _Semaphore_MP_Get_packet
- *
- */
-
 Semaphore_MP_Packet *_Semaphore_MP_Get_packet ( void )
 {
   return ( (Semaphore_MP_Packet *) _MPCI_Get_packet() );
 }
-
-/*
- *  _Semaphore_Core_mutex_mp_support
- *
- *  Input parameters:
- *    the_thread - the remote thread the semaphore was surrendered to
- *    id         - id of the surrendered semaphore
- *
- *  Output parameters: NONE
- */
 
 #if defined(RTEMS_MULTIPROCESSING)
 void  _Semaphore_Core_mutex_mp_support (
@@ -331,17 +281,6 @@ void  _Semaphore_Core_mutex_mp_support (
    );
 }
 #endif
-
-
-/*
- *  _Semaphore_Core_semaphore_mp_support
- *
- *  Input parameters:
- *    the_thread - the remote thread the semaphore was surrendered to
- *    id         - id of the surrendered semaphore
- *
- *  Output parameters: NONE
- */
 
 #if defined(RTEMS_MULTIPROCESSING)
 void  _Semaphore_Core_semaphore_mp_support (

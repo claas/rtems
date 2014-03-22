@@ -1,24 +1,25 @@
+/**
+ *  @file
+ *
+ *  @brief Iterates Over All Threads
+ *  @ingroup ScoreThread
+ */
+
 /*
- *  rtems_iterate_over_all_threads
- *
- *  This function operates by as follows:
- *    for all threads
- *         invoke specified function
- *
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
 #include <rtems/score/thread.h>
+#include <rtems/score/objectimpl.h>
 
 void rtems_iterate_over_all_threads(rtems_per_thread_routine routine)
 {

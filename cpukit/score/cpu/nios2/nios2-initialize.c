@@ -1,3 +1,9 @@
+/**
+ * @file
+ *
+ * @brief NIOS2 CPU Initialize
+ */
+
 /*
  * Copyright (c) 2006 Kolja Waschk (rtemsdev/ixo.de)
  *
@@ -6,7 +12,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H

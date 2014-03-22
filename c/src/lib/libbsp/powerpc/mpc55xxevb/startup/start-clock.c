@@ -17,10 +17,11 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
+#include <bsp/fatal.h>
 #include <bsp/start.h>
 #include <bsp/bootcard.h>
 #include <bsp/mpc55xx-config.h>
@@ -38,7 +39,7 @@
       }
 
       if (!lock) {
-        bsp_reset();
+        bsp_fatal(MPC55XX_FATAL_FMPLL_LOCK);
       }
     }
   #endif
@@ -74,7 +75,7 @@ BSP_START_TEXT_SECTION void mpc55xx_start_clock(void)
       fmpll->ESYNCR2.R;
       fmpll_wait_for_lock();
 
-      #if MPC55XX_CHIP_TYPE / 10 == 551
+      #if MPC55XX_CHIP_FAMILY == 551 || MPC55XX_CHIP_FAMILY == 566
         /* System clock supplied by PLL */
         SIU.SYSCLK.B.SYSCLKSEL = 2;
       #endif

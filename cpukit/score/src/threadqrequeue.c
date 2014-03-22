@@ -1,42 +1,25 @@
+/**
+ *  @file
+ *
+ *  @brief Thread Queue Requeue
+ *  @ingroup ScoreThreadQ
+ */
+
 /*
- *  Thread Queue Handler
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
-
-/*
- *  _Thread_queue_Requeue
- *
- *  This routine is invoked when a thread changes priority and should be
- *  moved to a different position on the thread queue.
- *
- *  Input parameters:
- *    the_thread_queue - pointer to a threadq header
- *    the_thread       - pointer to a thread control block
- *
- *  Output parameters: NONE
- *
- *  INTERRUPT LATENCY: NONE
- */
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/statesimpl.h>
 
 void _Thread_queue_Requeue(
   Thread_queue_Control *the_thread_queue,
@@ -62,7 +45,7 @@ void _Thread_queue_Requeue(
     _ISR_Disable( level );
     if ( _States_Is_waiting_on_thread_queue( the_thread->current_state ) ) {
       _Thread_queue_Enter_critical_section( tq );
-      _Thread_queue_Extract_priority_helper( tq, the_thread, true );
+      _Thread_queue_Extract_priority_helper( the_thread, true );
       (void) _Thread_queue_Enqueue_priority( tq, the_thread, &level_ignored );
     }
     _ISR_Enable( level );

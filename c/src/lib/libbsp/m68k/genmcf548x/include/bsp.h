@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @ingroup m68k_genmcf548x
+ *
+ * @brief Global BSP definitions.
+ */
+
 /*===============================================================*\
 | Project: RTEMS generic mcf548x BSP                              |
 +-----------------------------------------------------------------+
@@ -33,7 +41,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 |                                                                 |
@@ -50,6 +58,15 @@
 extern "C" {
 #endif
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
+
+/**
+ * @defgroup m68k_genmcf548x MCF548X Support
+ *
+ * @ingroup bsp_m68k
+ *
+ * @brief MCT548X support.
+ */
 
 #include <rtems.h>
 #include <rtems/iosupp.h>
@@ -75,8 +92,6 @@ extern int rtems_fec_driver_attach (struct rtems_bsdnet_ifconfig *config, int at
 /* define which port the console should use - all other ports are then defined as general purpose */
 #define CONSOLE_PORT        0
 
-#define RAM_END 0x4000000 /* 64 MB */
-
 /* functions */
 
 uint32_t get_CPU_clock_speed(void);
@@ -87,24 +102,8 @@ rtems_isr_entry set_vector(
   int                 type
 );
 
-/*
- * Interrupt assignments
- *  Highest-priority listed first
- */
-#define SLT0_IRQ_LEVEL      4
-#define SLT0_IRQ_PRIORITY   0
-
-#define PSC0_IRQ_LEVEL      3
-#define PSC0_IRQ_PRIORITY   7
-#define PSC1_IRQ_LEVEL      3
-#define PSC1_IRQ_PRIORITY   6
-#define PSC2_IRQ_LEVEL      3
-#define PSC2_IRQ_PRIORITY   5
-#define PSC3_IRQ_LEVEL      3
-#define PSC3_IRQ_PRIORITY   4
-
-#define FEC_IRQ_LEVEL       2
-#define FEC_IRQ_PRIORITY    3
+/* Initial values for the interrupt level and priority registers (INTC_ICRn) */
+extern const uint8_t mcf548x_intc_icr_init_values[64];
 
 /*
  * Network driver configuration

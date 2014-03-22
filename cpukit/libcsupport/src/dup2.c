@@ -1,12 +1,17 @@
-/*
- *  dup2() - POSIX 1003.1b 6.2.1 Duplicate an Open File Descriptor
+/**
+ *  @file
  *
+ *  @brief Duplicate an Open File Descriptor
+ *  @ingroup libcsupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,6 +23,9 @@
 
 #include <rtems/libio_.h>
 
+/**
+ *  POSIX 1003.1b 6.2.1 Duplicate an Open File Descriptor
+ */
 int dup2(
   int fildes,
   int fildes2
@@ -46,5 +54,5 @@ int dup2(
    *  This fcntl handles everything else.
    */
 
-  return fcntl( fildes, F_DUPFD, fildes2 );
+  return fcntl( fildes, F_DUP2FD, fildes2 );
 }

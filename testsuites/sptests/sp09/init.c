@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2009.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -33,18 +33,12 @@ rtems_task Init(
   Task_name[ 9 ]       =  rtems_build_name( 'T', 'A', '9', ' ' );
   Task_name[ 10 ]      =  rtems_build_name( 'T', 'A', 'A', ' ' );
 
-  Timer_name[ 1 ]      =  rtems_build_name( 'T', 'M', '1', ' ' );
-
   Semaphore_name[ 1 ]  =  rtems_build_name( 'S', 'M', '1', ' ' );
   Semaphore_name[ 2 ]  =  rtems_build_name( 'S', 'M', '2', ' ' );
   Semaphore_name[ 3 ]  =  rtems_build_name( 'S', 'M', '3', ' ' );
 
   Queue_name[ 1 ]      =  rtems_build_name( 'M', 'Q', '1', ' ' );
   Queue_name[ 2 ]      =  rtems_build_name( 'M', 'Q', '2', ' ' );
-
-  Partition_name[ 1 ]  =  rtems_build_name( 'P', 'T', '1', ' ' );
-
-  Region_name[ 1 ]     =  rtems_build_name( 'R', 'N', '1', ' ' );
 
   Port_name[ 1 ]       =  rtems_build_name( 'D', 'P', '1', ' ' );
 

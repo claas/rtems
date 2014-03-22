@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2009.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -127,7 +127,7 @@ rtems_task Task_1(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_signal_catch",
+    "rtems_signal_catch: only case",
     end_time,
     1,
     0,
@@ -154,7 +154,7 @@ rtems_task Task_1(
   end_time = benchmark_timer_read();
 
   put_time(
-    "exit ASR overhead: returns to calling task",
+    "rtems_signal: exit ASR overhead returns to calling task",
     end_time,
     1,
     0,
@@ -201,7 +201,7 @@ rtems_task Task_3(
   end_time = benchmark_timer_read();
 
   put_time(
-    "exit ASR overhead: returns to preempting task",
+    "rtems_signal: exit ASR overhead returns to preempting task",
     end_time,
     1,
     0,

@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief Newlib Initialization
+ *  @ingroup libcsupport
+ */
+
 /*
  *  Implementation of hooks for the CYGNUS newlib libc
  *  These hooks set things up so that:
@@ -7,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -16,8 +23,9 @@
 #endif
 
 #if defined(RTEMS_NEWLIB)
+#include <rtems/libcsupport.h>
 
-/*
+/**
  *  Init libc for CYGNUS newlib
  *
  *  Set up _REENT to use our global libc_global_reent.
@@ -29,8 +37,6 @@
  *  create, delete, switch, exit, etc.
  *
  */
-
-
 void
 libc_init(void)
 {

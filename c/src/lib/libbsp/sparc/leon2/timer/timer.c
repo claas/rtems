@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup sparc_leon2
+ * @brief Implement a benchmark timer using timer 2
+ */
+
 /*  timer.c
  *
  *  This file implements a benchmark timer using timer 2.
@@ -7,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Ported to LEON implementation of the SPARC by On-Line Applications
  *  Research Corporation (OAR) under contract to the European Space

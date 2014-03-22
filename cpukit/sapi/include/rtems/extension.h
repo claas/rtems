@@ -1,8 +1,6 @@
 /**
  * @file
- *
- * @ingroup ClassicUserExtensions
- *
+ * 
  * @brief User Extensions API.
  */
 
@@ -12,15 +10,11 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_EXTENSION_H
 #define _RTEMS_EXTENSION_H
-
-#ifndef SAPI_EXT_EXTERN
-#define SAPI_EXT_EXTERN extern
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,14 +25,10 @@ extern "C" {
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/types.h>
 
-SAPI_EXT_EXTERN Objects_Information  _Extension_Information;
-
 typedef struct {
   Objects_Control          Object;
   User_extensions_Control  Extension;
 }   Extension_Control;
-
-void _Extension_Manager_initialization(void);
 
 typedef User_extensions_routine
   rtems_extension RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
@@ -167,9 +157,8 @@ typedef User_extensions_routine
  * will operate correctly even if they utilize the C Library because the C
  * Library's task delete extension is invoked after that of the other
  * extensions.
- *
- * @{
  */
+/**@{**/
 
 typedef User_extensions_thread_create_extension   rtems_task_create_extension;
 typedef User_extensions_thread_delete_extension   rtems_task_delete_extension;
@@ -181,6 +170,10 @@ typedef User_extensions_thread_exitted_extension  rtems_task_exitted_extension;
 typedef User_extensions_fatal_extension           rtems_fatal_extension;
 
 typedef User_extensions_Table                     rtems_extensions_table;
+
+typedef Internal_errors_Source rtems_fatal_source;
+
+typedef Internal_errors_t rtems_fatal_code;
 
 /**
  * @brief Creates an extension set object.
@@ -244,10 +237,6 @@ rtems_status_code rtems_extension_delete(
 );
 
 /** @} */
-
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/extension.inl>
-#endif
 
 #ifdef __cplusplus
 }

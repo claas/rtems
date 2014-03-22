@@ -1,7 +1,13 @@
+/**
+ *  @file
+ *
+ *  @ingroup shared_vme
+ *
+ *  @brief SVGM et al. BSP's VME support
+ */
+
 #ifndef RTEMS_BSP_VME_API_H
 #define RTEMS_BSP_VME_API_H
-
-/* SVGM et al. BSP's VME support */
 
 /*
  * Authorship
@@ -53,12 +59,19 @@
 /* address modifiers & friends */
 #include <bsp/vme_am_defs.h>
 
-/* VME related declarations */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*
- * BSP-specific configuration routine; sets up
+/**
+ *  @defgroup shared_vme VME related declarations
+ *
+ *  @ingroup shared_vmeuniverse
+ *
+ *  @brief BSP-specific configuration routine; sets up
  * VME windows and installs the VME interrupt manager.
  */
+
 void BSP_vme_config();
 
 /* translate through host bridge and vme master window of vme bridge */
@@ -112,5 +125,9 @@ BSP_VMEInboundPortsShow(FILE *f);
 /* Assert VME SYSRESET */
 void
 BSP_VMEResetBus(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

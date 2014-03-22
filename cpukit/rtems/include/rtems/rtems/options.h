@@ -1,29 +1,40 @@
 /**
  * @file rtems/rtems/options.h
  *
- *  This include file contains information which defines the
- *  options available on many directives.
+ * @defgroup ClassicOptions Classic API Options
+ *
+ * @ingroup ClassicRTEMS
+ * @brief Options Available on Many Directives
+ *
+ * This include file contains information which defines the
+ * options available on many directives.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2008.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_OPTIONS_H
 #define _RTEMS_RTEMS_OPTIONS_H
+
+#include <rtems/score/basedefs.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- *  @defgroup ClassicOptions Classic API Options
+ * @defgroup ClassicOptions Classic API Options
  *
- *  This encapsulates functionality which XXX
+ * @ingroup ClassicRTEMS
+ *
+ * This encapsulates functionality related to the options argument
+ * to Classic API blocking operations. The primary option is whether
+ * or not a task is willing to wait for the operation to complete.
  */
 /**@{*/
 
@@ -62,15 +73,11 @@ typedef uint32_t   rtems_option;
  */
 #define RTEMS_EVENT_ANY 0x00000002
 
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/rtems/options.inl>
-#endif
+/**@}*/
 
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of include file */

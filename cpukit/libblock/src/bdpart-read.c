@@ -1,9 +1,8 @@
 /**
  * @file
  *
+ * @brief Block Device Partition Management
  * @ingroup rtems_bdpart
- *
- * Block device partition management.
  */
 
 /*
@@ -16,7 +15,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -25,6 +24,7 @@
 
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include <rtems.h>
 #include <rtems/bdbuf.h>
@@ -74,7 +74,7 @@ rtems_status_code rtems_bdpart_get_disk_data(
 {
   rtems_status_code sc = RTEMS_SUCCESSFUL;
   int rv = 0;
-  int fd = -1;
+  int fd;
   rtems_disk_device *dd = NULL;
   rtems_blkdev_bnum disk_begin = 0;
   rtems_blkdev_bnum block_size = 0;
@@ -83,7 +83,7 @@ rtems_status_code rtems_bdpart_get_disk_data(
   fd = open( disk_name, O_RDWR);
   if (fd < 0) {
     sc = RTEMS_INVALID_NAME;
-    goto error;
+    goto out;
   }
 
   /* Get disk handle */
@@ -119,6 +119,7 @@ error:
     close( fd);
   }
 
+out:
   return sc;
 }
 

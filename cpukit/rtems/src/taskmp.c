@@ -1,29 +1,28 @@
+/**
+ * @file
+ *
+ * @brief RTEMS Tasks MP Send Process Packet
+ * @ingroup ClassicTaskMP Task MP Support
+ */
+
 /*
- *  Multiprocessing Support for the RTEMS Task Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/rtems/tasks.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
-#include <rtems/rtems/support.h>
+#include <rtems/rtems/tasksimpl.h>
+#include <rtems/rtems/optionsimpl.h>
+#include <rtems/score/statesimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 RTEMS_STATIC_ASSERT(
   sizeof(RTEMS_tasks_MP_Packet) <= MP_PACKET_MINIMUM_PACKET_SIZE,
@@ -81,7 +80,7 @@ void _RTEMS_tasks_MP_Send_process_packet (
 rtems_status_code _RTEMS_tasks_MP_Send_request_packet (
   RTEMS_tasks_MP_Remote_operations operation,
   Objects_Id                       task_id,
-  rtems_task_priority                 new_priority,
+  rtems_task_priority              new_priority,
   uint32_t                         notepad,
   uint32_t                         note
 )

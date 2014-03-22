@@ -1,9 +1,7 @@
 /**
  * @file
  *
- * @ingroup ScoreCPU
- *
- * @brief ARM architecture types API.
+ * @brief ARM Architecture Types API
  */
 
 /*
@@ -15,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -32,9 +30,8 @@ extern "C" {
 
 /**
  * @addtogroup ScoreCPU
- *
- * @{
  */
+/**@{**/
 
 /*
  *  This section defines the basic types for this processor.

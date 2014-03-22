@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -24,6 +24,8 @@
 
 #include <rtems/blkdev.h>
 #include <rtems/bdbuf.h>
+
+const char rtems_test_name[] = "BLOCK 15";
 
 #define BLOCK_COUNT 20
 
@@ -84,7 +86,7 @@ static int test_disk_ioctl(rtems_disk_device *dd, uint32_t req, void *arg)
       }
     }
 
-    (*breq->req_done)(breq->done_arg, RTEMS_SUCCESSFUL);
+    rtems_blkdev_request_done(breq, RTEMS_SUCCESSFUL);
   } else if (req == RTEMS_BLKIO_CAPABILITIES) {
     *(uint32_t *) arg = RTEMS_BLKDEV_CAP_MULTISECTOR_CONT;
   } else {
@@ -100,7 +102,7 @@ static void test_write_requests(rtems_disk_device *dd)
   rtems_status_code sc;
   int i;
 
-  sc = rtems_bdbuf_set_block_size(dd, BLOCK_SIZE);
+  sc = rtems_bdbuf_set_block_size(dd, BLOCK_SIZE, true);
   rtems_test_assert(sc == RTEMS_SUCCESSFUL);
 
   for (i = 0; i < ACTION_COUNT; ++i) {
@@ -154,11 +156,11 @@ static void test(void)
 
 static void Init(rtems_task_argument arg)
 {
-  puts("\n\n*** TEST BLOCK 15 ***");
+  TEST_BEGIN();
 
   test();
 
-  puts("*** END OF TEST BLOCK 15 ***");
+  TEST_END();
 
   rtems_test_exit(0);
 }
@@ -175,6 +177,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
 
 #define CONFIGURE_MAXIMUM_TASKS 1
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

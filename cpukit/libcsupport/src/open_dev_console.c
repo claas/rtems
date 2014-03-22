@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,7 +20,7 @@
 /*
  *  This is a replaceable stub which opens the console, if present.
  */
-void open_dev_console(void)
+void rtems_libio_post_driver(void)
 {
   int      stdin_fd;
   int      stdout_fd;

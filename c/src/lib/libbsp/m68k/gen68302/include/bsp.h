@@ -1,15 +1,18 @@
-/*  bsp.h
+/**
+ * @file
  *
- *  This include file contains all board IO definitions.
+ * @ingroup m68k_gen68302
  *
- *  XXX : put yours in here
- *
+ * @brief Global BSP definitions.
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSP_H
@@ -20,27 +23,20 @@ extern "C" {
 #endif
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/console.h>
 #include <rtems/iosupp.h>
 #include <rtems/clockdrv.h>
 
-/*
- *  Simple spin delay in microsecond units for device drivers.
- *  This is very dependent on the clock speed of the target.
+/**
+ * @defgroup m68k_gen68302 GEN68302 Support
+ *
+ * @ingroup bsp_m68k
+ *
+ * @brief GEN68302 support.
  */
-
-#define rtems_bsp_delay( microseconds ) \
-  { register uint32_t         _delay=(microseconds); \
-    register uint32_t         _tmp=123; \
-    __asm__ volatile( "0: \
-                     nbcd      %0 ; \
-                     nbcd      %0 ; \
-                     dbf       %1,0b" \
-                  : "=d" (_tmp), "=d" (_delay) \
-                  : "0"  (_tmp), "1"  (_delay) ); \
-  }
 
 /* Constants */
 

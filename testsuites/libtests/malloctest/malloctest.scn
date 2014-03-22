@@ -45,7 +45,9 @@ malloc_walk - normal path
 malloc_walk - in critical section path
 Heap Initialized
 heap extend - link below
+heap extend - merge below overlap
 heap extend - merge below
+heap extend - merge above overlap
 heap extend - merge above
 heap extend - link above
 heap extend - area too small
@@ -57,6 +59,7 @@ malloc_info - called with NULL
 
 malloc_info - check free space drops after malloc
 malloc_info - verify free space returns to previous value
+_Heap_Size_with_overhead
 _Protected_heap_Get_information - NULL heap
 _Protected_heap_Get_information - NULL info
 posix_memalign - NULL return pointer -- EINVAL

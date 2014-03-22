@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Support Call to function Enables Locking of Mutex Object 
+ * @ingroup POSIXAPI
+ */
+
 /*
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,13 +22,10 @@
 #include <pthread.h>
 
 #include <rtems/system.h>
-#include <rtems/score/coremutex.h>
+#include <rtems/score/coremuteximpl.h>
 #include <rtems/score/watchdog.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
-#include <rtems/posix/mutex.h>
-#include <rtems/posix/priority.h>
+#include <rtems/posix/muteximpl.h>
+#include <rtems/posix/priorityimpl.h>
 #include <rtems/posix/time.h>
 
 /*
@@ -37,23 +41,27 @@ int _POSIX_Mutex_Lock_support(
   Watchdog_Interval          timeout
 )
 {
-  register POSIX_Mutex_Control *the_mutex;
+  POSIX_Mutex_Control          *the_mutex;
   Objects_Locations             location;
   ISR_Level                     level;
+  Thread_Control               *executing;
 
   the_mutex = _POSIX_Mutex_Get_interrupt_disable( mutex, &location, &level );
   switch ( location ) {
 
     case OBJECTS_LOCAL:
+      executing = _Thread_Executing;
       _CORE_mutex_Seize(
         &the_mutex->Mutex,
+        executing,
         the_mutex->Object.id,
         blocking,
         timeout,
         level
       );
+      _Objects_Put_for_get_isr_disable( &the_mutex->Object );
       return _POSIX_Mutex_Translate_core_mutex_return_code(
-        (CORE_mutex_Status) _Thread_Executing->Wait.return_code
+        (CORE_mutex_Status) executing->Wait.return_code
       );
 
 #if defined(RTEMS_MULTIPROCESSING)

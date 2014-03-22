@@ -12,7 +12,7 @@
 +-----------------------------------------------------------------+
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 +-----------------------------------------------------------------+
 | this file contains the SPI based driver for a HCMS29xx 4 digit  |
 | alphanumeric LED display                                        |
@@ -326,7 +326,7 @@ static rtems_status_code disp_hcms29xx_send_to_display
   bool char_avail;
   const struct disp_font_glyph *glyph_ptr;
   disp_font_t curr_font;
-  int i,digit,ret_cnt;
+  int i, ret_cnt;
   unsigned char c;
 
   /*
@@ -382,9 +382,6 @@ static rtems_status_code disp_hcms29xx_send_to_display
 	glyph_ptr = curr_font->latin1[' '];
       }
 
-      digit = (softc_ptr->disp_param.rotate
-	       ? DISP_HCMS29XX_DIGIT_CNT-1-i
-	       : i);
       /*
        * send 5 bytes from (char *)glyph_ptr->bitmap to SPI
        */

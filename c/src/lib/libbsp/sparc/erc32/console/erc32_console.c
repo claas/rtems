@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <unistd.h>
@@ -32,13 +32,13 @@
 #define CONSOLE_UART_A_TRAP  ERC32_TRAP_TYPE(ERC32_INTERRUPT_UART_A_RX_TX)
 #define CONSOLE_UART_B_TRAP  ERC32_TRAP_TYPE(ERC32_INTERRUPT_UART_B_RX_TX)
 
-static uint8_t erc32_console_get_register(uint32_t addr, uint8_t i)
+static uint8_t erc32_console_get_register(uintptr_t addr, uint8_t i)
 {
   volatile uint32_t *reg = (volatile uint32_t *)addr;
   return (uint8_t) reg [i];
 }
 
-static void erc32_console_set_register(uint32_t addr, uint8_t i, uint8_t val)
+static void erc32_console_set_register(uintptr_t addr, uint8_t i, uint8_t val)
 {
   volatile uint32_t *reg = (volatile uint32_t *)addr;
   reg [i] = val;
@@ -57,7 +57,7 @@ static int erc32_console_first_open(int major, int minor, void *arg);
 static void erc32_console_initialize(int minor);
 
 #if (CONSOLE_USE_INTERRUPTS)
-  console_fns erc32_fns = {
+  const console_fns erc32_fns = {
     libchip_serial_default_probe,           /* deviceProbe */
     erc32_console_first_open,               /* deviceFirstOpen */
     NULL,                                   /* deviceLastClose */
@@ -69,7 +69,7 @@ static void erc32_console_initialize(int minor);
     TERMIOS_IRQ_DRIVEN                      /* deviceOutputUsesInterrupts */
   };
 #else
-  console_fns erc32_fns = {
+  const console_fns erc32_fns = {
     libchip_serial_default_probe,           /* deviceProbe */
     erc32_console_first_open,               /* deviceFirstOpen */
     NULL,                                   /* deviceLastClose */
@@ -149,29 +149,50 @@ static int erc32_console_first_open(int major, int minor, void *arg)
 #if (CONSOLE_USE_INTERRUPTS)
 static ssize_t erc32_console_write_support_int(int minor, const char *buf, size_t len)
 {
-  console_data *cd = &Console_Port_Data[minor];
-  int k = 0;
-
-  if (minor == 0) { /* uart a */
-    for (k = 0;
-         k < len && (ERC32_MEC.UART_Status & ERC32_MEC_UART_STATUS_THEA); k ++) {
-      ERC32_MEC.UART_Channel_A = (unsigned char)buf[k];
-    }
-    ERC32_Force_interrupt(ERC32_INTERRUPT_UART_A_RX_TX);
-  } else { /* uart b */
-    for (k = 0;
-         k < len && (ERC32_MEC.UART_Status & ERC32_MEC_UART_STATUS_THEB); k ++) {
-      ERC32_MEC.UART_Channel_B = (unsigned char)buf[k];
-    }
-    ERC32_Force_interrupt(ERC32_INTERRUPT_UART_B_RX_TX);
-  }
-  
   if (len > 0) {
+    console_data *cd = &Console_Port_Data[minor];
+    int k = 0;
+
+    if (minor == 0) { /* uart a */
+      for (k = 0;
+           k < len && (ERC32_MEC.UART_Status & ERC32_MEC_UART_STATUS_THEA); k ++) {
+        ERC32_MEC.UART_Channel_A = (unsigned char)buf[k];
+      }
+      ERC32_Force_interrupt(ERC32_INTERRUPT_UART_A_RX_TX);
+    } else { /* uart b */
+      for (k = 0;
+           k < len && (ERC32_MEC.UART_Status & ERC32_MEC_UART_STATUS_THEB); k ++) {
+        ERC32_MEC.UART_Channel_B = (unsigned char)buf[k];
+      }
+      ERC32_Force_interrupt(ERC32_INTERRUPT_UART_B_RX_TX);
+    }
+
     cd->pDeviceContext = (void *)k;
     cd->bActive = true;
   }
-  
+
   return 0;
+}
+
+static void erc32_console_isr_error(
+  rtems_vector_number vector
+)
+{
+  int UStat;
+
+  UStat = ERC32_MEC.UART_Status;
+
+  if (UStat & ERC32_MEC_UART_STATUS_ERRA) {
+    ERC32_MEC.UART_Status = ERC32_MEC_UART_STATUS_CLRA;
+    ERC32_MEC.Control = ERC32_MEC.Control;
+  }
+
+  if (UStat & ERC32_MEC_UART_STATUS_ERRB) {
+    ERC32_MEC.UART_Status = ERC32_MEC_UART_STATUS_CLRB;
+    ERC32_MEC.Control = ERC32_MEC.Control;
+  }
+
+  ERC32_Clear_interrupt( ERC32_INTERRUPT_UART_ERROR );
 }
 
 static void erc32_console_isr_a(
@@ -304,5 +325,10 @@ static void erc32_console_initialize(
   #if (CONSOLE_USE_INTERRUPTS)
     set_vector(erc32_console_isr_a, CONSOLE_UART_A_TRAP, 1);
     set_vector(erc32_console_isr_b, CONSOLE_UART_B_TRAP, 1);
+    set_vector(erc32_console_isr_error, CONSOLE_UART_ERROR_TRAP, 1);
   #endif
+
+   /* Clear any previous error flags */
+   ERC32_MEC.UART_Status = ERC32_MEC_UART_STATUS_CLRA;
+   ERC32_MEC.UART_Status = ERC32_MEC_UART_STATUS_CLRB;
 }

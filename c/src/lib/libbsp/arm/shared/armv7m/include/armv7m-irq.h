@@ -1,3 +1,11 @@
+/**
+ *  @file
+ *
+ *  @ingroup arm_shared
+ *
+ *  @brief ARMV7M Support
+ */
+
 /*
  * Copyright (c) 2012 Sebastian Huber.  All rights reserved.
  *
@@ -9,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_SHARED_ARMV7M_IRQ_H

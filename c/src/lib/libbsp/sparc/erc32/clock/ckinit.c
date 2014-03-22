@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Ported to ERC32 implementation of the SPARC by On-Line Applications
  *  Research Corporation (OAR) under contract to the European Space
@@ -24,9 +24,10 @@
 
 #include <bsp.h>
 #include <bspopts.h>
+#include <rtems/counter.h>
 
 #if SIMSPARC_FAST_IDLE==1
-#define CLOCK_DRIVER_USE_FAST_IDLE
+#define CLOCK_DRIVER_USE_FAST_IDLE 1
 #endif
 
 /*
@@ -63,6 +64,16 @@ uint32_t bsp_clock_nanoseconds_since_last_tick(void)
 #define Clock_driver_nanoseconds_since_last_tick \
   bsp_clock_nanoseconds_since_last_tick
 
+static CPU_Counter_ticks erc32_counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+)
+{
+  CPU_Counter_ticks period = rtems_configuration_get_microseconds_per_tick();
+
+  return (first + period - second) % period;
+}
+
 #define Clock_driver_support_initialize_hardware() \
   do { \
     /* approximately 1 us per countdown */ \
@@ -80,6 +91,11 @@ uint32_t bsp_clock_nanoseconds_since_last_tick(void)
       ERC32_MEC_TIMER_COUNTER_ENABLE_COUNTING | \
 	    ERC32_MEC_TIMER_COUNTER_RELOAD_AT_ZERO \
     ); \
+    _SPARC_Counter_initialize( \
+      &ERC32_MEC.Real_Time_Clock_Counter, \
+      erc32_counter_difference \
+    ); \
+    rtems_counter_initialize_converter(1000000); \
   } while (0)
 
 #define Clock_driver_support_shutdown_hardware() \

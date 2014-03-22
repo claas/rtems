@@ -1,12 +1,17 @@
-/*
- *  Rate Monotonic Manager -- Reset Statistics for All Periods
+/**
+ * @file
  *
+ * @brief rtems_rate_monotonic_reset_all_statistics
+ * @ingroup ClassicRateMon Rate Monotonic Scheduler
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -16,8 +21,7 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/ratemon.h>
+#include <rtems/rtems/ratemonimpl.h>
 #include <rtems/score/thread.h>
 
 /*

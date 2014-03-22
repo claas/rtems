@@ -8,7 +8,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <tmacros.h>
@@ -26,7 +26,7 @@ rtems_task Init(
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
-#define CONFIGURE_MICROSECONDS_PER_TICK   250
+#define CONFIGURE_MICROSECONDS_PER_TICK   1000
 
 #define CONFIGURE_MAXIMUM_TASKS             2
 #define CONFIGURE_MAXIMUM_TIMERS            1

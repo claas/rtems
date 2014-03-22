@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -30,6 +30,11 @@
 #include <rtems.h>
 #include <rtems/bdbuf.h>
 #include <rtems/diskdevs.h>
+#include <rtems/test.h>
+
+#include <bsp.h>
+
+const char rtems_test_name[] = "BLOCK 9";
 
 /* forward declarations to avoid warnings */
 static rtems_task Init(rtems_task_argument argument);
@@ -64,47 +69,50 @@ static int disk_ioctl(rtems_disk_device *dd, uint32_t req, void *arg)
       rtems_blkdev_sg_buffer *sg = &r->bufs [i];
       char *buf = sg->buffer;
 
-      if (sg->length != 1) {
-        return -1;
-      }
-
-      switch (r->req) {
-        case RTEMS_BLKDEV_REQ_READ:
-          switch (sg->block) {
-            case BLOCK_READ_IO_ERROR:
-              sc = RTEMS_IO_ERROR;
-              break;
-            case BLOCK_READ_UNSATISFIED:
-              sc = RTEMS_UNSATISFIED;
-              break;
-            case BLOCK_READ_SUCCESSFUL:
-            case BLOCK_WRITE_IO_ERROR:
-              *buf = disk_data [sg->block];
-              break;
-            default:
-              return -1;
-          }
-          break;
-        case RTEMS_BLKDEV_REQ_WRITE:
-          switch (sg->block) {
-            case BLOCK_READ_IO_ERROR:
-            case BLOCK_READ_UNSATISFIED:
-            case BLOCK_READ_SUCCESSFUL:
-              disk_data [sg->block] = *buf;
-              break;
-            case BLOCK_WRITE_IO_ERROR:
-              sc = RTEMS_IO_ERROR;
-              break;
-            default:
-              return -1;
-          }
-          break;
-        default:
-          return -1;
+      if (sg->length == 1) {
+        switch (r->req) {
+          case RTEMS_BLKDEV_REQ_READ:
+            switch (sg->block) {
+              case BLOCK_READ_IO_ERROR:
+                sc = RTEMS_IO_ERROR;
+                break;
+              case BLOCK_READ_UNSATISFIED:
+                sc = RTEMS_UNSATISFIED;
+                break;
+              case BLOCK_READ_SUCCESSFUL:
+              case BLOCK_WRITE_IO_ERROR:
+                *buf = disk_data [sg->block];
+                break;
+              default:
+                sc = RTEMS_IO_ERROR;
+                break;
+            }
+            break;
+          case RTEMS_BLKDEV_REQ_WRITE:
+            switch (sg->block) {
+              case BLOCK_READ_IO_ERROR:
+              case BLOCK_READ_UNSATISFIED:
+              case BLOCK_READ_SUCCESSFUL:
+                disk_data [sg->block] = *buf;
+                break;
+              case BLOCK_WRITE_IO_ERROR:
+                sc = RTEMS_IO_ERROR;
+                break;
+              default:
+                sc = RTEMS_IO_ERROR;
+                break;
+            }
+            break;
+          default:
+            sc = RTEMS_IO_ERROR;
+            break;
+        }
+      } else {
+        sc = RTEMS_IO_ERROR;
       }
     }
 
-    r->req_done(r->done_arg, sc);
+    rtems_blkdev_request_done(r, sc);
 
     return 0;
   } else {
@@ -167,7 +175,7 @@ static rtems_task Init(rtems_task_argument argument)
   dev_t dev = 0;
   rtems_disk_device *dd = NULL;
 
-  printk("\n\n*** TEST BLOCK 9 ***\n");
+  rtems_test_begink();
 
   sc = rtems_disk_io_initialize();
   ASSERT_SC(sc);
@@ -215,7 +223,7 @@ static rtems_task Init(rtems_task_argument argument)
   sc = rtems_disk_release(dd);
   ASSERT_SC(sc);
 
-  printk("*** END OF TEST BLOCK 9 ***\n");
+  rtems_test_endk();
 
   exit(0);
 }
@@ -230,6 +238,8 @@ static rtems_task Init(rtems_task_argument argument)
 
 #define CONFIGURE_MAXIMUM_TASKS 1
 #define CONFIGURE_MAXIMUM_DRIVERS 4
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

@@ -1,30 +1,26 @@
+/**
+ *  @file
+ *
+ *  @brief Distributed MP Support
+ *  @ingroup ScoreThreadMP
+ */
+
 /*
- *  Multiprocessing Support for the Thread Handler
- *
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/mpci.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/isrlevel.h>
 #include <rtems/score/wkspace.h>
-#include <rtems/score/isr.h>
-
-/*
- *  _Thread_MP_Handler_initialization
- *
- */
 
 void _Thread_MP_Handler_initialization (
   uint32_t    maximum_proxies
@@ -49,11 +45,6 @@ void _Thread_MP_Handler_initialization (
   );
 
 }
-
-/*
- *  _Thread_MP_Allocate_proxy
- *
- */
 
 Thread_Control *_Thread_MP_Allocate_proxy (
   States_Control  the_state
@@ -86,7 +77,7 @@ Thread_Control *_Thread_MP_Allocate_proxy (
     return the_thread;
   }
 
-  _Internal_error_Occurred(
+  _Terminate(
     INTERNAL_ERROR_CORE,
     true,
     INTERNAL_ERROR_OUT_OF_PROXIES
@@ -99,11 +90,6 @@ Thread_Control *_Thread_MP_Allocate_proxy (
 
   return NULL;
 }
-
-/*
- *  _Thread_MP_Find_proxy
- *
- */
 
 /*
  *  The following macro provides the offset of the Active element

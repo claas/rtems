@@ -21,11 +21,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _NS16550_H_
 #define _NS16550_H_
+
+#include <libchip/serial.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,15 +37,15 @@ extern "C" {
  * Driver function table
  */
 
-extern console_fns ns16550_fns;
-extern console_fns ns16550_fns_polled;
+extern const console_fns ns16550_fns;
+extern const console_fns ns16550_fns_polled;
 
 /*
  * Flow control function tables
  */
 
-extern console_flow ns16550_flow_RTSCTS;
-extern console_flow ns16550_flow_DTRCTS;
+extern const console_flow ns16550_flow_RTSCTS;
+extern const console_flow ns16550_flow_DTRCTS;
 
 /*
  *  Helpers for printk

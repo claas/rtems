@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_QORIQ_UART_BRIDGE_H
@@ -55,9 +55,9 @@ typedef struct {
   rtems_chain_control transmit_fifo;
 } uart_bridge_slave_control;
 
-extern console_fns qoriq_uart_bridge_master;
+extern const console_fns qoriq_uart_bridge_master;
 
-extern console_fns qoriq_uart_bridge_slave;
+extern const console_fns qoriq_uart_bridge_slave;
 
 /** @} */
 

@@ -1,22 +1,28 @@
 /**
  * @file rtems/rtems/asr.h
  *
- *  This include file contains all the constants and structures associated
- *  with the Asynchronous Signal Handler.  This Handler provides the low-level
- *  support required by the Signal Manager.
+ * @defgroup ClassicASR ASR Support
+ *
+ * @ingroup ClassicRTEMS
+ * @brief Asynchronous Signal Handler
+ *
+ * This include file contains all the constants and structures associated
+ * with the Asynchronous Signal Handler. This Handler provides the low-level
+ * support required by the Signal Manager.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_ASR_H
 #define _RTEMS_RTEMS_ASR_H
 
+#include <rtems/score/isrlock.h>
 #include <rtems/rtems/modes.h>
 
 #ifdef __cplusplus
@@ -28,7 +34,8 @@ extern "C" {
  *
  *  @ingroup ClassicRTEMS
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the Classic API Signal
+ *  Manager.
  */
 /**@{*/
 
@@ -68,6 +75,8 @@ typedef struct {
   rtems_signal_set  signals_pending;
   /** This field indicates if nest level of signals being processed */
   uint32_t          nest_level;
+  /** Lock to protect this structure */
+  ISR_lock_Control  Lock;
 }   ASR_Information;
 
 /*
@@ -140,15 +149,11 @@ typedef struct {
 /** This defines the bit in the signal set associated with signal 31. */
 #define RTEMS_SIGNAL_31   0x80000000
 
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/rtems/asr.inl>
-#endif
+/**@}*/
 
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of include file */

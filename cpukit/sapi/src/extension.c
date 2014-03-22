@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @brief Initialize Extension Manager
+ *
+ * @ingroup ClassicUserExtensions
+ */
+
 /*
  *  Extension Manager
  *
@@ -6,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,19 +24,8 @@
 #include <rtems/system.h>
 #include <rtems/config.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/score/thread.h>
-#include <rtems/extension.h>
-
-/*
- *  _Extension_Manager_initialization
- *
- *  This routine initializes all extension manager related data structures.
- *
- *  Input parameters:   NONE
- *
- *  Output parameters:  NONE
- */
+#include <rtems/extensionimpl.h>
 
 void _Extension_Manager_initialization(void)
 {
@@ -36,7 +33,7 @@ void _Extension_Manager_initialization(void)
     &_Extension_Information,
     OBJECTS_CLASSIC_API,                 /* object API */
     OBJECTS_RTEMS_EXTENSIONS,
-    Configuration.maximum_extensions,
+    rtems_configuration_get_maximum_extensions(),
     sizeof( Extension_Control ),
     false,                     /* true if the name is a string */
     RTEMS_MAXIMUM_NAME_LENGTH  /* maximum length of an object name */

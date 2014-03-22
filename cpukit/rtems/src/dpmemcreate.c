@@ -1,12 +1,17 @@
-/*
- *  Dual Port Memory Manager
+/**
+ *  @file
  *
- *  COPYRIGHT (c) 1989-1999.
+ *  @brief RTEMS Create Port
+ *  @ingroup ClassicDPMEM
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,28 +22,8 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/score/address.h>
-#include <rtems/rtems/dpmem.h>
-#include <rtems/score/object.h>
+#include <rtems/rtems/dpmemimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/rtems/dpmem.h>
-
-/*
- *  rtems_port_create
- *
- *  This directive creates a port into a dual-ported memory area.
- *
- *  Input parameters:
- *    name           - user defined port name
- *    internal_start - internal start address of port
- *    external_start - external start address of port
- *    length         - physical length in bytes
- *    id             - address of port id to set
- *
- *  Output parameters:
- *    id       - port id
- *    RTEMS_SUCCESSFUL - if successful
- *    error code - if unsuccessful
- */
 
 rtems_status_code rtems_port_create(
   rtems_name    name,
@@ -48,7 +33,7 @@ rtems_status_code rtems_port_create(
   rtems_id     *id
 )
 {
-  register Dual_ported_memory_Control *the_port;
+  Dual_ported_memory_Control          *the_port;
 
   if ( !rtems_is_name_valid( name ) )
     return RTEMS_INVALID_NAME;

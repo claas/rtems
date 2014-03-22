@@ -1,12 +1,11 @@
 /**
- * @file
+ *  @file
  *
- * @ingroup LibIOEnv
+ *  @brief Instantiate a Private User Environment
+ *  @ingroup LibIOEnv
  */
 
 /*
- *  Instantiate a private user environment for the calling thread.
- *
  *  Submitted by: fernando.ruiz@ctv.es (correo@fernando-ruiz.com)
  *
  *  COPYRIGHT (c) 1989-2010.
@@ -14,19 +13,21 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
   #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
-
 #include <stdlib.h>
 
 #include <rtems/libio_.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/threaddispatch.h>
+
+/**
+ *  Instantiate a private user environment for the calling thread.
+ */
 
 static void free_user_env(void *arg)
 {

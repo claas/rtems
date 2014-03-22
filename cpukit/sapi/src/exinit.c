@@ -1,12 +1,18 @@
-/*
- *  Initialization Manager
+/**
+ * @file
  *
- *  COPYRIGHT (c) 1989-2011.
+ * @brief Initialization Manager
+ *
+ * @ingroup ClassicRTEMS
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -24,8 +30,7 @@
 #include <rtems/system.h>
 #include <rtems/config.h>
 #include <rtems/debug.h>
-#include <rtems/extension.h>
-#include <rtems/fatal.h>
+#include <rtems/extensionimpl.h>
 #include <rtems/init.h>
 #include <rtems/io.h>
 #include <rtems/score/sysstate.h>
@@ -33,32 +38,24 @@
 #include <rtems/score/apiext.h>
 #include <rtems/score/apimutex.h>
 #include <rtems/score/copyrt.h>
+#include <rtems/score/cpusetimpl.h>
 #include <rtems/score/heap.h>
 #include <rtems/score/interr.h>
 #include <rtems/score/isr.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
 #include <rtems/score/priority.h>
-#include <rtems/score/scheduler.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/score/schedulerimpl.h>
+#include <rtems/score/smpimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/userextimpl.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/score/wkspace.h>
 
 #include <rtems/sptables.h>
 
 
 #include <rtems/rtems/rtemsapi.h>
-#ifdef RTEMS_POSIX_API
-  #include <rtems/posix/posixapi.h>
-#endif
-
-#if defined(RTEMS_SMP)
-  #include <rtems/score/smp.h>
-  #include <rtems/score/percpu.h>
-#endif
+#include <rtems/posix/posixapi.h>
 
 Objects_Information *_Internal_Objects[ OBJECTS_INTERNAL_CLASSES_LAST + 1 ];
 
@@ -79,7 +76,7 @@ void rtems_initialize_data_structures(void)
      *  In an MP configuration, internally we view single processor
      *  systems as a very restricted multiprocessor system.
      */
-    _Configuration_MP_table = Configuration.User_multiprocessing_table;
+    _Configuration_MP_table = rtems_configuration_get_user_multiprocessing_table();
 
     if ( _Configuration_MP_table == NULL ) {
       _Configuration_MP_table =
@@ -111,16 +108,6 @@ void rtems_initialize_data_structures(void)
 
   _Thread_Dispatch_initialization();
 
-  /*
-   *  Before this is called, we are not allowed to allocate memory
-   *  from the Workspace because it is not initialized.
-   */
-  _Workspace_Handler_initialization();
-
-  #if defined(RTEMS_SMP)
-    _SMP_Handler_initialize();
-  #endif
-
   _User_extensions_Handler_initialization();
   _ISR_Handler_initialization();
 
@@ -129,10 +116,10 @@ void rtems_initialize_data_structures(void)
    */
   _Objects_Information_table[OBJECTS_INTERNAL_API] = _Internal_Objects;
 
-  _API_Mutex_Initialization( 1 );
+  _API_Mutex_Initialization( 2 );
   _API_Mutex_Allocate( &_RTEMS_Allocator_Mutex );
+  _API_Mutex_Allocate( &_Once_Mutex );
 
-  _Priority_bit_map_Handler_initialization();
   _Watchdog_Handler_initialization();
   _TOD_Handler_initialization();
 
@@ -145,6 +132,10 @@ void rtems_initialize_data_structures(void)
     _MPCI_Handler_initialization( RTEMS_TIMEOUT );
   #endif
 
+  _SMP_Handler_initialize();
+
+  _CPU_set_Handler_initialization();
+
 /* MANAGERS */
 
   _RTEMS_API_Initialize();
@@ -153,17 +144,7 @@ void rtems_initialize_data_structures(void)
 
   _IO_Manager_initialization();
 
-  #ifdef RTEMS_POSIX_API
-    _POSIX_API_Initialize();
-  #endif
-
-  /*
-   * Discover and initialize the secondary cores in an SMP system.
-   */
-  #if defined(RTEMS_SMP)
-    _SMP_Processor_count =
-        bsp_smp_initialize( rtems_configuration_smp_maximum_processors );
-  #endif
+  _POSIX_API_Initialize();
 
   _System_state_Set( SYSTEM_STATE_BEFORE_MULTITASKING );
 
@@ -223,9 +204,11 @@ void rtems_initialize_device_drivers(void)
   _API_extensions_Run_postdriver();
 }
 
-uint32_t rtems_initialize_start_multitasking(void)
+void rtems_initialize_start_multitasking(void)
 {
-  _System_state_Set( SYSTEM_STATE_BEGIN_MULTITASKING );
+  _System_state_Set( SYSTEM_STATE_UP );
+
+  _SMP_Request_start_multitasking();
 
   _Thread_Start_multitasking();
 
@@ -233,10 +216,8 @@ uint32_t rtems_initialize_start_multitasking(void)
    *******************************************************************
    *******************************************************************
    ******                 APPLICATION RUNS HERE                 ******
-   ******            RETURNS WHEN SYSTEM IS SHUT DOWN           ******
+   ******              THE FUNCTION NEVER RETURNS               ******
    *******************************************************************
    *******************************************************************
    *******************************************************************/
-  
-  return _Per_CPU_Information[0].idle->Wait.return_code;
 }

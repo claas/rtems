@@ -1,9 +1,16 @@
+/**
+ * @file
+ *
+ * @brief Asynchronously reads Data from a File
+ * @ingroup POSIXAPI
+ */
+
 /*
  * Copyright 2010, Alin Rus <alin.codejunkie@gmail.com> 
  * 
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 
@@ -18,6 +25,7 @@
 #include <rtems/system.h>
 #include <rtems/seterr.h>
 #include <stdlib.h>
+#include <limits.h>
 
 /*
  *  aio_read

@@ -1,5 +1,12 @@
+/**
+ *  @file
+ *
+ *  @ingroup gen68360_bsp
+ *
+ *  @brief Board Support Package for `Generic' Motorola MC68360
+ */
+
 /*
- * Board Support Package for `Generic' Motorola MC68360
  *
  * Based on the `gen68302' board support package, and covered by the
  * original distribution terms.
@@ -18,7 +25,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSP_H
@@ -29,35 +36,25 @@ extern "C" {
 #endif
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/console.h>
 #include <rtems/iosupp.h>
 #include <rtems/clockdrv.h>
 
-/*
- * Network driver configuration
+/**
+ *  @defgroup gen68360_bsp Network driver
+ *
+ *  @ingroup m68k_gen68360
+ *
+ *  @brief Network driver configuration
  */
+
 struct rtems_bsdnet_ifconfig;
 extern int rtems_scc1_driver_attach (struct rtems_bsdnet_ifconfig *config, int attaching);
 #define RTEMS_BSP_NETWORK_DRIVER_NAME	"scc1"
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH	rtems_scc1_driver_attach
-
-/*
- *  Simple spin delay in microsecond units for device drivers.
- *  This is very dependent on the clock speed of the target.
- */
-
-#define rtems_bsp_delay( microseconds ) \
-  { register uint32_t         _delay=(microseconds); \
-    register uint32_t         _tmp=123; \
-    __asm__ volatile( "0: \
-                     nbcd      %0 ; \
-                     nbcd      %0 ; \
-                     dbf       %1,0b" \
-                  : "=d" (_tmp), "=d" (_delay) \
-                  : "0"  (_tmp), "1"  (_delay) ); \
-  }
 
 extern rtems_isr_entry M68Kvec[];   /* vector table address */
 

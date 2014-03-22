@@ -1,39 +1,42 @@
 /**
  * @file rtems/rtems/signalmp.h
  *
- *  This include file contains all the constants and structures associated
- *  with the Multiprocessing Support in the Signal Manager.
+ * @brief Signal MP Support
+ *
+ * This include file contains all the constants and structures associated
+ * with the Multiprocessing Support in the Signal Manager.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_SIGNALMP_H
 #define _RTEMS_RTEMS_SIGNALMP_H
 
+#ifndef _RTEMS_RTEMS_SIGNALIMPL_H
+# error "Never use <rtems/rtems/signalmp.h> directly; include <rtems/rtems/signalimpl.h> instead."
+#endif
+
+#include <rtems/score/mpciimpl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <rtems/rtems/asr.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
 
 /**
  *  @defgroup ClassicSignalMP Signal MP Support
  *
  *  @ingroup ClassicMP
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the transparent multiprocessing
+ *  support within the Classic API Signal Manager.
  */
-/**{*/
+/*{*/
 
 /**
  *  The following enumerated type defines the list of
@@ -65,7 +68,7 @@ typedef struct {
  */
 
 /**
- *  @brief Signal_MP_Send_request_packet
+ *  @brief Signal MP Send Request Packet
  *
  *  This routine performs a remote procedure call so that a
  *  directive operation can be initiated on another node.
@@ -77,7 +80,7 @@ rtems_status_code _Signal_MP_Send_request_packet (
 );
 
 /**
- *  @brief Signal_MP_Send_response_packet
+ *  @brief Signal MP Send Response Packet
  *
  *  This routine performs a remote procedure call so that a
  *  directive can be performed on another node.
@@ -88,7 +91,7 @@ void _Signal_MP_Send_response_packet (
 );
 
 /**
- *  @brief Signal_MP_Process_packet
+ *  @brief Signal MP Process Packet
  *
  *  This routine performs the actions specific to this package for
  *  the request from another node.
@@ -120,17 +123,17 @@ void _Signal_MP_Process_packet (
  */
 
 /**
- *  @brief Signal_MP_Get_packet
+ *  @brief Signal MP Get Packet
  *
  *  This function is used to obtain a signal mp packet.
  */
 Signal_MP_Packet *_Signal_MP_Get_packet ( void );
 
+/**@}*/
+
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of file */

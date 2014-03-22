@@ -11,11 +11,12 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
 #include <rtems/libio.h>
+#include <rtems/score/sysstate.h>
 #include <stdlib.h>
 
 #include <libchip/serial.h>
@@ -27,7 +28,7 @@
  * Flow control is only supported when using interrupts
  */
 
-console_fns mc68681_fns =
+const console_fns mc68681_fns =
 {
   libchip_serial_default_probe,   /* deviceProbe */
   mc68681_open,                   /* deviceFirstOpen */
@@ -40,7 +41,7 @@ console_fns mc68681_fns =
   true                            /* deviceOutputUsesInterrupts */
 };
 
-console_fns mc68681_fns_polled =
+const console_fns mc68681_fns_polled =
 {
   libchip_serial_default_probe,        /* deviceProbe */
   mc68681_open,                        /* deviceFirstOpen */
@@ -221,7 +222,6 @@ MC68681_STATIC void mc68681_initialize_context(
 MC68681_STATIC void mc68681_init(int minor)
 {
   uint32_t                pMC68681_port;
-  uint32_t                pMC68681;
   mc68681_context        *pmc68681Context;
   setRegister_f           setReg;
 
@@ -231,7 +231,6 @@ MC68681_STATIC void mc68681_init(int minor)
 
   mc68681_initialize_context( minor, pmc68681Context );
 
-  pMC68681      = Console_Port_Tbl[minor]->ulCtrlPort1;
   pMC68681_port = Console_Port_Tbl[minor]->ulCtrlPort2;
   setReg        = Console_Port_Tbl[minor]->setRegister;
 
@@ -329,11 +328,9 @@ MC68681_STATIC int mc68681_close(
   void    *arg
 )
 {
-  uint32_t        pMC68681;
   uint32_t        pMC68681_port;
   setRegister_f   setReg;
 
-  pMC68681      = Console_Port_Tbl[minor]->ulCtrlPort1;
   pMC68681_port = Console_Port_Tbl[minor]->ulCtrlPort2;
   setReg        = Console_Port_Tbl[minor]->setRegister;
 
@@ -628,12 +625,10 @@ MC68681_STATIC void mc68681_process(
   volatile uint8_t        ucISRStatus;
   char                    cChar;
   getRegister_f           getReg;
-  setRegister_f           setReg;
 
   pMC68681      = Console_Port_Tbl[minor]->ulCtrlPort1;
   pMC68681_port = Console_Port_Tbl[minor]->ulCtrlPort2;
   getReg        = Console_Port_Tbl[minor]->getRegister;
-  setReg        = Console_Port_Tbl[minor]->setRegister;
 
   /* Get ISR at the beginning of the IT routine */
   ucISRStatus = (*getReg)(pMC68681, MC68681_INTERRUPT_STATUS_REG);

@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -14,8 +14,9 @@
 #endif
 
 #define CONFIGURE_INIT
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__ 1
 #include "system.h"
+
+#include <rtems/rtems/tasksimpl.h>
 
 /* prototypes */
 int scan_objects(
@@ -68,6 +69,7 @@ rtems_task Init(
   Objects_Locations     location;
   Objects_Id            id;
   Objects_Information  *info;
+  Objects_Maximum       active_count;
 
   puts( "\n\n*** TEST OBJECT GET NEXT ***" );
 
@@ -102,6 +104,10 @@ rtems_task Init(
   /* XXX you start the search at initial, first id, arbitrary id */
 
   /* XXX try with a manager with no objects created */
+
+  puts( "Init - _Objects_Active_count" );
+  active_count = _Objects_Active_count( info );
+  rtems_test_assert( active_count == 1 );
 
   puts( "*** END OF TEST OBJECT GET NEXT ***" );
   rtems_test_exit( 0 );

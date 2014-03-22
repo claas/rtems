@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Operation that is run when a timer expires
+ * @ingroup POSIX_INTERNAL_TIMERS Timers
+ */
+
 /*
  * _POSIX_Timer_TSR
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,13 +24,10 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include <rtems/system.h>
-#include <rtems/seterr.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/tod.h>
 #include <rtems/posix/time.h>
 #include <rtems/posix/ptimer.h>
-#include <rtems/posix/timer.h>
+#include <rtems/posix/timerimpl.h>
+#include <rtems/score/todimpl.h>
 
 /*
  *  This is the operation that is run when a timer expires

@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup sparc_erc32
+ * @brief Contains information pertaining to the ERC32
+ */
+
 /*  erc32.h
  *
  *  This include file contains information pertaining to the ERC32.
@@ -23,7 +29,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Ported to ERC32 implementation of the SPARC by On-Line Applications
  *  Research Corporation (OAR) under contract to the European Space
@@ -356,7 +362,7 @@ static __inline__ int bsp_irq_fixup(int irq)
   (ERC32_MEC.Interrupt_Pending & (1 << (_source)))
 
 #define ERC32_Is_interrupt_masked( _source ) \
-  (ERC32_MEC.Interrupt_Masked & (1 << (_source)))
+  (ERC32_MEC.Interrupt_Mask & (1 << (_source)))
 
 #define ERC32_Mask_interrupt( _source ) \
   do { \

@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_LPC24XX_START_CONFIG_H
@@ -104,11 +104,15 @@ extern BSP_START_DATA_SECTION const lpc24xx_emc_static_chip_config
 extern BSP_START_DATA_SECTION const size_t
   lpc24xx_start_config_emc_static_chip_count;
 
+#ifdef ARM_MULTILIB_ARCH_V7M
+
 extern BSP_START_DATA_SECTION const ARMV7M_MPU_Region
   lpc24xx_start_config_mpu_region [];
 
 extern BSP_START_DATA_SECTION const size_t
   lpc24xx_start_config_mpu_region_count;
+
+#endif /* ARM_MULTILIB_ARCH_V7M */
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,11 @@
-/*
- *  chdir() - POSIX 1003.1b - 5.2.1 - Change Current Working Directory
+/**
+ * @file
  *
+ * @brief POSIX 1003.1b - 5.2.1 - Change Current Working Directory
+ * @ingroup libio Internal Interface
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
@@ -9,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

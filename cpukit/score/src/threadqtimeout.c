@@ -1,39 +1,25 @@
+/**
+ *  @file
+ *
+ *  @brief Thread Queue Timeout
+ *  @ingroup ScoreThreadQ
+ */
+
 /*
- *  Thread Queue Handler
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
-
-/*
- *  _Thread_queue_Timeout
- *
- *  This routine processes a thread which timeouts while waiting on
- *  a thread queue. It is called by the watchdog handler.
- *
- *  Input parameters:
- *    id - thread id
- *
- *  Output parameters: NONE
- */
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/threadimpl.h>
 
 void _Thread_queue_Timeout(
   Objects_Id  id,
@@ -52,7 +38,7 @@ void _Thread_queue_Timeout(
       break;
     case OBJECTS_LOCAL:
       _Thread_queue_Process_timeout( the_thread );
-      _Thread_Unnest_dispatch();
+      _Objects_Put_without_thread_dispatch( &the_thread->Object );
       break;
   }
 }

@@ -3,7 +3,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 /**
@@ -20,6 +20,7 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <inttypes.h>
@@ -28,6 +29,12 @@
 #include <rtems/chain.h>
 #include <rtems/error.h>
 #include <rtems/bdbuf.h>
+
+#include <bsp.h>
+
+#include <tmacros.h>
+
+const char rtems_test_name[] = "BLOCK 6";
 
 /* forward declarations to avoid warnings */
 static rtems_task Init(rtems_task_argument argument);
@@ -199,7 +206,7 @@ bdbuf_wait (const char* who, unsigned long timeout)
   rtems_event_set   out;
   sc = rtems_event_receive (RTEMS_EVENT_0,
                             RTEMS_WAIT | RTEMS_EVENT_ANY,
-                            TOD_MICROSECONDS_TO_TICKS (timeout * 1000),
+                            RTEMS_MICROSECONDS_TO_TICKS (timeout * 1000),
                             &out);
   if (sc != RTEMS_SUCCESSFUL)
   {
@@ -233,7 +240,7 @@ bdbuf_watch (unsigned long timeout)
   rtems_event_set   out;
   sc = rtems_event_receive (RTEMS_EVENT_1,
                             RTEMS_WAIT | RTEMS_EVENT_ANY,
-                            TOD_MICROSECONDS_TO_TICKS (timeout * 1000),
+                            RTEMS_MICROSECONDS_TO_TICKS (timeout * 1000),
                             &out);
   if (sc != RTEMS_SUCCESSFUL)
   {
@@ -327,7 +334,7 @@ static bool
 bdbuf_sleep (unsigned long msecs)
 {
   rtems_status_code sc;
-  sc = rtems_task_wake_after (TOD_MICROSECONDS_TO_TICKS (msecs * 1000));
+  sc = rtems_task_wake_after (RTEMS_MICROSECONDS_TO_TICKS (msecs * 1000));
   if (sc != RTEMS_SUCCESSFUL)
   {
     bdbuf_test_printf ("sleep wake after failed: ");
@@ -488,7 +495,7 @@ bdbuf_disk_ioctl (rtems_disk_device *dd, uint32_t req, void* argp)
         {
           case RTEMS_BLKDEV_REQ_READ:
             if (!bdbuf_disk_ioctl_process (bdd, r))
-              errno = EIO;
+              rtems_blkdev_request_done(r, RTEMS_IO_ERROR);
             else
             {
               rtems_blkdev_sg_buffer* sg = r->bufs;
@@ -511,15 +518,16 @@ bdbuf_disk_ioctl (rtems_disk_device *dd, uint32_t req, void* argp)
                 remains -= length;
               }
 
-              r->req_done (r->done_arg, RTEMS_SUCCESSFUL);
+              rtems_blkdev_request_done (r, RTEMS_SUCCESSFUL);
             }
             bdbuf_disk_ioctl_leave (bdd, r->bufnum);
             break;
 
           case RTEMS_BLKDEV_REQ_WRITE:
             if (!bdbuf_disk_ioctl_process (bdd, r))
-              errno = EIO;
-            r->req_done (r->done_arg, RTEMS_SUCCESSFUL);
+              rtems_blkdev_request_done(r, RTEMS_IO_ERROR);
+            else
+              rtems_blkdev_request_done(r, RTEMS_SUCCESSFUL);
             bdbuf_disk_ioctl_leave (bdd, r->bufnum);
             break;
 
@@ -1827,11 +1835,11 @@ bdbuf_tester (void)
 
 static rtems_task Init(rtems_task_argument argument)
 {
-  printf ("\n\n*** TEST BLOCK 6 ***\n");
+  TEST_BEGIN();
 
   bdbuf_tester ();
 
-  printf ("*** END OF TEST BLOCK 6 ***\n");
+  TEST_END();
 
   exit (0);
 }
@@ -1854,6 +1862,8 @@ static rtems_task Init(rtems_task_argument argument)
   (BDBUF_TEST_TASKS * BDBUF_TEST_STACK_SIZE)
 
 #define CONFIGURE_INIT_TASK_STACK_SIZE BDBUF_TEST_STACK_SIZE
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
+
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #include <rtems/confdefs.h>

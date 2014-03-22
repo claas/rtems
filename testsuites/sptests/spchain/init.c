@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -25,26 +25,64 @@ typedef struct {
   int              id;
 } test_node;
 
+static rtems_chain_control one_node_chain;
+
+static rtems_chain_node node_of_one_node_chain =
+  RTEMS_CHAIN_NODE_INITIALIZER_ONE_NODE_CHAIN( &one_node_chain );
+
+static rtems_chain_control one_node_chain =
+  RTEMS_CHAIN_INITIALIZER_ONE_NODE( &node_of_one_node_chain );
+
 static void test_chain_control_initializer(void)
 {
   rtems_chain_control chain = RTEMS_CHAIN_INITIALIZER_EMPTY( chain );
+
   puts( "INIT - Verify rtems_chain_control initializer" );
+
   rtems_test_assert( rtems_chain_is_empty( &chain ) );
+
+  rtems_test_assert( rtems_chain_has_only_one_node( &one_node_chain ) );
+  rtems_test_assert(
+    rtems_chain_immutable_first( &one_node_chain ) == &node_of_one_node_chain
+  );
+  rtems_test_assert(
+    rtems_chain_immutable_last( &one_node_chain ) == &node_of_one_node_chain
+  );
+  rtems_test_assert(
+    rtems_chain_immutable_head( &one_node_chain )
+      == rtems_chain_immutable_previous( &node_of_one_node_chain )
+  );
+  rtems_test_assert(
+    rtems_chain_immutable_tail( &one_node_chain )
+      == rtems_chain_immutable_next( &node_of_one_node_chain )
+  );
 }
 
 static void test_chain_control_layout(void)
 {
-  rtems_chain_control chain;
+  Chain_Control chain;
+
   puts( "INIT - Verify rtems_chain_control layout" );
+
   rtems_test_assert(
-    sizeof(rtems_chain_control)
-      == sizeof(rtems_chain_node) + sizeof(rtems_chain_node *)
+    sizeof(Chain_Control)
+      == sizeof(Chain_Node) + sizeof(Chain_Node *)
   );
   rtems_test_assert(
-    sizeof(rtems_chain_control)
-      == 3 * sizeof(rtems_chain_node *)
+    sizeof(Chain_Control)
+      == 3 * sizeof(Chain_Node *)
   );
-  rtems_test_assert( &chain.Head.Node.previous == &chain.Tail.Node.next );
+  rtems_test_assert(
+    _Chain_Previous( _Chain_Head( &chain ) )
+      == _Chain_Next( _Chain_Tail( &chain ) )
+  );
+
+#if !defined( RTEMS_SMP )
+  rtems_test_assert(
+    sizeof(Chain_Control)
+      == sizeof(rtems_chain_control)
+  );
+#endif
 }
 
 static void test_chain_get_with_wait(void)
@@ -136,7 +174,6 @@ static void test_chain_with_notification(void)
   rtems_test_assert( sc == RTEMS_SUCCESSFUL );
   rtems_test_assert( p == &a );
 
-  puts( "INIT - Verify rtems_chain_prepend_with_notification" );
   puts( "INIT - Verify rtems_chain_get_with_notification" );
   rtems_chain_initialize_empty( &chain );
 
@@ -199,6 +236,59 @@ static void test_chain_with_empty_check(void)
   rtems_test_assert( p == &b );
 }
 
+static void test_chain_node_count(void)
+{
+  rtems_chain_control chain;
+  rtems_chain_node nodes[3];
+  size_t count;
+  size_t i;
+
+  puts( "INIT - Verify rtems_chain_node_count_unprotected" );
+
+  rtems_chain_initialize_empty( &chain );
+  count = rtems_chain_node_count_unprotected( &chain );
+  rtems_test_assert( count == 0 );
+
+  for (i = 0; i < RTEMS_ARRAY_SIZE( nodes ); ++i) {
+    rtems_chain_append_unprotected( &chain, &nodes[i] );
+    count = rtems_chain_node_count_unprotected( &chain );
+    rtems_test_assert( count == i + 1 );
+  }
+}
+
+static bool test_order( const Chain_Node *left, const Chain_Node *right )
+{
+  return left < right;
+}
+
+static void test_chain_insert_ordered( void )
+{
+  Chain_Control chain = CHAIN_INITIALIZER_EMPTY(chain);
+  Chain_Node nodes[5];
+  const Chain_Node *tail;
+  const Chain_Node *node;
+  size_t n = RTEMS_ARRAY_SIZE( nodes );
+  size_t i = 0;
+
+  puts( "INIT - Verify _Chain_Insert_ordered_unprotected" );
+
+  _Chain_Insert_ordered_unprotected( &chain, &nodes[4], test_order );
+  _Chain_Insert_ordered_unprotected( &chain, &nodes[2], test_order );
+  _Chain_Insert_ordered_unprotected( &chain, &nodes[0], test_order );
+  _Chain_Insert_ordered_unprotected( &chain, &nodes[3], test_order );
+  _Chain_Insert_ordered_unprotected( &chain, &nodes[1], test_order );
+
+  tail = _Chain_Immutable_tail( &chain );
+  node = _Chain_Immutable_first( &chain );
+  while ( node != tail && i < n ) {
+    rtems_test_assert( node == &nodes[ i ] );
+    ++i;
+    node = _Chain_Immutable_next( node );
+  }
+
+  rtems_test_assert( i == n );
+}
+
 rtems_task Init(
   rtems_task_argument ignored
 )
@@ -240,6 +330,8 @@ rtems_task Init(
   test_chain_get_with_wait();
   test_chain_control_layout();
   test_chain_control_initializer();
+  test_chain_node_count();
+  test_chain_insert_ordered();
 
   puts( "*** END OF RTEMS CHAIN API TEST ***" );
   rtems_test_exit(0);

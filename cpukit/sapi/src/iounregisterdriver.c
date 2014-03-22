@@ -1,36 +1,29 @@
-/*
- *  Input/Output Manager - Dynamically Unregister Device Driver
+/**
+ * @file
  *
+ * @brief Unregister a Driver from the Device Driver Table.
+ *
+ * @ingroup ClassicIO
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
 #include <rtems/io.h>
 #include <rtems/rtems/intr.h>
-#include <rtems/score/thread.h>
-#include <string.h>
+#include <rtems/score/threaddispatch.h>
 
-/*
- *  rtems_io_unregister_driver
- *
- *  Unregister a driver from the device driver table.
- *
- *  Input Paramters:
- *    major            - device major number
- *
- *  Output Parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <string.h>
 
 rtems_status_code rtems_io_unregister_driver(
   rtems_device_major_number major

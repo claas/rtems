@@ -1,44 +1,24 @@
+/**
+ * @file
+ * 
+ * @brief End the Delay of a Thread
+ * @ingroup ScoreThread
+ */
+
 /*
- *  Thread Handler
- *
- *
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
-
-/*
- *  _Thread_Delay_ended
- *
- *  This routine processes a thread whose delay period has ended.
- *  It is called by the watchdog handler.
- *
- *  Input parameters:
- *    id - thread id
- *
- *  Output parameters: NONE
- */
+#include <rtems/score/threadimpl.h>
 
 void _Thread_Delay_ended(
   Objects_Id  id,
@@ -62,7 +42,7 @@ void _Thread_Delay_ended(
           | STATES_WAITING_FOR_TIME
           | STATES_INTERRUPTIBLE_BY_SIGNAL
       );
-      _Thread_Unnest_dispatch();
+      _Objects_Put_without_thread_dispatch( &the_thread->Object );
       break;
   }
 }

@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Delete Message Queue
+ *  @ingroup ClassicMessageQueue
+ */
+
 /*
- *  Message Queue Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,42 +19,22 @@
 #endif
 
 #include <rtems/system.h>
-#include <rtems/score/sysstate.h>
 #include <rtems/score/chain.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/coremsg.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
+#include <rtems/score/coremsgimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/wkspace.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
 #include <rtems/rtems/status.h>
-#include <rtems/rtems/attr.h>
-#include <rtems/rtems/message.h>
+#include <rtems/rtems/attrimpl.h>
+#include <rtems/rtems/messageimpl.h>
 #include <rtems/rtems/options.h>
 #include <rtems/rtems/support.h>
-
-/*
- *  rtems_message_queue_delete
- *
- *  This directive allows a thread to delete the message queue specified
- *  by the given queue identifier.
- *
- *  Input parameters:
- *    id - queue id
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code        - if unsuccessful
- */
 
 rtems_status_code rtems_message_queue_delete(
   rtems_id id
 )
 {
-  register Message_queue_Control *the_message_queue;
+  Message_queue_Control          *the_message_queue;
   Objects_Locations               location;
 
   the_message_queue = _Message_queue_Get( id, &location );
@@ -87,7 +71,7 @@ rtems_status_code rtems_message_queue_delete(
         );
       }
 #endif
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_message_queue->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

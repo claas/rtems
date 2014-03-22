@@ -1,11 +1,13 @@
 /**
- * @file rtems/score/types.h
+ * @file
+ * 
+ * @brief PowerPC CPU Type Definitions
+ * 
+ * This include file contains type definitions pertaining to the PowerPC
+ * processor family.
  */
 
 /*
- *  This include file contains type definitions pertaining to the PowerPC
- *  processor family.
- *
  *  Author:	Andrew Bray <andy@i-cubed.co.uk>
  *
  *  COPYRIGHT (c) 1995 by i-cubed ltd.
@@ -28,7 +30,7 @@
  *
  *  The license and distribution terms for this file may in
  *  the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_TYPES_H

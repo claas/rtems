@@ -19,7 +19,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <inttypes.h>
 #include <ctype.h>
 #include <reent.h>
 #include <rtems/imfs.h>
@@ -80,15 +81,16 @@ void test_extend(
  */
 void dump_statbuf( struct stat *buf )
 {
-  int         major1;
-  int         minor1;
-  int         major2;
-  int         minor2;
+  rtems_device_major_number major1;
+  rtems_device_minor_number minor1;
+  rtems_device_major_number major2;
+  rtems_device_minor_number minor2;
 
   rtems_filesystem_split_dev_t( buf->st_dev, major1, minor1 );
   rtems_filesystem_split_dev_t( buf->st_rdev, major2, minor2 );
 
-  printf( "....st_dev     (0x%x:0x%x)\n", major1, minor1 );
+  printf( "....st_dev     (0x%" PRIx32 ":0x%" PRIx32 ")\n", major1, minor1 );
+  printf( "....st_rdev    (0x%" PRIx32 ":0x%" PRIx32 ")\n", major2, minor2 );
   printf( "....st_ino     %" PRIxino_t "  may vary by small amount\n", buf->st_ino );
   printf( "....mode  = %08" PRIomode_t "\n", buf->st_mode );
   printf( "....nlink = %d\n", buf->st_nlink );
@@ -615,7 +617,7 @@ since new path is not valid");
   rtems_test_assert( !status );
 
   /*
-   * Verify truncate changed only atime.
+   * Verify truncate changed all except atime.
    */
   status = stat( "/tmp/j", &buf );
   rtems_test_assert( !status );
@@ -623,9 +625,9 @@ since new path is not valid");
   atime2 = buf.st_atime;
   mtime2 = buf.st_mtime;
   ctime2 = buf.st_ctime;
-  rtems_test_assert( atime1 != atime2);
-  rtems_test_assert( mtime1 == mtime2);
-  rtems_test_assert( ctime1 == ctime2);
+  rtems_test_assert( atime1 == atime2);
+  rtems_test_assert( mtime1 != mtime2);
+  rtems_test_assert( ctime1 != ctime2);
 
   IMFS_dump();
 

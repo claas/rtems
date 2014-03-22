@@ -1,29 +1,27 @@
+/**
+ * @file
+ *
+ * @brief Set Objects Name
+ * @ingroup ScoreObject
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/objectimpl.h>
 #include <rtems/score/wkspace.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <inttypes.h>
+
 #include <string.h>
-
-
-/*
- *  This method sets the name of an object based upon a C string.
- */
 
 bool _Objects_Set_name(
   Objects_Information *information,

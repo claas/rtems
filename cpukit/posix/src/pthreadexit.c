@@ -1,14 +1,17 @@
+/**
+ * @file
+ *
+ * @brief POSIX Thread Exit Shared Helper
+ * @ingroup POSIX_THREAD Thread API Extension
+ */
+
 /*
- *  16.1.5.1 Thread Termination, p1003.1c/Draft 10, p. 150
- *
- *  NOTE: Key destructors are executed in the POSIX api delete extension.
- *
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,13 +19,11 @@
 #endif
 
 #include <pthread.h>
-#include <errno.h>
 
-#include <rtems/system.h>
+#include <rtems/posix/pthreadimpl.h>
 #include <rtems/score/apimutex.h>
-#include <rtems/score/thread.h>
-#include <rtems/posix/pthread.h>
-
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 void _POSIX_Thread_Exit(
   Thread_Control *the_thread,
@@ -69,6 +70,7 @@ void _POSIX_Thread_Exit(
             the_thread,
             STATES_WAITING_FOR_JOIN_AT_EXIT | STATES_TRANSIENT
           );
+           /* FIXME: Lock order reversal */
            _RTEMS_Unlock_allocator();
           _Thread_Enable_dispatch();
           /* now waiting for thread to arrive */
@@ -84,6 +86,7 @@ void _POSIX_Thread_Exit(
 
       _POSIX_Threads_Free( the_thread );
 
+     /* FIXME: Lock order reversal */
     _RTEMS_Unlock_allocator();
   _Thread_Enable_dispatch();
 }
@@ -92,5 +95,5 @@ void pthread_exit(
   void  *value_ptr
 )
 {
-  _POSIX_Thread_Exit( _Thread_Executing, value_ptr );
+  _POSIX_Thread_Exit( _Thread_Get_executing(), value_ptr );
 }

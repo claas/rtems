@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -20,7 +20,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <errno.h>
-#include <rtems/posix/psignal.h>
+#include <rtems/posix/psignalimpl.h>
 
 /* forward declarations to avoid warnings */
 void *POSIX_Init(void *argument);
@@ -75,11 +75,12 @@ void *POSIX_Init(
   _POSIX_signals_Pending |= signo_to_mask( SIGUSR1 );
 
   bc = _POSIX_signals_Clear_signals(
-    _Thread_Executing->API_Extensions[ THREAD_API_POSIX ],
+    _Thread_Get_executing()->API_Extensions[ THREAD_API_POSIX ],
     SIGNAL_ONE,
     &info,
     true,              /* is_global */
-    false              /* check_blocked */
+    false,             /* check_blocked */
+    true               /* do_signals_acquire_release */
   );
   rtems_test_assert( bc );
 

@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Scheduler Priority Block
+ * @ingroup ScoreScheduler
+ */
+
 /*
  *  Scheduler Handler
  *
@@ -6,35 +13,22 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/scheduler.h>
-#include <rtems/score/schedulerpriority.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/schedulerpriorityimpl.h>
 
 void _Scheduler_priority_Block(
   Thread_Control   *the_thread
 )
 {
-  _Scheduler_priority_Ready_queue_extract( the_thread );
-
-  /* TODO: flash critical section? */
-
-  if ( _Thread_Is_heir( the_thread ) )
-     _Scheduler_priority_Schedule_body();
-
-  if ( _Thread_Is_executing( the_thread ) )
-    _Thread_Dispatch_necessary = true;
-
+  _Scheduler_Generic_block(
+    _Scheduler_priority_Ready_queue_extract,
+    _Scheduler_priority_Schedule_body,
+    the_thread
+  );
 }

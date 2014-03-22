@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <sys/stat.h>
@@ -182,7 +182,7 @@ static int set_attributes(int minor, const struct termios *term)
   return -1;
 }
 
-console_fns qoriq_uart_bridge_master = {
+const console_fns qoriq_uart_bridge_master = {
   .deviceProbe = libchip_serial_default_probe,
   .deviceFirstOpen = first_open,
   .deviceLastClose = last_close,

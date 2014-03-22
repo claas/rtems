@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief POSIX Message Queue and Send Support
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  NOTE:  The structure of the routines is identical to that of POSIX
  *         Message_queues to leave the option of having unnamed message
@@ -16,7 +23,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -34,7 +41,7 @@
 #include <rtems/system.h>
 #include <rtems/score/watchdog.h>
 #include <rtems/seterr.h>
-#include <rtems/posix/mqueue.h>
+#include <rtems/posix/mqueueimpl.h>
 #include <rtems/posix/time.h>
 
 
@@ -56,6 +63,7 @@ int _POSIX_Message_queue_Send_support(
   Objects_Locations               location;
   CORE_message_queue_Status       msg_status;
   bool                            do_wait;
+  Thread_Control                 *executing;
 
   /*
    * Validate the priority.
@@ -70,7 +78,7 @@ int _POSIX_Message_queue_Send_support(
 
     case OBJECTS_LOCAL:
       if ( (the_mq_fd->oflag & O_ACCMODE) == O_RDONLY ) {
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_mq_fd->Object );
         rtems_set_errno_and_return_minus_one( EBADF );
       }
 
@@ -87,8 +95,10 @@ int _POSIX_Message_queue_Send_support(
       /*
        *  Now perform the actual message receive
        */
+      executing = _Thread_Executing;
       msg_status = _CORE_message_queue_Submit(
         &the_mq->Message_queue,
+        executing,
         msg_ptr,
         msg_len,
         mqdes,      /* mqd_t is an object id */
@@ -98,7 +108,7 @@ int _POSIX_Message_queue_Send_support(
         timeout    /* no timeout */
       );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_mq_fd->Object );
 
       /*
        *  If we had to block, then this is where the task returns
@@ -108,7 +118,7 @@ int _POSIX_Message_queue_Send_support(
        */
 
       if ( msg_status == CORE_MESSAGE_QUEUE_STATUS_UNSATISFIED_WAIT )
-        msg_status = _Thread_Executing->Wait.return_code;
+        msg_status = executing->Wait.return_code;
 
       if ( !msg_status )
         return msg_status;

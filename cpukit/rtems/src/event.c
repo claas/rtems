@@ -1,39 +1,29 @@
-/*
- *  Event Manager
+/**
+ *  @file
  *
+ *  @brief Event Manager Initialization
+ *  @ingroup ClassicEvent
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/event.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/rtems/tasks.h>
-
-/*
- *  _Event_Manager_initialization
- *
- *  DESCRIPTION:
- *
- *  This routine performs the initialization necessary for this manager.
- */
+#include <rtems/rtems/eventimpl.h>
 
 void _Event_Manager_initialization( void )
 {
   _Event_Sync_state = THREAD_BLOCKING_OPERATION_SYNCHRONIZED;
+  _System_event_Sync_state = THREAD_BLOCKING_OPERATION_SYNCHRONIZED;
 
   /*
    *  Register the MP Process Packet routine.

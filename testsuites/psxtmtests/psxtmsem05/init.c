@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2012.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,7 +44,7 @@ void *Low(
   rtems_test_assert( status == 0 );
 
   put_time(
-    "sem_post - thread waiting, preempt",
+    "sem_post: thread waiting preempt",
     end_time,
     OPERATION_COUNT,
     0,

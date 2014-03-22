@@ -1,12 +1,17 @@
-/*
- *  13.3.6 Get Scheduling Parameter Limits, P1003.1b-1993, p. 258
+/**
+ *  @file
  *
+ *  @brief Get the Minimum Priority Limit 
+ *  @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,8 +23,11 @@
 
 #include <rtems/system.h>
 #include <rtems/seterr.h>
-#include <rtems/posix/priority.h>
+#include <rtems/posix/priorityimpl.h>
 
+/**
+ *  13.3.6 Get Scheduling Parameter Limits, P1003.1b-1993, p. 258
+ */
 int sched_get_priority_min(
   int  policy
 )

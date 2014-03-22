@@ -1,12 +1,17 @@
-/*
- *  Partition Manager
+/**
+ *  @file
  *
+ *  @brief Partition Manager Initialization
+ *  @ingroup ClassicPart
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,21 +23,8 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/score/address.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/part.h>
+#include <rtems/rtems/partimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/sysstate.h>
-
-/*
- *  _Partition_Manager_initialization
- *
- *  This routine initializes all partition manager related
- *  data structures.
- *
- *  Input parameters:   NONE
- *
- *  Output parameters:  NONE
- */
 
 void _Partition_Manager_initialization(void)
 {

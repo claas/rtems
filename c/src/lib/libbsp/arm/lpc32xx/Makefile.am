@@ -34,11 +34,14 @@ include_bsp_HEADERS += ../../shared/include/stackalloc.h
 include_bsp_HEADERS += ../../shared/include/uart-output-char.h
 include_bsp_HEADERS += ../../shared/tod.h
 include_bsp_HEADERS += ../shared/include/start.h
+include_bsp_HEADERS += ../shared/include/arm-cp15-start.h
+include_bsp_HEADERS += ../shared/include/arm-errata.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-timer.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-dma.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-i2s.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-emc.h
 include_bsp_HEADERS += ../shared/lpc/include/lpc-lcd.h
+include_bsp_HEADERS += ../shared/include/arm-release-id.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/mmu.h
 include_bsp_HEADERS += include/lpc32xx.h
@@ -87,12 +90,14 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c
 libbsp_a_SOURCES += ../../shared/bsppost.c
 libbsp_a_SOURCES += ../../shared/bsppredriverhook.c
 libbsp_a_SOURCES += ../../shared/bsppretaskinghook.c
+libbsp_a_SOURCES += ../../shared/cpucounterdiff.c
 libbsp_a_SOURCES += ../../shared/gnatinstallhandler.c
 libbsp_a_SOURCES += ../../shared/sbrk.c
 libbsp_a_SOURCES += ../../shared/src/stackalloc.c
 libbsp_a_SOURCES += ../../shared/src/uart-output-char.c
 libbsp_a_SOURCES += ../shared/abort/simple_abort.c
 libbsp_a_SOURCES += ../shared/startup/bsp-start-memcpy.S
+libbsp_a_SOURCES += ../shared/arm-cp15-set-ttb-entries.c
 
 # Startup
 libbsp_a_SOURCES += startup/bspreset.c
@@ -128,7 +133,6 @@ libbsp_a_SOURCES += ../../shared/tod.c \
 libbsp_a_SOURCES += misc/boot.c
 libbsp_a_SOURCES += misc/emc.c
 libbsp_a_SOURCES += misc/i2c.c
-libbsp_a_SOURCES += misc/mmu.c
 libbsp_a_SOURCES += misc/nand-mlc.c
 libbsp_a_SOURCES += misc/nand-mlc-erase-block-safe.c
 libbsp_a_SOURCES += misc/nand-mlc-read-blocks.c
@@ -137,6 +141,7 @@ libbsp_a_SOURCES += misc/restart.c
 libbsp_a_SOURCES += misc/system-clocks.c
 libbsp_a_SOURCES += misc/timer.c
 libbsp_a_SOURCES += misc/nand-select.c
+libbsp_a_SOURCES += misc/idle-thread.c
 
 # SSP
 

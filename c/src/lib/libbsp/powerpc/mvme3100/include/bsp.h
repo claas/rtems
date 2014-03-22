@@ -1,11 +1,18 @@
+/**
+ *  @file
+ *
+ *  @ingroup mvme3100_bsp
+ *
+ *  @brief This file contains BSP API definition.
+ */
+
 /*
- *  bsp.h  -- contain BSP API definition.
  *
  *  Copyright (C) 1999 Eric Valette. valette@crf.canon.fr
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Adapted for the mvme3100 BSP by T. Straumann, 2007.
  */
@@ -13,6 +20,7 @@
 #define _BSP_H
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/console.h>
@@ -20,8 +28,12 @@
 #include <rtems/clockdrv.h>
 #include <bsp/vectors.h>
 
-/*
- *  confdefs.h overrides for this BSP:
+/**
+ *  @defgroup mvme3100_bsp confdefs.h overrides
+ *
+ *  @ingroup powerpc_mvme3100
+ *
+ *  @brief confdefs.h overrides for this BSP:
  */
 
 #define BSP_INTERRUPT_STACK_SIZE          (16 * 1024)

@@ -14,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -795,10 +795,10 @@ void test_statvfs(void)
   status = mkdir( "/tmp", 0777 );
   rtems_test_assert( status == 0 );
 
-  puts( "statvfs, with valid path - expect ENOTSUP" );
+  puts( "statvfs, with valid path - expect ENOSYS" );
   status = statvfs( "/tmp", &stat );
   rtems_test_assert( status == -1 );
-  rtems_test_assert( errno == ENOTSUP );
+  rtems_test_assert( errno == ENOSYS );
 
   puts( "statvfs tested!" );
 }

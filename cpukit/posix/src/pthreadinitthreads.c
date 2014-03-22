@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief POSIX Threads Initialize User Threads Body
+ * @ingroup POSIX_PTHREAD
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,30 +27,17 @@
 #include <rtems/score/apiext.h>
 #include <rtems/score/stack.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/userext.h>
 #include <rtems/score/wkspace.h>
 #include <rtems/posix/cancel.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/priority.h>
-#include <rtems/posix/psignal.h>
+#include <rtems/posix/posixapi.h>
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/posix/priorityimpl.h>
 #include <rtems/posix/config.h>
-#include <rtems/posix/key.h>
 #include <rtems/posix/time.h>
-
-/*
- *  _POSIX_Threads_Initialize_user_threads_body
- *
- *  This routine creates and starts all configured user
- *  initialization threads.
- *
- *  Input parameters: NONE
- *
- *  Output parameters:  NONE
- */
 
 void _POSIX_Threads_Initialize_user_threads_body(void)
 {
-  int                                 status;
+  int                                 eno;
   uint32_t                            index;
   uint32_t                            maximum;
   posix_initialization_threads_table *user_threads;
@@ -67,18 +61,20 @@ void _POSIX_Threads_Initialize_user_threads_body(void)
     /*
      * There is no way for these calls to fail in this situation.
      */
-    (void) pthread_attr_init( &attr );
-    (void) pthread_attr_setinheritsched( &attr, PTHREAD_EXPLICIT_SCHED );
-    (void) pthread_attr_setstacksize(&attr, user_threads[ index ].stack_size);
+    eno = pthread_attr_init( &attr );
+    _Assert( eno == 0 );
+    eno = pthread_attr_setinheritsched( &attr, PTHREAD_EXPLICIT_SCHED );
+    _Assert( eno == 0 );
+    eno = pthread_attr_setstacksize(&attr, user_threads[ index ].stack_size);
+    _Assert( eno == 0 );
 
-    status = pthread_create(
+    eno = pthread_create(
       &thread_id,
       &attr,
       user_threads[ index ].thread_entry,
       NULL
     );
-    if ( status )
-      _Internal_error_Occurred( INTERNAL_ERROR_POSIX_API, true, status );
+    if ( eno )
+      _POSIX_Fatal_error( POSIX_FD_PTHREAD, eno );
   }
 }
-

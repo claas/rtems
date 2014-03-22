@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Receive Message from Message Queue
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  NOTE:  The structure of the routines is identical to that of POSIX
  *         Message_queues to leave the option of having unnamed message
@@ -18,7 +25,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -36,7 +43,7 @@
 #include <rtems/system.h>
 #include <rtems/score/watchdog.h>
 #include <rtems/seterr.h>
-#include <rtems/posix/mqueue.h>
+#include <rtems/posix/mqueueimpl.h>
 #include <rtems/posix/time.h>
 
 /*
@@ -47,10 +54,10 @@
 
 ssize_t mq_timedreceive(
   mqd_t                  mqdes,
-  char                  *msg_ptr,
+  char                  *__restrict msg_ptr,
   size_t                 msg_len,
-  unsigned int          *msg_prio,
-  const struct timespec *abstime
+  unsigned int          *__restrict msg_prio,
+  const struct timespec *__restrict abstime
 )
 {
   Watchdog_Interval                            ticks;

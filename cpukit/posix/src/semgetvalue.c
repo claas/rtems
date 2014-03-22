@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Get the Value of a Semaphore
+ * @ingroup POSIX_SEMAPHORE
+ */
+
 /*
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,21 +27,16 @@
 #include <limits.h>
 
 #include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/posix/semaphore.h>
+#include <rtems/posix/semaphoreimpl.h>
 #include <rtems/posix/time.h>
 #include <rtems/seterr.h>
 
-/*
- *  11.2.8 Get the Value of a Semaphore, P1003.1b-1993, p.229
- */
-
 int sem_getvalue(
-  sem_t  *sem,
-  int    *sval
+  sem_t  *__restrict sem,
+  int    *__restrict sval
 )
 {
-  register POSIX_Semaphore_Control *the_semaphore;
+  POSIX_Semaphore_Control          *the_semaphore;
   Objects_Locations                 location;
 
   the_semaphore = _POSIX_Semaphore_Get( sem, &location );
@@ -42,7 +44,7 @@ int sem_getvalue(
 
     case OBJECTS_LOCAL:
       *sval = _CORE_semaphore_Get_count( &the_semaphore->Semaphore );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_semaphore->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

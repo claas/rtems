@@ -1,9 +1,16 @@
+/**
+ * @file
+ *
+ * @brief Returns the error status for the Asynchronous I/O request
+ * @ingroup POSIXAPI
+ */
+
 /*
  * Copyright 2010, Alin Rus <alin.codejunkie@gmail.com> 
  * 
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

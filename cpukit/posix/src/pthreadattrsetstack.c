@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function Sets Thread Creation Stack Attributes in the attr object
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  16.1.1 Thread Creation Attributes
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -14,11 +21,12 @@
 #endif
 
 #if HAVE_DECL_PTHREAD_ATTR_SETSTACK
+
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/score/stackimpl.h>
+
 #include <pthread.h>
 #include <errno.h>
-
-#include <rtems/system.h>
-#include <rtems/posix/pthread.h>
 
 int pthread_attr_setstack(
   pthread_attr_t  *attr,

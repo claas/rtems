@@ -1,26 +1,17 @@
+/**
+ * @file
+ *
+ * @brief rtems_semaphore_create
+ * @ingroup ClassicSem Semaphores
+ */
+
 /*
- *  Semaphore Manager
- *
- *  DESCRIPTION:
- *
- *  This package is the implementation of the Semaphore Manager.
- *  This manager utilizes standard Dijkstra counting semaphores to provide
- *  synchronization and mutual exclusion capabilities.
- *
- *  Directives provided are:
- *
- *     + create a semaphore
- *     + get an ID of a semaphore
- *     + delete a semaphore
- *     + acquire a semaphore
- *     + release a semaphore
- *
- *  COPYRIGHT (c) 1989-2009.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -30,19 +21,14 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/rtems/attr.h>
+#include <rtems/rtems/attrimpl.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/options.h>
-#include <rtems/rtems/sem.h>
-#include <rtems/score/coremutex.h>
-#include <rtems/score/coresem.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
+#include <rtems/rtems/semimpl.h>
+#include <rtems/rtems/tasksimpl.h>
+#include <rtems/score/coremuteximpl.h>
+#include <rtems/score/coresemimpl.h>
+#include <rtems/score/threaddispatch.h>
 #include <rtems/score/sysstate.h>
 
 #include <rtems/score/interr.h>
@@ -74,7 +60,7 @@ rtems_status_code rtems_semaphore_create(
   rtems_id            *id
 )
 {
-  register Semaphore_Control *the_semaphore;
+  Semaphore_Control          *the_semaphore;
   CORE_mutex_Attributes       the_mutex_attr;
   CORE_semaphore_Attributes   the_semaphore_attr;
   CORE_mutex_Status           mutex_status;
@@ -171,7 +157,9 @@ rtems_status_code rtems_semaphore_create(
       the_mutex_attr.discipline = CORE_MUTEX_DISCIPLINES_FIFO;
 
     if ( _Attributes_Is_binary_semaphore( attribute_set ) ) {
-      the_mutex_attr.priority_ceiling      = priority_ceiling;
+      the_mutex_attr.priority_ceiling      = _RTEMS_tasks_Priority_to_Core(
+                                               priority_ceiling
+                                             );
       the_mutex_attr.lock_nesting_behavior = CORE_MUTEX_NESTING_ACQUIRES;
       the_mutex_attr.only_owner_release    = false;
 
@@ -191,6 +179,7 @@ rtems_status_code rtems_semaphore_create(
 
     mutex_status = _CORE_mutex_Initialize(
       &the_semaphore->Core_control.mutex,
+      _Thread_Executing,
       &the_mutex_attr,
       (count == 1) ? CORE_MUTEX_UNLOCKED : CORE_MUTEX_LOCKED
     );

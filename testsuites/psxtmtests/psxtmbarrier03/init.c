@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2012.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -68,7 +68,7 @@ void *POSIX_Init(
    * unblocking operation.
    */
   benchmark_timer_initialize();
-    status = pthread_barrier_wait( &barrier );
+  status = pthread_barrier_wait( &barrier );
   end_time = benchmark_timer_read();
   /*
    * Upon successful completion return value, the status should be
@@ -77,7 +77,7 @@ void *POSIX_Init(
   rtems_test_assert( status == PTHREAD_BARRIER_SERIAL_THREAD );
 
   put_time(
-    "pthread_barrier_wait – releasing, no preempt",
+    "pthread_barrier_wait: releasing no preempt",
     end_time,
     1,
     0,

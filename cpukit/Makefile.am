@@ -38,24 +38,30 @@ include_rtems_rtems_HEADERS =
 include_uuiddir = $(includedir)/uuid
 include_uuid_HEADERS = libmisc/uuid/uuid.h
 
+include_utf8procdir = $(includedir)/utf8proc
+include_utf8proc_HEADERS = libmisc/utf8proc/utf8proc.h
+
 if NEWLIB
 include_sysdir = $(includedir)/sys
 include_sys_HEADERS =
 
-include_HEADERS += libnetworking/memory.h
+include_HEADERS += include/memory.h
 include_HEADERS += libmd/md4.h
 include_HEADERS += libmd/md5.h
 
 include_sys_HEADERS += libcsupport/include/sys/ioccom.h
+include_sys_HEADERS += libcsupport/include/sys/event.h
 include_sys_HEADERS += libcsupport/include/sys/filio.h
 include_sys_HEADERS += libcsupport/include/sys/ioctl.h
+include_sys_HEADERS += libcsupport/include/sys/poll.h
 include_sys_HEADERS += libcsupport/include/sys/statvfs.h
 include_sys_HEADERS += libcsupport/include/sys/sockio.h
 include_sys_HEADERS += libcsupport/include/sys/ttycom.h
 include_sys_HEADERS += libcsupport/include/sys/termios.h
 include_sys_HEADERS += libcsupport/include/sys/utsname.h
 
-include_sys_HEADERS += libnetworking/sys/uio.h
+include_sys_HEADERS += include/sys/uio.h
+include_sys_HEADERS += include/sys/_iovec.h
 include_sys_HEADERS += include/sys/priority.h
 
 if LIBNETWORKING
@@ -116,6 +122,9 @@ include_rtems_rfs_HEADERS += libfs/src/rfs/rtems-rfs-link.h
 include_rtems_rfs_HEADERS += libfs/src/rfs/rtems-rfs-mutex.h
 include_rtems_rfs_HEADERS += libfs/src/rfs/rtems-rfs-trace.h
 
+# JFFS2
+include_rtems_HEADERS += libfs/src/jffs2/include/rtems/jffs2.h
+
 ## libblock
 include_rtems_HEADERS += libblock/include/rtems/bdbuf.h
 include_rtems_HEADERS += libblock/include/rtems/blkdev.h
@@ -124,6 +133,7 @@ include_rtems_HEADERS += libblock/include/rtems/flashdisk.h
 include_rtems_HEADERS += libblock/include/rtems/ramdisk.h
 include_rtems_HEADERS += libblock/include/rtems/nvdisk.h
 include_rtems_HEADERS += libblock/include/rtems/nvdisk-sram.h
+include_rtems_HEADERS += libblock/include/rtems/sparse-disk.h
 include_rtems_HEADERS += libblock/include/rtems/ide_part_table.h
 include_rtems_HEADERS += libblock/include/rtems/bdpart.h
 include_rtems_HEADERS += libblock/include/rtems/media.h

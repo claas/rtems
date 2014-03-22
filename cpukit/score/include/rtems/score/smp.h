@@ -1,8 +1,9 @@
 /**
- *  @file  rtems/score/smp.h
+ * @file
  *
- *  This include file defines the interface to the SuperCore
- *  SMP support that is used internally to RTEMS.
+ * @ingroup ScoreSMP
+ *
+ * @brief SuperCore SMP Support API
  */
 
 /*
@@ -11,110 +12,53 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_SMP_H
 #define _RTEMS_SCORE_SMP_H
 
-#if defined (RTEMS_SMP)
-#include <rtems/score/percpu.h>
-
-/**
- *  @defgroup SuperCore SMP Support
- *
- *  @ingroup Score
- *
- *  This defines the interface of the SuperCore support
- *  code for SMP support.
- */
-
-/**@{*/
+#include <rtems/score/cpu.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- *  This defines the bit which indicates the interprocessor interrupt
- *  has been requested so that RTEMS will reschedule on this CPU
- *  because the currently executing thread needs to be switched out.
- */
-#define RTEMS_BSP_SMP_CONTEXT_SWITCH_NECESSARY  0x01
-
-/**
- *  This defines the bit which indicates the interprocessor interrupt
- *  has been requested so that RTEMS will reschedule on this CPU
- *  because the currently executing thread has been sent a signal.
- */
-#define RTEMS_BSP_SMP_SIGNAL_TO_SELF            0x02
-
-/**
- *  This defines the bit which indicates the interprocessor interrupt
- *  has been requested so that this CPU will be shutdown.  This is done
- *  as part of rtems_executive_shutdown().
- */
-#define RTEMS_BSP_SMP_SHUTDOWN                  0x04
-
-/**
- *  This defines the bit which indicates the interprocessor interrupt
- *  has been requested that the receiving CPU needs to perform a context
- *  switch to the first task.
- */
-#define RTEMS_BSP_SMP_FIRST_TASK                0x08
-
-#ifndef ASM
-/**
- *  @brief Number of CPUs in SMP System
+ * @defgroup ScoreSMP SMP Support
  *
- *  This variable is set during the SMP initialization sequence to
- *  indicate the number of CPUs in this system.
- */
-SCORE_EXTERN uint32_t _SMP_Processor_count;
-
-/**
- *  @brief Make Request of Others CPUs
+ * @ingroup Score
  *
- *  This method is invoked by RTEMS when it needs to make a request
- *  of the other CPUs.  It should be implemented using some type of
- *  interprocessor interrupt. CPUs not including the originating
- *  CPU should receive the message.
+ * This defines the interface of the SuperCore SMP support.
  *
- *  @param [in] message is message to send
+ * @{
  */
-void _SMP_Broadcast_message(
-  uint32_t  message
-);
 
-/**
- *  @brief Request Other Cores to Perform First Context Switch
- *
- *  Send message to other cores requesting them to perform
- *  their first context switch operation.
- */
-void _SMP_Request_other_cores_to_perform_first_context_switch(void);
+#if defined( RTEMS_SMP )
+  SCORE_EXTERN uint32_t _SMP_Processor_count;
 
-/**
- *  @brief Request Dispatch on Other Cores
- *
- *  Send message to other cores requesting them to perform
- *  a thread dispatch operation.
- */
-void _SMP_Request_other_cores_to_dispatch(void);
-
-/**
- *  @Brief Request Other Cores to Shutdown
- *
- *  Send message to other cores requesting them to shutdown.
- */
-void _SMP_Request_other_cores_to_shutdown(void);
-
+  static inline uint32_t _SMP_Get_processor_count( void )
+  {
+    return _SMP_Processor_count;
+  }
+#else
+  #define _SMP_Get_processor_count() UINT32_C(1)
 #endif
+
+#if defined( RTEMS_SMP )
+  static inline uint32_t _SMP_Get_current_processor( void )
+  {
+    return _CPU_SMP_Get_current_processor();
+  }
+#else
+  #define _SMP_Get_current_processor() UINT32_C(0)
+#endif
+
+/** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
 #endif
 /* end of include file */

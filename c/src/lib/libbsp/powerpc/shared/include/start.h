@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @ingroup bsp_start
+ * @ingroup powerpc_start
  *
  * @brief System low level start.
  */
@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_SHARED_START_H
@@ -30,11 +30,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @defgroup bsp_start System Start
+ * @defgroup powerpc_start PowerPC System Start
  *
- * @ingroup bsp_kit
+ * @ingroup powerpc_shared
  *
- * @brief System low level start.
+ * @brief PowerPC low level start.
  *
  * @{
  */

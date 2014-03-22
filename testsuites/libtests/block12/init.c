@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -23,6 +23,8 @@
 
 #include <rtems/blkdev.h>
 #include <rtems/bdbuf.h>
+
+const char rtems_test_name[] = "BLOCK 12";
 
 #define BLOCK_COUNT 15
 
@@ -55,7 +57,7 @@ static int test_disk_ioctl(rtems_disk_device *dd, uint32_t req, void *arg)
       ++block_access_counts [block];
     }
 
-    breq->req_done(breq->done_arg, RTEMS_SUCCESSFUL);
+    rtems_blkdev_request_done(breq, RTEMS_SUCCESSFUL);
   } else {
     errno = EINVAL;
     rv = -1;
@@ -123,11 +125,11 @@ static void test(void)
 
 static void Init(rtems_task_argument arg)
 {
-  puts("\n\n*** TEST BLOCK 12 ***");
+  TEST_BEGIN();
 
   test();
 
-  puts("*** END OF TEST BLOCK 12 ***");
+  TEST_END();
 
   rtems_test_exit(0);
 }
@@ -143,6 +145,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
 
 #define CONFIGURE_MAXIMUM_TASKS 1
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

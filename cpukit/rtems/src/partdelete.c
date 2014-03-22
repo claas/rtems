@@ -1,48 +1,32 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Delete Partition
+ *  @ingroup ClassicPart
+ */
+
 /*
- *  Partition Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/support.h>
-#include <rtems/score/address.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/part.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/sysstate.h>
-
-/*
- *  rtems_partition_delete
- *
- *  This directive allows a thread to delete a partition specified by
- *  the partition identifier, provided that none of its buffers are
- *  still allocated.
- *
- *  Input parameters:
- *    id - partition id
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/rtems/partimpl.h>
+#include <rtems/rtems/attrimpl.h>
+#include <rtems/score/threaddispatch.h>
 
 rtems_status_code rtems_partition_delete(
   rtems_id id
 )
 {
-  register Partition_Control *the_partition;
+   Partition_Control           *the_partition;
   Objects_Locations           location;
 
   the_partition = _Partition_Get( id, &location );
@@ -69,10 +53,10 @@ rtems_status_code rtems_partition_delete(
         }
 #endif
 
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_partition->Object );
         return RTEMS_SUCCESSFUL;
       }
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_partition->Object );
       return RTEMS_RESOURCE_IN_USE;
 
 #if defined(RTEMS_MULTIPROCESSING)

@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -23,6 +23,7 @@ void BSP_START_TEXT_SECTION bsp_start_hook_0(void)
 void BSP_START_TEXT_SECTION bsp_start_hook_1(void)
 {
   bsp_start_copy_sections();
+  bsp_start_clear_bss();
 
   /* At this point we can use objects outside the .start section */
 }

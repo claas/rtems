@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -28,12 +28,11 @@ bool _Protected_heap_Extend(
   uintptr_t     size
 )
 {
-  bool      extend_ok;
   uintptr_t amount_extended;
 
   _RTEMS_Lock_allocator();
-    extend_ok = _Heap_Extend(the_heap, starting_address, size, &amount_extended);
+    amount_extended = _Heap_Extend( the_heap, starting_address, size, 0 );
   _RTEMS_Unlock_allocator();
-  return extend_ok;
-}
 
+  return amount_extended != 0;
+}

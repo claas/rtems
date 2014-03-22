@@ -1,17 +1,19 @@
 /**
- * @file rtems/score/types.h
+ * @file
+ *
+ * @brief V850 CPU Type Definitions
+ *
+ * This include file contains type definitions pertaining to the
+ * v850 processor family.
  */
 
 /*
- *  This include file contains type definitions pertaining to the
- *  v850 processor family.
- *
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_TYPES_H

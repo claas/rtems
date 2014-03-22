@@ -1,5 +1,7 @@
 /**
- * @file rtems/score/cpu.h
+ * @file
+ * 
+ * @brief PowerPC CPU Department Source
  */
 
 /*
@@ -23,11 +25,11 @@
  *
  *  Copyright (c) 2001 Surrey Satellite Technology Limited (SSTL).
  *
- *  Copyright (c) 2010-2012 embedded brains GmbH.
+ *  Copyright (c) 2010-2013 embedded brains GmbH.
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_CPU_H
@@ -210,6 +212,8 @@ extern "C" {
 
 #define CPU_IDLE_TASK_IS_FP      FALSE
 
+#define CPU_PER_CPU_CONTROL_SIZE 0
+
 /*
  *  Processor defined structures required for cpukit/score.
  */
@@ -265,7 +269,15 @@ extern "C" {
 
 #ifndef ASM
 
-/* Non-volatile context according to E500ABIUG and EABI */
+typedef struct {
+  /* There is no CPU specific per-CPU state */
+} CPU_Per_CPU_control;
+
+/*
+ * Non-volatile context according to E500ABIUG, EABI and 32-bit TLS (according
+ * to "Power Architecture 32-bit Application Binary Interface Supplement 1.0 -
+ * Linux and Embedded")
+ */
 typedef struct {
   uint32_t gpr1;
   uint32_t msr;
@@ -289,6 +301,7 @@ typedef struct {
   PPC_GPR_TYPE gpr29;
   PPC_GPR_TYPE gpr30;
   PPC_GPR_TYPE gpr31;
+  uint32_t gpr2;
   #ifdef __ALTIVEC__
     /*
      * 12 non-volatile vector registers, cache-aligned area for vscr/vrsave
@@ -353,6 +366,7 @@ static inline ppc_context *ppc_get_context( Context_Control *context )
 #define PPC_CONTEXT_OFFSET_GPR29 PPC_CONTEXT_GPR_OFFSET( 29 )
 #define PPC_CONTEXT_OFFSET_GPR30 PPC_CONTEXT_GPR_OFFSET( 30 )
 #define PPC_CONTEXT_OFFSET_GPR31 PPC_CONTEXT_GPR_OFFSET( 31 )
+#define PPC_CONTEXT_OFFSET_GPR2 PPC_CONTEXT_GPR_OFFSET( 32 )
 
 #ifndef ASM
 typedef struct {
@@ -470,7 +484,7 @@ typedef struct CPU_Interrupt_frame {
  *  This should be TRUE is CPU_HAS_SOFTWARE_INTERRUPT_STACK is TRUE.
  */
 
-#define CPU_ALLOCATE_INTERRUPT_STACK FALSE
+#define CPU_ALLOCATE_INTERRUPT_STACK TRUE
 
 /*
  *  Does the RTEMS invoke the user's ISR with the vector number and
@@ -668,6 +682,8 @@ void _BSP_Fatal_error(unsigned int);
 
 #define CPU_STACK_MINIMUM_SIZE          (1024*8)
 
+#define CPU_SIZEOF_POINTER 4
+
 /*
  *  CPU's worst alignment requirement for data types on a byte boundary.  This
  *  alignment does not take into account the requirements for the stack.
@@ -753,6 +769,30 @@ static inline uint32_t CPU_swap_u32(
 #define CPU_swap_u16( value ) \
   (((value&0xff) << 8) | ((value >> 8)&0xff))
 
+typedef uint32_t CPU_Counter_ticks;
+
+static inline CPU_Counter_ticks _CPU_Counter_read( void )
+{
+  CPU_Counter_ticks value;
+
+#ifdef ppc8540
+  /* Book E has no mftb */
+  __asm__ volatile( "mfspr %0, 268" : "=r" (value) );
+#else
+  __asm__ volatile( "mftb %0" : "=r" (value) );
+#endif
+
+  return value;
+}
+
+static inline CPU_Counter_ticks _CPU_Counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+)
+{
+  return second - first;
+}
+
 #endif /* ASM */
 
 
@@ -781,7 +821,8 @@ void _CPU_Context_Initialize(
   uint32_t          size,
   uint32_t          new_level,
   void             *entry_point,
-  bool              is_fp
+  bool              is_fp,
+  void             *tls_area
 );
 
 /*
@@ -945,17 +986,6 @@ void _CPU_ISR_install_vector(
 );
 
 /*
- *  _CPU_Install_interrupt_stack
- *
- *  This routine installs the hardware interrupt stack pointer.
- *
- *  NOTE:  It need only be provided if CPU_HAS_HARDWARE_INTERRUPT_STACK
- *         is TRUE.
- */
-
-void _CPU_Install_interrupt_stack( void );
-
-/*
  *  _CPU_Context_switch
  *
  *  This routine switches from the run context to the heir context.
@@ -999,6 +1029,94 @@ void _CPU_Context_restore_fp(
   Context_Control_fp **fp_context_ptr
 );
 
+void _CPU_Context_volatile_clobber( uintptr_t pattern );
+
+void _CPU_Context_validate( uintptr_t pattern );
+
+#ifdef RTEMS_SMP
+  uint32_t _CPU_SMP_Initialize( uint32_t configured_cpu_count );
+
+  static inline uint32_t _CPU_SMP_Get_current_processor( void )
+  {
+    uint32_t pir;
+
+    /* Use Book E Processor ID Register (PIR) */
+    __asm__ volatile (
+      "mfspr %[pir], 286"
+      : [pir] "=&r" (pir)
+    );
+
+    return pir;
+  }
+
+  void _CPU_SMP_Send_interrupt( uint32_t target_processor_index );
+
+  static inline void _CPU_SMP_Processor_event_broadcast( void )
+  {
+    __asm__ volatile ( "" : : : "memory" );
+  }
+
+  static inline void _CPU_SMP_Processor_event_receive( void )
+  {
+    __asm__ volatile ( "" : : : "memory" );
+  }
+#endif
+
+typedef struct {
+  uint32_t EXC_SRR0;
+  uint32_t EXC_SRR1;
+  uint32_t _EXC_number;
+  uint32_t EXC_CR;
+  uint32_t EXC_CTR;
+  uint32_t EXC_XER;
+  uint32_t EXC_LR;
+  #ifdef __SPE__
+    uint32_t EXC_SPEFSCR;
+    uint64_t EXC_ACC;
+  #endif
+  PPC_GPR_TYPE GPR0;
+  PPC_GPR_TYPE GPR1;
+  PPC_GPR_TYPE GPR2;
+  PPC_GPR_TYPE GPR3;
+  PPC_GPR_TYPE GPR4;
+  PPC_GPR_TYPE GPR5;
+  PPC_GPR_TYPE GPR6;
+  PPC_GPR_TYPE GPR7;
+  PPC_GPR_TYPE GPR8;
+  PPC_GPR_TYPE GPR9;
+  PPC_GPR_TYPE GPR10;
+  PPC_GPR_TYPE GPR11;
+  PPC_GPR_TYPE GPR12;
+  PPC_GPR_TYPE GPR13;
+  PPC_GPR_TYPE GPR14;
+  PPC_GPR_TYPE GPR15;
+  PPC_GPR_TYPE GPR16;
+  PPC_GPR_TYPE GPR17;
+  PPC_GPR_TYPE GPR18;
+  PPC_GPR_TYPE GPR19;
+  PPC_GPR_TYPE GPR20;
+  PPC_GPR_TYPE GPR21;
+  PPC_GPR_TYPE GPR22;
+  PPC_GPR_TYPE GPR23;
+  PPC_GPR_TYPE GPR24;
+  PPC_GPR_TYPE GPR25;
+  PPC_GPR_TYPE GPR26;
+  PPC_GPR_TYPE GPR27;
+  PPC_GPR_TYPE GPR28;
+  PPC_GPR_TYPE GPR29;
+  PPC_GPR_TYPE GPR30;
+  PPC_GPR_TYPE GPR31;
+} CPU_Exception_frame;
+
+void _BSP_Exception_frame_print( const CPU_Exception_frame *frame );
+
+static inline void _CPU_Exception_frame_print(
+  const CPU_Exception_frame *frame
+)
+{
+  _BSP_Exception_frame_print( frame );
+}
+
 /*
  * _CPU_Initialize_altivec()
  *
@@ -1015,8 +1133,8 @@ _CPU_Initialize_altivec(void);
 
 void
 _CPU_Context_switch_altivec(
-  Context_Control *from,
-  Context_Control *to
+  ppc_context *from,
+  ppc_context *to
 );
 
 /*
@@ -1027,7 +1145,7 @@ _CPU_Context_switch_altivec(
 
 void
 _CPU_Context_restore_altivec(
-  Context_Control *ctxt
+  ppc_context *ctxt
 );
 
 /*
@@ -1038,7 +1156,7 @@ _CPU_Context_restore_altivec(
 
 void
 _CPU_Context_initialize_altivec(
-  Context_Control *ctxt
+  ppc_context *ctxt
 );
 
 void _CPU_Fatal_error(

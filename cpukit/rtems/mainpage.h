@@ -10,7 +10,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /**
@@ -391,11 +391,10 @@
  * of RTEMS' concepts and features are interrelated. Experienced RTEMS users
  * will find that the manual organization facilitates its use as a reference
  * document.
- *
  */
 
 /**
- * @addtogroup ClassicRTEMS
+ * @addtogroup ClassicAPI
  *
  * The facilities provided by RTEMS are built upon a foundation of very
  * powerful concepts. These concepts must be understood before the application

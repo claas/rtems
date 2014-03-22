@@ -1,12 +1,17 @@
-/*
- *  SuperCore Spinlock Handler -- Release a Spinlock
+/**
+ * @file
  *
+ * @brief Release a Spinlock
+ * @ingroup ScoreSpinlock
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -14,24 +19,9 @@
 #endif
 
 #include <rtems/system.h>
-#include <rtems/score/corespinlock.h>
-#include <rtems/score/states.h>
+#include <rtems/score/corespinlockimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/watchdog.h>
-
-/*
- *  _CORE_spinlock_Release
- *
- *  This function releases the spinlock.
- *
- *  Input parameters:
- *    the_spinlock    - the spinlock control block to initialize
- *
- *  Output parameters:
- *    CORE_SPINLOCK_SUCCESSFUL - if successful
- *    error code               - if unsuccessful
- *
- */
 
 CORE_spinlock_Status _CORE_spinlock_Release(
   CORE_spinlock_Control  *the_spinlock

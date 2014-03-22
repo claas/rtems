@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Allocate resources to use the read-write lock and Initialize it
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  POSIX RWLock Manager -- Destroy a RWLock Instance
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,7 +24,7 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/rwlock.h>
+#include <rtems/posix/rwlockimpl.h>
 
 /*
  *  pthread_rwlock_init

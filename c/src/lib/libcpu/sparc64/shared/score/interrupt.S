@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Ported to ERC32 implementation of the SPARC by On-Line Applications
  *  Research Corporation (OAR) under contract to the European Space 
@@ -176,7 +176,7 @@ PUBLIC(_ISR_Handler)
    *        nest and thread dispatch disable levels are unnested.
    */
 
-  setx  SYM(_Thread_Dispatch_disable_level), %o5, %g3
+  setx  THREAD_DISPATCH_DISABLE_LEVEL, %o5, %g3
   lduw  [%g3], %g5
   setx  ISR_NEST_LEVEL, %o5, %g6
   lduw  [%g6], %g4
@@ -299,7 +299,7 @@ PUBLIC(_ISR_Handler)
      * window for _ISR_Handler.
      */
 
-    setx  SYM(_Thread_Dispatch_disable_level), %o5, %g3
+    setx  THREAD_DISPATCH_DISABLE_LEVEL, %o5, %g3
     lduw  [%g3],%g5
     lduw  [%g6],%g4
     sub   %g5, 1, %g5

@@ -1,18 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief Synchronize Data on Disk with Memory 
+ *  @ingroup libcsupport
+ */
+
 /*
- *  sync() - XXX ??? where is this defined
- *
- *  This function operates by as follows:
- *    for all threads
- *      for all FILE *
- *         fsync()
- *         fdatasync()
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -30,12 +29,6 @@ int fdatasync(int);        /* still not always prototyped */
 #include <stdio.h>
 
 #include <rtems.h>
-/*
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
-
-#include <rtems/libio_.h>
-#include <rtems/seterr.h>
-*/
 
 /* XXX check standards -- Linux version appears to be void */
 void _fwalk(struct _reent *, void *);
@@ -66,10 +59,11 @@ static void sync_per_thread(Thread_Control *t)
     */
    this_reent = t->libc_reent;
    if ( this_reent ) {
-     current_reent = _Thread_Executing->libc_reent;
-     _Thread_Executing->libc_reent = this_reent;
+     Thread_Control *executing = _Thread_Get_executing();
+     current_reent = executing->libc_reent;
+     executing->libc_reent = this_reent;
      _fwalk (t->libc_reent, sync_wrapper);
-     _Thread_Executing->libc_reent = current_reent;
+     executing->libc_reent = current_reent;
    }
 }
 
@@ -79,6 +73,13 @@ static void sync_per_thread(Thread_Control *t)
  */
 extern struct _reent * const _global_impure_ptr __ATTRIBUTE_IMPURE_PTR__;
 
+/**
+ * This function operates by as follows:
+ *    for all threads
+ *      for all FILE *
+ *         fsync()
+ *         fdatasync()
+ */
 void sync(void)
 {
 

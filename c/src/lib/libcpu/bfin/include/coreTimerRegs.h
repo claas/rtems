@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _coreTimerRegs_h_
@@ -27,4 +27,3 @@
 #define TCNTL_TMPWR                               0x00000001
 
 #endif /* _coreTimerRegs_h_ */
-

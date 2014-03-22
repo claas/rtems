@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -53,18 +53,6 @@ rtems_task Task_1(
   rtems_test_pause_and_screen_number( 10 );
 
   Screen10();
-  rtems_test_pause_and_screen_number( 11 );
-
-  Screen11();
-  rtems_test_pause_and_screen_number( 12 );
-
-  Screen12();
-  rtems_test_pause_and_screen_number( 13 );
-
-  Screen13();
-  rtems_test_pause_and_screen_number( 14 );
-
-  Screen14();
 
   puts( "*** END OF TEST 9 ***" );
   rtems_test_exit( 0 );

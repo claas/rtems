@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_LPC24XX_IO_H
@@ -240,7 +240,8 @@ typedef enum {
   LPC17XX_PIN_TYPE_ADC,
   LPC17XX_PIN_TYPE_DAC,
   LPC17XX_PIN_TYPE_I2C,
-  LPC17XX_PIN_TYPE_I2C_FAST_PLUS
+  LPC17XX_PIN_TYPE_I2C_FAST_PLUS,
+  LPC17XX_PIN_TYPE_OPEN_DRAIN
 } lpc17xx_pin_type;
 
 #ifdef ARM_MULTILIB_ARCH_V4
@@ -292,6 +293,16 @@ rtems_status_code lpc24xx_pin_config(
   const lpc24xx_pin_range *pins,
   lpc24xx_pin_action action
 );
+
+/**
+ * @brief Returns the first pin index of a pin range.
+ */
+static inline unsigned lpc24xx_pin_get_first_index(
+  const lpc24xx_pin_range *range
+)
+{
+  return LPC24XX_IO_INDEX_BY_PORT(range->fields.port, range->fields.port_bit);
+}
 
 /**
  * @name ADC Pins
@@ -1102,8 +1113,10 @@ rtems_status_code lpc24xx_pin_config(
   LPC24XX_PIN(1, 27, LPC24XX_PIN_FUNCTION_10, 2)
 #define LPC24XX_PIN_USB_SCL_1\
   LPC24XX_PIN(1, 28, LPC24XX_PIN_FUNCTION_01, 1)
-#define LPC24XX_PIN_USB_SDA_1\
-  LPC24XX_PIN(1, 29, LPC24XX_PIN_FUNCTION_01, 1)
+#define LPC24XX_PIN_USB_SDA_1 \
+  LPC24XX_PIN_WITH_TYPE( \
+    1, 29, LPC24XX_PIN_FUNCTION_01, 1, LPC17XX_PIN_TYPE_OPEN_DRAIN \
+  )
 #define LPC24XX_PIN_USB_CONNECT_1\
   LPC24XX_PIN(2, 9, LPC24XX_PIN_FUNCTION_01, 1)
 

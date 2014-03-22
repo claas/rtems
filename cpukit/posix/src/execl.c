@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Process will get Executed and then Terminated by execl
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  execl() - POSIX 1003.1b 3.1.2
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

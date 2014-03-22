@@ -1,40 +1,42 @@
 /**
  * @file rtems/rtems/partmp.h
  *
- *  This include file contains all the constants and structures associated
- *  with the Multiprocessing Support in the Partition Manager.
+ * @brief MP Support in Partition Manager
+ *
+ * This include file contains all the constants and structures associated
+ * with the Multiprocessing Support in the Partition Manager.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_PARTMP_H
 #define _RTEMS_RTEMS_PARTMP_H
 
+#ifndef _RTEMS_RTEMS_PARTIMPL_H
+# error "Never use <rtems/rtems/partmp.h> directly; include <rtems/rtems/partimpl.h> instead."
+#endif
+
+#include <rtems/score/mpciimpl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/score/thread.h>
-
-#include <rtems/rtems/part.h>
 
 /**
  *  @defgroup ClassicPartMP Partition MP Support
  *
  *  @ingroup ClassicMP
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the transparent multiprocessing
+ *  support within the Classic API Partition Manager.
  */
-/**{*/
+/*{*/
 
 /**
  *  The following enumerated type defines the list of
@@ -64,6 +66,8 @@ typedef struct {
 
 /**
  *  @brief Partition_MP_Send_process_packet
+ *
+ *  Multiprocessing Support for the Partition Manager
  *
  *  This routine performs a remote procedure call so that a
  *  process operation can be performed on another node.

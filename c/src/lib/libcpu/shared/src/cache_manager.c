@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *
  *  The functions in this file implement the API to the RTEMS Cache Manager and
@@ -18,6 +18,11 @@
  *  the Cache Manager Wrapper header files, often
  *
  *  rtems/c/src/lib/libcpu/CPU/cache_.h
+ *
+ *  The cache implementation header file can define
+ *  CPU_CACHE_SUPPORT_PROVIDES_RANGE_FUNCTIONS
+ *  if it provides cache maintenance functions which operate on multiple lines.
+ *  Otherwise a generic loop with single line operations will be used.
  *
  *  The functions below are implemented with CPU dependent inline routines
  *  found in the cache.c files for each CPU. In the event that a CPU does
@@ -46,6 +51,9 @@ void
 rtems_cache_flush_multiple_data_lines( const void * d_addr, size_t n_bytes )
 {
 #if defined(CPU_DATA_CACHE_ALIGNMENT)
+#if defined(CPU_CACHE_SUPPORT_PROVIDES_RANGE_FUNCTIONS)
+  _CPU_cache_flush_data_range( d_addr, n_bytes );
+#else
   const void * final_address;
 
  /*
@@ -65,6 +73,7 @@ rtems_cache_flush_multiple_data_lines( const void * d_addr, size_t n_bytes )
     d_addr = (void *)((size_t)d_addr + CPU_DATA_CACHE_ALIGNMENT);
   }
 #endif
+#endif
 }
 
 
@@ -78,6 +87,9 @@ void
 rtems_cache_invalidate_multiple_data_lines( const void * d_addr, size_t n_bytes )
 {
 #if defined(CPU_DATA_CACHE_ALIGNMENT)
+#if defined(CPU_CACHE_SUPPORT_PROVIDES_RANGE_FUNCTIONS)
+  _CPU_cache_invalidate_data_range( d_addr, n_bytes );
+#else
   const void * final_address;
 
  /*
@@ -96,6 +108,7 @@ rtems_cache_invalidate_multiple_data_lines( const void * d_addr, size_t n_bytes 
     _CPU_cache_invalidate_1_data_line( d_addr );
     d_addr = (void *)((size_t)d_addr + CPU_DATA_CACHE_ALIGNMENT);
   }
+#endif
 #endif
 }
 
@@ -136,7 +149,7 @@ rtems_cache_invalidate_entire_data( void )
 /*
  * This function returns the data cache granularity.
  */
-int
+size_t
 rtems_cache_get_data_line_size( void )
 {
 #if defined(CPU_DATA_CACHE_ALIGNMENT)
@@ -146,6 +159,16 @@ rtems_cache_get_data_line_size( void )
 #endif
 }
 
+
+size_t
+rtems_cache_get_data_cache_size( uint32_t level )
+{
+#if defined(CPU_CACHE_SUPPORT_PROVIDES_CACHE_SIZE_FUNCTIONS)
+  return _CPU_cache_get_data_cache_size( level );
+#else
+  return 0;
+#endif
+}
 
 /*
  * This function freezes the data cache; cache lines
@@ -204,7 +227,10 @@ rtems_cache_disable_data( void )
 void
 rtems_cache_invalidate_multiple_instruction_lines( const void * i_addr, size_t n_bytes )
 {
-#if CPU_INSTRUCTION_CACHE_ALIGNMENT
+#if defined(CPU_INSTRUCTION_CACHE_ALIGNMENT)
+#if defined(CPU_CACHE_SUPPORT_PROVIDES_RANGE_FUNCTIONS)
+  _CPU_cache_invalidate_instruction_range( i_addr, n_bytes );
+#else
   const void * final_address;
 
  /*
@@ -219,10 +245,11 @@ rtems_cache_invalidate_multiple_instruction_lines( const void * i_addr, size_t n
 
   final_address = (void *)((size_t)i_addr + n_bytes - 1);
   i_addr = (void *)((size_t)i_addr & ~(CPU_INSTRUCTION_CACHE_ALIGNMENT - 1));
-  while( final_address > i_addr ) {
+  while( final_address >= i_addr ) {
     _CPU_cache_invalidate_1_instruction_line( i_addr );
     i_addr = (void *)((size_t)i_addr + CPU_INSTRUCTION_CACHE_ALIGNMENT);
   }
+#endif
 #endif
 }
 
@@ -247,11 +274,22 @@ rtems_cache_invalidate_entire_instruction( void )
 /*
  * This function returns the instruction cache granularity.
  */
-int
+size_t
 rtems_cache_get_instruction_line_size( void )
 {
 #if defined(CPU_INSTRUCTION_CACHE_ALIGNMENT)
   return CPU_INSTRUCTION_CACHE_ALIGNMENT;
+#else
+  return 0;
+#endif
+}
+
+
+size_t
+rtems_cache_get_instruction_cache_size( uint32_t level )
+{
+#if defined(CPU_CACHE_SUPPORT_PROVIDES_CACHE_SIZE_FUNCTIONS)
+  return _CPU_cache_get_instruction_cache_size( level );
 #else
   return 0;
 #endif

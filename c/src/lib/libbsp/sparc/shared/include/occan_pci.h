@@ -1,12 +1,16 @@
- /*
- *  OC_CAN controller via PCI - driver interface
- *
+/**
+ * @file
+ * @ingroup can
+ * @brief OC_CAN controller via PCI - driver interface
+ */
+
+/*
  *  COPYRIGHT (c) 2007.
  *  Gaisler Research
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

@@ -1,5 +1,9 @@
-/*
- *  Time of Day (TOD) Handler -- Tickle Ticks
+/**
+ * @file
+ *
+ * @brief Increments time of day at each clock tick
+ *
+ * @ingroup ScoreTODConstants
  */
 
 /*  COPYRIGHT (c) 1989-2007.
@@ -7,35 +11,23 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/timestamp.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/config.h>
-
-/*
- *  _TOD_Tickle_ticks
- *
- *  This routine processes a clock tick.
- *
- *  Input parameters: NONE
- *
- *  Output parameters: NONE
- */
 
 void _TOD_Tickle_ticks( void )
 {
-  Timestamp_Control tick;
-  uint32_t          nanoseconds_per_tick;
+  TOD_Control       *tod = &_TOD;
+  ISR_lock_Context   lock_context;
+  Timestamp_Control  tick;
+  uint32_t           nanoseconds_per_tick;
 
   nanoseconds_per_tick = rtems_configuration_get_nanoseconds_per_tick();
 
@@ -45,12 +37,15 @@ void _TOD_Tickle_ticks( void )
   /* Update the counter of ticks since boot */
   _Watchdog_Ticks_since_boot += 1;
 
+  _TOD_Acquire( tod, &lock_context );
+
   /* Update the uptime */
-  _Timestamp_Add_to( &_TOD.uptime, &tick );
-  /* we do not care how much the uptime changed */
+  _Timestamp_Add_to( &tod->uptime, &tick );
 
   /* Update the current TOD */
-  _Timestamp_Add_to( &_TOD.now, &tick );
+  _Timestamp_Add_to( &tod->now, &tick );
+
+  _TOD_Release( tod, &lock_context );
 
   _TOD.seconds_trigger += nanoseconds_per_tick;
   if ( _TOD.seconds_trigger >= 1000000000UL ) {

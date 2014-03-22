@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Get Configurable System Variables
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,9 +22,9 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <rtems/score/todimpl.h>
 #include <rtems/system.h>
 #include <rtems/seterr.h>
-#include <rtems/score/tod.h>
 #include <rtems/libio_.h>
 
 #include <sys/param.h>

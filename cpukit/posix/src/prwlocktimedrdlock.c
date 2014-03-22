@@ -1,12 +1,17 @@
-/*
- *  POSIX RWLock Manager -- Attempt to Obtain a Read Lock on a RWLock Instance
+/**
+ * @file
  *
+ * @brief Attempt to Obtain a Read Lock on a RWLock Instance
+ * @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,9 +21,9 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/posix/rwlock.h>
+#include <rtems/posix/rwlockimpl.h>
 #include <rtems/posix/time.h>
+#include <rtems/score/thread.h>
 
 /*
  *  pthread_rwlock_timedrdlock
@@ -43,6 +48,7 @@ int pthread_rwlock_timedrdlock(
   Watchdog_Interval                            ticks;
   bool                                         do_wait = true;
   POSIX_Absolute_timeout_conversion_results_t  status;
+  Thread_Control                              *executing;
 
   if ( !rwlock )
     return EINVAL;
@@ -69,27 +75,29 @@ int pthread_rwlock_timedrdlock(
 
     case OBJECTS_LOCAL:
 
+      executing = _Thread_Executing;
       _CORE_RWLock_Obtain_for_reading(
-	&the_rwlock->RWLock,
-	*rwlock,
-	do_wait,
-	ticks,
-	NULL
+        &the_rwlock->RWLock,
+        executing,
+        *rwlock,
+        do_wait,
+        ticks,
+        NULL
       );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_rwlock->Object );
       if ( !do_wait ) {
-        if ( _Thread_Executing->Wait.return_code == CORE_RWLOCK_UNAVAILABLE ) {
-	  if ( status == POSIX_ABSOLUTE_TIMEOUT_INVALID )
-	    return EINVAL;
-	  if ( status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
-	       status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW )
-	    return ETIMEDOUT;
+        if ( executing->Wait.return_code == CORE_RWLOCK_UNAVAILABLE ) {
+          if ( status == POSIX_ABSOLUTE_TIMEOUT_INVALID )
+            return EINVAL;
+          if ( status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
+               status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW )
+            return ETIMEDOUT;
         }
       }
 
       return _POSIX_RWLock_Translate_core_RWLock_return_code(
-        (CORE_RWLock_Status) _Thread_Executing->Wait.return_code
+        (CORE_RWLock_Status) executing->Wait.return_code
       );
 
 #if defined(RTEMS_MULTIPROCESSING)

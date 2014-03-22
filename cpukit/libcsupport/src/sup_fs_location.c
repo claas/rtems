@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS File System Location Support
+ *  @ingroup LibIOInternal
+ */
+
 /*
  * Copyright (c) 2012 embedded brains GmbH.  All rights reserved.
  *
@@ -9,19 +16,20 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
   #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
-
 #include <stdlib.h>
 
 #include <rtems/libio_.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/threaddispatch.h>
+
+rtems_interrupt_lock rtems_filesystem_mt_entry_lock_control =
+  RTEMS_INTERRUPT_LOCK_INITIALIZER("mount table entry");
 
 static rtems_filesystem_global_location_t *deferred_released_global_locations;
 
@@ -171,7 +179,7 @@ void rtems_filesystem_global_location_release(
   rtems_filesystem_global_location_t *global_loc
 )
 {
-  if (!_Thread_Dispatch_in_critical_section()) {
+  if (_Thread_Dispatch_is_enabled()) {
     release_with_count(global_loc, 1);
   } else {
     if (global_loc->deferred_released_count == 0) {
@@ -216,7 +224,7 @@ void rtems_filesystem_do_unmount(
 
   if (mt_entry->unmount_task != 0) {
     rtems_status_code sc =
-      rtems_event_send(mt_entry->unmount_task, RTEMS_FILESYSTEM_UNMOUNT_EVENT);
+      rtems_event_transient_send(mt_entry->unmount_task);
     if (sc != RTEMS_SUCCESSFUL) {
       rtems_fatal_error_occurred(0xdeadbeef);
     }

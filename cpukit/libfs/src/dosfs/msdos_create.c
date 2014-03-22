@@ -1,12 +1,17 @@
-/*
- * Routine to create a new MSDOS filesystem node
+/**
+ * @file
  *
+ * @brief Create a new MSDOS FileSystem node
+ * @ingroup libfs_msdos MSDOS FileSystem
+ */
+
+/*
  * Copyright (C) 2001 OKTET Ltd., St.-Petersburg, Russia
  * Author: Eugeny S. Mints <Eugeny.Mints@oktet.ru>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  *
  */
 #if HAVE_CONFIG_H
@@ -85,7 +90,8 @@ msdos_creat_node(const rtems_filesystem_location_info_t  *parent_loc,
         rtems_set_errno_and_return_minus_one(ENAMETOOLONG);
     }
 
-    name_type = msdos_long_to_short (name, name_len,
+    name_type = msdos_long_to_short (fs_info->converter,
+                                     name, name_len,
                                      MSDOS_DIR_NAME(short_node),
                                      MSDOS_NAME_MAX);
     if (name_type == MSDOS_NAME_INVALID) {

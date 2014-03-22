@@ -1,6 +1,11 @@
-/*
- *  Evaluation IMFS Node Support Routines
+/**
+ * @file
  *
+ * @brief Evaluation IMFS Node Support
+ * @ingroup IMFS
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
@@ -9,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,6 +22,8 @@
 #endif
 
 #include "imfs.h"
+
+#include <string.h>
 
 static bool IMFS_eval_is_directory(
   rtems_filesystem_eval_path_context_t *ctx,
@@ -127,6 +134,8 @@ static rtems_filesystem_eval_path_generic_status IMFS_eval_token(
           --dir->reference_count;
           ++entry->reference_count;
           currentloc->node_access = entry;
+          currentloc->node_access_2 =
+            IMFS_generic_get_context_by_node( entry );
           IMFS_Set_handlers( currentloc );
 
           if ( !terminal ) {

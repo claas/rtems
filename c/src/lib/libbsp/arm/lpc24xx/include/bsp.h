@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (c) 2008-2012 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2008-2013 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
  *  Obere Lagerstr. 30
@@ -17,21 +17,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_LPC24XX_BSP_H
 #define LIBBSP_ARM_LPC24XX_BSP_H
 
 #include <bspopts.h>
-
-#include <rtems.h>
-#include <rtems/console.h>
-#include <rtems/clockdrv.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 #define BSP_FEATURE_IRQ_EXTENSION
 
@@ -49,12 +41,22 @@ extern "C" {
 
 #ifndef ASM
 
+#include <rtems.h>
+#include <rtems/console.h>
+#include <rtems/clockdrv.h>
+
+#include <bsp/default-initial-extension.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct rtems_bsdnet_ifconfig;
 
 /**
  * @defgroup lpc24xx LPC24XX Support
  *
- * @ingroup bsp_kit
+ * @ingroup bsp_arm
  *
  * @brief LPC24XX support package.
  *
@@ -109,12 +111,18 @@ void *bsp_idle_thread(uintptr_t ignored);
 
 void bsp_restart(void *addr);
 
-/** @} */
+bool lpc24xx_uart_probe_1(int minor);
 
-#endif /* ASM */
+bool lpc24xx_uart_probe_2(int minor);
+
+bool lpc24xx_uart_probe_3(int minor);
+
+/** @} */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* ASM */
 
 #endif /* LIBBSP_ARM_LPC24XX_BSP_H */

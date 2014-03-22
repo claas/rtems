@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 /* Include order is important */
@@ -292,13 +292,12 @@ static int mpc55xx_esci_termios_poll_write( int minor, const char *out,
  */
 static int mpc55xx_esci_termios_write( int minor, const char *out, size_t n)
 {
-	mpc55xx_esci_driver_entry *e = &mpc55xx_esci_driver_table [minor];
-	rtems_interrupt_level level;
+	if (n > 0) {
+		mpc55xx_esci_driver_entry *e = &mpc55xx_esci_driver_table [minor];
 
-	rtems_interrupt_disable(level);
-	e->regs->DR.B.D = out [0];
-	e->transmit_in_progress = true;
-	rtems_interrupt_enable(level);
+		e->regs->DR.B.D = out [0];
+		e->transmit_in_progress = true;
+	}
 
 	return 0;
 }

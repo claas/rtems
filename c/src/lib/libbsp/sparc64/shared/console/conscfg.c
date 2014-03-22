@@ -3,7 +3,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -45,7 +45,7 @@ bool sun4v_console_deviceProbe (int minor){
 /*
  *  Polled mode functions
  */
-console_fns pooled_functions={
+const console_fns pooled_functions={
   sun4v_console_deviceProbe,       /* deviceProbe */
   sun4v_console_device_first_open, /* deviceFirstOpen */
   NULL,                            /* deviceLastClose */
@@ -57,7 +57,7 @@ console_fns pooled_functions={
   NULL                             /* deviceOutputUsesInterrupts */
 };
 
-console_flow sun4v_console_console_flow = {
+const console_flow sun4v_console_console_flow = {
   NULL, /* deviceStopRemoteTx */
   NULL  /* deviceStartRemoteTx */
 };

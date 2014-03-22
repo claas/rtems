@@ -4,16 +4,17 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #include <tmacros.h>
 #include <intrcritical.h>
+
+#include <rtems/rtems/semimpl.h>
 
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
@@ -52,7 +53,10 @@ rtems_timer_service_routine test_release_from_isr(
     case_hit = true;
     (void) rtems_semaphore_release( Semaphore );
   }
-  _Thread_queue_Process_timeout( Main_TCB );
+
+  if ( Main_TCB->Wait.queue != NULL ) {
+    _Thread_queue_Process_timeout( Main_TCB );
+  }
 }
 
 rtems_task Init(
@@ -79,7 +83,7 @@ rtems_task Init(
   directive_failed( sc, "rtems_semaphore_create of SM1" );
 
   Main_task = rtems_task_self();
-  Main_TCB  = _Thread_Executing;
+  Main_TCB  = _Thread_Get_executing();
 
   interrupt_critical_section_test_support_initialize( test_release_from_isr );
 

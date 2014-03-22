@@ -1,10 +1,16 @@
+/**
+ * @file
+ * @ingroup sparc_leon2
+ * @brief Interrupts definitions
+ */
+
 /* LEON2 generic shared IRQ setup
  *
  * Based on libbsp/shared/include/irq.h.
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_LEON2_IRQ_CONFIG_H

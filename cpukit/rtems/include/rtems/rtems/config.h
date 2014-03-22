@@ -1,16 +1,21 @@
 /**
  * @file rtems/rtems/config.h
  *
- *  This include file contains the table of user defined configuration
- *  parameters specific for the RTEMS API.
+ * @defgroup ClassicConfig Configuration
+ *
+ * @ingroup ClassicRTEMS
+ * @brief Configuration Table
+ *
+ * This include file contains the table of user defined configuration
+ * parameters specific for the RTEMS API.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_CONFIG_H
@@ -28,7 +33,8 @@ extern "C" {
  *
  *  @ingroup ClassicRTEMS
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the application's configuration
+ *  of the Classic API including the maximum number of each class of objects.
  */
 /**@{*/
 

@@ -11,11 +11,12 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
 #include <rtems/libio.h>
+#include <rtems/score/sysstate.h>
 #include <stdlib.h>
 
 #include <libchip/serial.h>
@@ -686,7 +687,6 @@ MG5UART_STATIC int mg5uart_write_support_int(
   size_t      len
 )
 {
-  uint32_t        Irql;
   uint32_t        pMG5UART_port;
 
   pMG5UART_port = Console_Port_Tbl[minor]->ulCtrlPort2;
@@ -703,8 +703,6 @@ MG5UART_STATIC int mg5uart_write_support_int(
    *  Put the character out and enable interrupts if necessary.
    */
 
-  rtems_interrupt_disable(Irql);
-
   MG5UART_SETREG(pMG5UART_port, MG5UART_TX_BUFFER, *buf);
 
   if( Console_Port_Data[minor].bActive == FALSE )
@@ -713,7 +711,6 @@ MG5UART_STATIC int mg5uart_write_support_int(
      mg5uart_enable_interrupts(minor, MG5UART_ENABLE_ALL);
   }
 
-  rtems_interrupt_enable(Irql);
   return 1;
 }
 
@@ -893,7 +890,7 @@ MG5UART_STATIC void mg5uart_enable_interrupts(
  * Flow control is only supported when using interrupts
  */
 
-console_fns mg5uart_fns =
+const console_fns mg5uart_fns =
 {
   libchip_serial_default_probe,   /* deviceProbe */
   mg5uart_open,                   /* deviceFirstOpen */
@@ -906,7 +903,7 @@ console_fns mg5uart_fns =
   TRUE                            /* deviceOutputUsesInterrupts */
 };
 
-console_fns mg5uart_fns_polled =
+const console_fns mg5uart_fns_polled =
 {
   libchip_serial_default_probe,        /* deviceProbe */
   mg5uart_open,                        /* deviceFirstOpen */

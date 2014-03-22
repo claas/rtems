@@ -15,12 +15,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp/console-linflex.h>
 
 #include <bsp.h>
+#include <bsp/fatal.h>
 #include <bsp/irq.h>
 
 #ifdef MPC55XX_HAS_LINFLEX
@@ -259,14 +260,14 @@ static int mpc55xx_linflex_first_open(int major, int minor, void *arg)
   pcr.B.PA = self->tx_pa_value;
   self->tx_pcr_register->R = pcr.R;
 
-  rv = rtems_termios_set_initial_baud(tty, 115200);
+  rv = rtems_termios_set_initial_baud(tty, BSP_DEFAULT_BAUD_RATE);
   if (rv != 0) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_BAUD);
   }
 
   rv = mpc55xx_linflex_set_attributes(minor, &tty->termios);
   if (rv != 0) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_ATTRIBUTES);
   }
 
   sc = mpc55xx_interrupt_handler_install(
@@ -278,7 +279,7 @@ static int mpc55xx_linflex_first_open(int major, int minor, void *arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_RX_IRQ_INSTALL);
   }
 
   sc = mpc55xx_interrupt_handler_install(
@@ -290,7 +291,7 @@ static int mpc55xx_linflex_first_open(int major, int minor, void *arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_TX_IRQ_INSTALL);
   }
 
   /*
@@ -303,7 +304,7 @@ static int mpc55xx_linflex_first_open(int major, int minor, void *arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_ERR_IRQ_INSTALL);
   }
   */
 
@@ -333,7 +334,7 @@ static int mpc55xx_linflex_last_close(int major, int minor, void* arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_RX_IRQ_REMOVE);
   }
 
   sc = rtems_interrupt_handler_remove(
@@ -342,7 +343,7 @@ static int mpc55xx_linflex_last_close(int major, int minor, void* arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_TX_IRQ_REMOVE);
   }
 
   /*
@@ -352,7 +353,7 @@ static int mpc55xx_linflex_last_close(int major, int minor, void* arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_LINFLEX_ERR_IRQ_REMOVE);
   }
   */
 
@@ -389,17 +390,14 @@ static int mpc55xx_linflex_poll_read(int minor)
 
 static int mpc55xx_linflex_write(int minor, const char *out, size_t n)
 {
-  mpc55xx_linflex_context *self = console_generic_get_context(minor);
-  volatile LINFLEX_tag *regs = self->regs;
-  rtems_interrupt_level level;
+  if (n > 0) {
+    mpc55xx_linflex_context *self = console_generic_get_context(minor);
+    volatile LINFLEX_tag *regs = self->regs;
 
-  rtems_interrupt_disable(level);
-
-  regs->BDRL.B.DATA0 = out [0];
-  self->transmit_in_progress = true;
-  /* TODO: send more then one byte */
-
-  rtems_interrupt_enable(level);
+    regs->BDRL.B.DATA0 = out [0];
+    self->transmit_in_progress = true;
+    /* TODO: send more then one byte */
+  }
 
   return 0;
 }

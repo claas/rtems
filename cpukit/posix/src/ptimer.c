@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Process Timer
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -19,7 +26,6 @@
 #include <rtems/config.h>
 #include <rtems/score/isr.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/tod.h>
 
 #include <rtems/posix/time.h>
 
@@ -32,13 +38,12 @@
 #include <rtems/rtems/types.h>
 #include <rtems/rtems/timer.h>
 #include <rtems/rtems/clock.h>
-#include <rtems/posix/psignal.h>
 #include <rtems/score/wkspace.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <signal.h>
 
-#include <rtems/posix/timer.h>
+#include <rtems/posix/timerimpl.h>
 
 /*
  * _POSIX_Timer_Manager_initialization

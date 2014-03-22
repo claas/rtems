@@ -16,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <stdlib.h>
@@ -220,8 +220,8 @@ rtems_status_code rtems_interrupt_server_handler_remove(
 
   sc = rtems_interrupt_handler_remove(
     vector,
-    ie.entry->handler,
-    ie.entry->arg
+    bsp_interrupt_server_trigger,
+    ie.entry
   );
   if (sc != RTEMS_SUCCESSFUL) {
     return sc;

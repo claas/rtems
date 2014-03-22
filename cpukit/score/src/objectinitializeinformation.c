@@ -1,47 +1,28 @@
-/*
- *  Object Handler Initialization per Object Class
+/**
+ * @file
  *
+ * @brief Initialize Object Information
+ * @ingroup ScoreObject
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/address.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/object.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/objectmp.h>
-#endif
-#include <rtems/score/thread.h>
-#include <rtems/score/wkspace.h>
+#include <rtems/score/objectimpl.h>
+#include <rtems/score/chainimpl.h>
+#include <rtems/score/interr.h>
 #include <rtems/score/sysstate.h>
-#include <rtems/score/isr.h>
-
-/*
- *  _Objects_Initialize_information
- *
- *  This routine initializes all object information related data structures.
- *
- *  Input parameters:
- *    information         - object information table
- *    maximum             - maximum objects of this class
- *    size                - size of this object's control block
- *    is_string           - true if names for this object are strings
- *    maximum_name_length - maximum length of each object's name
- *    When multiprocessing is configured,
- *      supports_global     - true if this is a global object class
- *      extract_callout     - pointer to threadq extract callout
- *
- *  Output parameters:  NONE
- */
+#include <rtems/score/wkspace.h>
 
 void _Objects_Initialize_information(
   Objects_Information *information,
@@ -97,7 +78,7 @@ void _Objects_Initialize_information(
    *  Unlimited and maximum of zero is illogical.
    */
   if ( information->auto_extend && maximum_per_allocation == 0) {
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_UNLIMITED_AND_MAXIMUM_IS_0

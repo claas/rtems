@@ -1,12 +1,17 @@
-/*
- *  readlink() - POSIX 1003.1b - X.X.X - XXX
+/**
+ *  @file
  *
+ *  @brief Read Value of a Symbolic Link 
+ *  @ingroup libcsupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,7 +22,11 @@
 
 #include <rtems/libio_.h>
 
-ssize_t readlink( const char *path, char *buf, size_t bufsize )
+/**
+ *  POSIX 1003.1b - X.X.X - XXX
+ */
+ssize_t readlink( const char *__restrict path, char *__restrict buf,
+                  size_t bufsize )
 {
   ssize_t rv = 0;
   rtems_filesystem_eval_path_context_t ctx;

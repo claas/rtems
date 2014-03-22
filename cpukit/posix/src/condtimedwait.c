@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Waiting on a Condition
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,12 +22,10 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
 #include <rtems/score/watchdog.h>
-#include <rtems/posix/cond.h>
+#include <rtems/posix/condimpl.h>
 #include <rtems/posix/time.h>
-#include <rtems/posix/mutex.h>
+#include <rtems/posix/muteximpl.h>
 
 /*
  *  11.4.4 Waiting on a Condition, P1003.1c/Draft 10, p. 105

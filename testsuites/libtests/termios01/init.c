@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15,7 +15,10 @@
 #include <termios.h>
 #include <rtems/termiostypes.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <sys/errno.h>
+
+const char rtems_test_name[] = "TERMIOS 1";
 
 /* rtems_termios_baud_t is a typedefs to int32_t */
 #define PRIdrtems_termios_baud_t PRId32
@@ -456,6 +459,62 @@ static void test_termios_cfinspeed(void)
   }
 }
 
+static void test_termios_cfsetspeed(void)
+{
+  int             i;
+  int             status;
+  speed_t         speed;
+  struct termios  term;
+  tcflag_t        bad;
+
+  bad = CBAUD << 1;
+  memset( &term, '\0', sizeof(term) );
+  puts( "cfsetspeed(BAD BAUD) - EINVAL" );
+  status = cfsetspeed( &term, bad );
+  rtems_test_assert( status == -1 );
+  rtems_test_assert( errno == EINVAL );
+
+  for (i=0 ; baud_table[i].constant != INVALID_CONSTANT ; i++ ) {
+    memset( &term, '\0', sizeof(term) );
+    printf(
+      "cfsetspeed(B%" PRIdrtems_termios_baud_t ") - OK\n",
+      baud_table[i].baud
+    );
+    status = cfsetspeed( &term, baud_table[i].constant );
+    rtems_test_assert( !status );
+
+    printf(
+      "cfgetspeed(B%" PRIdrtems_termios_baud_t ") - checking both inspeed and outspeed - OK\n",
+      baud_table[i].baud
+    );
+    speed = cfgetispeed( &term );
+    rtems_test_assert( speed == baud_table[i].constant );
+
+    speed = cfgetospeed( &term );
+    rtems_test_assert( speed == baud_table[i].constant );
+  }
+}
+
+static void test_termios_cfmakeraw(void)
+{
+  struct termios  term;
+
+  memset( &term, '\0', sizeof(term) );
+  cfmakeraw( &term );
+  puts( "cfmakeraw - OK" );
+
+  /* Check that all of the flags were set correctly */
+  rtems_test_assert( ~(term.c_iflag & (IMAXBEL|IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON)) );
+
+  rtems_test_assert( ~(term.c_oflag & OPOST) );
+
+  rtems_test_assert( ~(term.c_lflag & (ECHO|ECHONL|ICANON|ISIG|IEXTEN)) );
+
+  rtems_test_assert( ~(term.c_cflag & (CSIZE|PARENB)) );
+
+  rtems_test_assert( term.c_cflag & CS8 );
+}
+
 static rtems_task Init(
   rtems_task_argument ignored
 )
@@ -467,7 +526,7 @@ static rtems_task Init(
   struct termios            t;
   int index = 0;
 
-  puts( "\n\n*** TEST TERMIOS 01 ***" );
+  TEST_BEGIN();
 
   test_termios_baud2index();
   test_termios_baud2number();
@@ -504,6 +563,8 @@ static rtems_task Init(
   rc = tcsetattr( test, INT_MAX, &t );
   rtems_test_assert( rc == -1 );
   rtems_test_assert( errno == ENOTSUP );
+
+  test_termios_cfmakeraw();
   
   /*
    * tcsetattr - TCSADRAIN
@@ -587,6 +648,8 @@ static rtems_task Init(
 
   test_termios_cfinspeed();
 
+  test_termios_cfsetspeed();
+
   puts( "Init - close - " TERMIOS_TEST_DRIVER_DEVICE_NAME " - OK" );
   rc = close( test );
   if ( rc != 0 ) {
@@ -605,7 +668,7 @@ static rtems_task Init(
   }
   puts( "" );
 
-  puts( "*** END OF TEST TERMIOS 01 ***" );
+  TEST_END();
   rtems_test_exit(0);
 }
 
@@ -624,6 +687,8 @@ static rtems_task Init(
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 4
 
 #define CONFIGURE_MAXIMUM_TASKS         1
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
+
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #define CONFIGURE_INIT

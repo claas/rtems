@@ -1,28 +1,27 @@
+/**
+ * @file
+ *
+ * @brief Partition_MP_Send_process_packet
+ * @ingroup ClassicPartMP Partition MP Support
+ */
+
 /*
- *  Multiprocessing Support for the Partition Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/rtems/part.h>
-#include <rtems/score/thread.h>
-#include <rtems/rtems/support.h>
+#include <rtems/rtems/partimpl.h>
+#include <rtems/score/statesimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 RTEMS_STATIC_ASSERT(
   sizeof(Partition_MP_Packet) <= MP_PACKET_MINIMUM_PACKET_SIZE,

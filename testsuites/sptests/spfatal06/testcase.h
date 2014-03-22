@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /*
@@ -38,6 +38,10 @@ rtems_initialization_tasks_table Initialization_tasks[] = {
 
 void *New_stack_allocate_hook(size_t unused);
 
+#define CONFIGURE_TASK_STACK_ALLOCATOR New_stack_allocate_hook
+
+#define CONFIGURE_TASK_STACK_DEALLOCATOR NULL
+
 void *New_stack_allocate_hook(size_t unused)
 {
   return NULL;
@@ -45,12 +49,5 @@ void *New_stack_allocate_hook(size_t unused)
 
 void force_error()
 {
-  if (Configuration.stack_free_hook != NULL)
-    Configuration.stack_allocate_hook = NULL;
-  else
-    Configuration.stack_allocate_hook = New_stack_allocate_hook;
-
-  rtems_initialize_data_structures();
   /* we will not run this far */
 }
-

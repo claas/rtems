@@ -3,6 +3,8 @@
  *
  * @ingroup RTEMSFDisk
  *
+ * @brief Interface to a Flash Disk Block Device
+ *
  * This file defines the interface to a flash disk block device.
  */
 
@@ -11,7 +13,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if !defined (_RTEMS_FLASHDISK_H_)
@@ -116,9 +118,8 @@
  *  }
  *  close (fd);
  * @endcode
- *
- * @{
  */
+/**@{**/
 
 /**
  * @brief The base name of the flash disks.

@@ -1,33 +1,44 @@
+/**
+ * @file
+ *
+ * @brief Private Support Information for POSIX Threads
+ * @ingroup POSIX_PTHREADS Private Threads
+ */
+
 /*
- *  COPYRIGHT (c) 1989-2010.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <stdio.h>
 
 #include <errno.h>
 #include <pthread.h>
 #include <limits.h>
+#include <assert.h>
 
 #include <rtems/system.h>
 #include <rtems/config.h>
 #include <rtems/score/apiext.h>
 #include <rtems/score/stack.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/userext.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/userextimpl.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/score/wkspace.h>
 #include <rtems/posix/cancel.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/priority.h>
-#include <rtems/posix/psignal.h>
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/posix/priorityimpl.h>
+#include <rtems/posix/psignalimpl.h>
 #include <rtems/posix/config.h>
-#include <rtems/posix/key.h>
+#include <rtems/posix/keyimpl.h>
 #include <rtems/posix/time.h>
 #include <rtems/score/timespec.h>
 
@@ -37,13 +48,14 @@
  *  NOTE: Be careful .. if the default attribute set changes,
  *        _POSIX_Threads_Initialize_user_threads will need to be examined.
  */
-const pthread_attr_t _POSIX_Threads_Default_attributes = {
-  true,                       /* is_initialized */
-  NULL,                       /* stackaddr */
-  0,                          /* stacksize -- will be adjusted to minimum */
-  PTHREAD_SCOPE_PROCESS,      /* contentionscope */
-  PTHREAD_INHERIT_SCHED,      /* inheritsched */
-  SCHED_FIFO,                 /* schedpolicy */
+pthread_attr_t _POSIX_Threads_Default_attributes = {
+  .is_initialized  = true,                       /* is_initialized */
+  .stackaddr       = NULL,                       /* stackaddr */
+  .stacksize       = 0,                          /* stacksize -- will be adjusted to minimum */
+  .contentionscope = PTHREAD_SCOPE_PROCESS,      /* contentionscope */
+  .inheritsched    = PTHREAD_INHERIT_SCHED,      /* inheritsched */
+  .schedpolicy     = SCHED_FIFO,                 /* schedpolicy */
+  .schedparam      =
   {                           /* schedparam */
     2,                        /* sched_priority */
     #if defined(_POSIX_SPORADIC_SERVER) || \
@@ -54,13 +66,19 @@ const pthread_attr_t _POSIX_Threads_Default_attributes = {
       0                         /* sched_ss_max_repl */
     #endif
   },
+
   #if HAVE_DECL_PTHREAD_ATTR_SETGUARDSIZE
-    0,                        /* guardsize */
+    .guardsize = 0,                            /* guardsize */
   #endif
   #if defined(_POSIX_THREAD_CPUTIME)
-    1,                        /* cputime_clock_allowed */
+    .cputime_clock_allowed = 1,                        /* cputime_clock_allowed */
   #endif
-  PTHREAD_CREATE_JOINABLE,    /* detachstate */
+  .detachstate             = PTHREAD_CREATE_JOINABLE,    /* detachstate */
+  #if defined(__RTEMS_HAVE_SYS_CPUSET_H__)
+    .affinitysetsize         = 0,
+    .affinityset             = NULL,
+    .affinitysetpreallocated = {{0x0}}
+  #endif
 };
 
 /*
@@ -129,7 +147,7 @@ void _POSIX_Threads_Sporadic_budget_callout(
    *  This will prevent the thread from consuming its entire "budget"
    *  while at low priority.
    */
-  the_thread->cpu_time_budget = 0xFFFFFFFF; /* XXX should be based on MAX_U32 */
+  the_thread->cpu_time_budget = UINT32_MAX;
 
   new_priority = _POSIX_Priority_To_core(api->schedparam.sched_ss_low_priority);
   the_thread->real_priority = new_priority;
@@ -178,7 +196,7 @@ static bool _POSIX_Threads_Create_extension(
   created->API_Extensions[ THREAD_API_POSIX ] = api;
 
   /* XXX check all fields are touched */
-  api->Attributes  = _POSIX_Threads_Default_attributes;
+  _POSIX_Threads_Initialize_attributes( &api->Attributes );
   api->detachstate = _POSIX_Threads_Default_attributes.detachstate;
   api->schedpolicy = _POSIX_Threads_Default_attributes.schedpolicy;
   api->schedparam  = _POSIX_Threads_Default_attributes.schedparam;
@@ -191,7 +209,11 @@ static bool _POSIX_Threads_Create_extension(
   api->cancelation_requested = 0;
   api->cancelability_state = PTHREAD_CANCEL_ENABLE;
   api->cancelability_type = PTHREAD_CANCEL_DEFERRED;
+#ifndef HAVE_STRUCT__PTHREAD_CLEANUP_CONTEXT
   _Chain_Initialize_empty (&api->Cancellation_Handlers);
+#else /* HAVE_STRUCT__PTHREAD_CLEANUP_CONTEXT */
+  api->last_cleanup_context = NULL;
+#endif /* HAVE_STRUCT__PTHREAD_CLEANUP_CONTEXT */
 
   /*
    *  If the thread is not a posix thread, then all posix signals are blocked
@@ -199,9 +221,7 @@ static bool _POSIX_Threads_Create_extension(
    *
    *  The check for class == 1 is debug.  Should never really happen.
    */
-
-  /* XXX use signal constants */
-  api->signals_pending = 0;
+  api->signals_pending = SIGNAL_EMPTY_MASK;
   if ( _Objects_Get_API( created->Object.id ) == OBJECTS_POSIX_API
        #if defined(RTEMS_DEBUG)
          && _Objects_Get_class( created->Object.id ) == 1
@@ -210,7 +230,7 @@ static bool _POSIX_Threads_Create_extension(
     executing_api = _Thread_Executing->API_Extensions[ THREAD_API_POSIX ];
     api->signals_blocked = executing_api->signals_blocked;
   } else {
-    api->signals_blocked = 0xffffffff;
+    api->signals_blocked = SIGNAL_ALL_MASK;
   }
 
   _Thread_queue_Initialize(
@@ -250,11 +270,6 @@ static void _POSIX_Threads_Delete_extension(
    *  Run the POSIX cancellation handlers
    */
   _POSIX_Threads_cancel_run( deleted );
-
-  /*
-   *  Run all the key destructors
-   */
-  _POSIX_Keys_Run_destructors( deleted );
 
   /*
    *  Wakeup all the tasks which joined with this one
@@ -305,12 +320,10 @@ static void _POSIX_Threads_Initialize_user_threads( void )
  *  API Extension control structures
  */
 API_extensions_Control _POSIX_Threads_API_extensions = {
-  { NULL, NULL },
   #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
-    NULL,                                   /* predriver */
+    .predriver_hook = NULL,
   #endif
-  _POSIX_Threads_Initialize_user_threads,   /* postdriver */
-  _POSIX_signals_Post_switch_extension,     /* post switch */
+  .postdriver_hook = _POSIX_Threads_Initialize_user_threads
 };
 
 User_extensions_Control _POSIX_Threads_User_extensions = {
@@ -334,6 +347,27 @@ User_extensions_Control _POSIX_Threads_User_extensions = {
  */
 void _POSIX_Threads_Manager_initialization(void)
 {
+  #if defined(__RTEMS_HAVE_SYS_CPUSET_H__)
+    pthread_attr_t *attr;
+    int i;
+    int max_cpus = 1;
+
+    /* Initialize default attribute. */
+    attr = &_POSIX_Threads_Default_attributes;
+
+    /* We do not support a cpu count over CPU_SETSIZE  */
+    max_cpus = _SMP_Get_processor_count();
+    assert( max_cpus <= CPU_SETSIZE );
+
+    /*  Initialize the affinity to be the set of all available CPU's   */
+    attr->affinityset             = &attr->affinitysetpreallocated;
+    attr->affinitysetsize         = sizeof( *attr->affinityset );
+    CPU_ZERO_S( attr->affinitysetsize, &attr->affinitysetpreallocated );
+
+    for (i=0; i<max_cpus; i++)
+      CPU_SET_S(i, attr->affinitysetsize, attr->affinityset );
+  #endif
+
   _Objects_Initialize_information(
     &_POSIX_Threads_Information, /* object information table */
     OBJECTS_POSIX_API,           /* object API */

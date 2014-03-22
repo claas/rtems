@@ -1,12 +1,17 @@
 /*
- *  SuperCore Spinlock Handler -- Wait for Spinlock
+ *  @file
  *
+ *  @brief Wait for Spinlock
+ *  @ingroup ScoreSpinlock
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -14,10 +19,9 @@
 #endif
 
 #include <rtems/system.h>
-#include <rtems/score/corespinlock.h>
-#include <rtems/score/states.h>
+#include <rtems/score/corespinlockimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/score/threaddispatch.h>
 
 /*
  *  _CORE_spinlock_Wait

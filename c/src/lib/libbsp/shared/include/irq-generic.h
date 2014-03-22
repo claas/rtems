@@ -9,16 +9,17 @@
 /*
  * Based on concepts of Pavel Pisa, Till Straumann and Eric Valette.
  *
- * Copyright (c) 2008, 2009, 2010
- * embedded brains GmbH
- * Obere Lagerstr. 30
- * D-82178 Puchheim
- * Germany
- * <rtems@embedded-brains.de>
+ * Copyright (c) 2008-2014 embedded brains GmbH.
+ *
+ *  embedded brains GmbH
+ *  Dornierstr. 4
+ *  82178 Puchheim
+ *  Germany
+ *  <rtems@embedded-brains.de>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_SHARED_IRQ_GENERIC_H
@@ -27,6 +28,10 @@
 #include <stdbool.h>
 
 #include <rtems/irq-extension.h>
+
+#ifdef RTEMS_SMP
+  #include <rtems/score/atomic.h>
+#endif
 
 #include <bsp/irq.h>
 
@@ -51,6 +56,17 @@ extern "C" {
 
 #ifndef BSP_INTERRUPT_HANDLER_TABLE_SIZE
   #define BSP_INTERRUPT_HANDLER_TABLE_SIZE BSP_INTERRUPT_VECTOR_NUMBER
+#endif
+
+/* Internal macros for SMP support, do not use externally */
+#ifdef RTEMS_SMP
+  #define bsp_interrupt_disable(level) do { (void) level; } while (0)
+  #define bsp_interrupt_enable(level) do { } while (0)
+  #define bsp_interrupt_fence(order) _Atomic_Fence(order)
+#else
+  #define bsp_interrupt_disable(level) rtems_interrupt_disable(level)
+  #define bsp_interrupt_enable(level) rtems_interrupt_enable(level)
+  #define bsp_interrupt_fence(order) do { } while (0)
 #endif
 
 struct bsp_interrupt_handler_entry {
@@ -89,7 +105,9 @@ static inline rtems_vector_number bsp_interrupt_handler_index(
 /**
  * @defgroup bsp_interrupt BSP Interrupt Support
  *
- * @ingroup rtems_interrupt_extension
+ * @ingroup bsp_shared
+ * 
+ * @brief Generic BSP Interrupt Support
  *
  * The BSP interrupt support manages a sequence of interrupt vector numbers
  * ranging from @ref BSP_INTERRUPT_VECTOR_MIN to @ref BSP_INTERRUPT_VECTOR_MAX
@@ -163,11 +181,15 @@ void bsp_interrupt_handler_default(rtems_vector_number vector);
  * @brief Initialize BSP interrupt support.
  *
  * You must call this function before you can install, remove and dispatch
- * interrupt handlers.  The BSP specific bsp_interrupt_facility_initialize()
- * function will be called after all internals are initialized.  Initialization
- * is complete if everything was successful.
+ * interrupt handlers.  There is no protection against concurrent
+ * initialization.  This function must be called at most once.  The BSP
+ * specific bsp_interrupt_facility_initialize() function will be called after
+ * all internals are initialized.  If the BSP specific initialization fails,
+ * then this is a fatal error.  The fatal error source is
+ * RTEMS_FATAL_SOURCE_BSP and the fatal error code is
+ * BSP_FATAL_INTERRUPT_INITIALIZATION.
  */
-rtems_status_code bsp_interrupt_initialize(void);
+void bsp_interrupt_initialize(void);
 
 /**
  * @brief BSP specific initialization.
@@ -231,11 +253,18 @@ rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector);
 static inline void bsp_interrupt_handler_dispatch(rtems_vector_number vector)
 {
   if (bsp_interrupt_is_valid_vector(vector)) {
-    bsp_interrupt_handler_entry *e =
+    const bsp_interrupt_handler_entry *e =
       &bsp_interrupt_handler_table [bsp_interrupt_handler_index(vector)];
 
     do {
-      (*e->handler)(e->arg);
+      rtems_interrupt_handler handler;
+      void *arg;
+
+      arg = e->arg;
+      bsp_interrupt_fence(ATOMIC_ORDER_ACQUIRE);
+      handler = e->handler;
+      (*handler)(arg);
+
       e = e->next;
     } while (e != NULL);
   } else {

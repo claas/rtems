@@ -1,3 +1,8 @@
+/**
+ * @file
+ *
+ * @brief NIOS II Utility
+ */
 /*
  * Copyright (c) 2011 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +14,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_NIOS2_UTILITY_H
@@ -154,7 +159,7 @@ extern uint32_t _Nios2_Thread_dispatch_disabled;
  * interrupts.
  *
  * The board support package must provide a global symbol with this name to
- * specifiy the status register mask used in _CPU_ISR_Disable().
+ * specify the status register mask used in _CPU_ISR_Disable().
  */
 extern char _Nios2_ISR_Status_mask [];
 
@@ -163,7 +168,7 @@ extern char _Nios2_ISR_Status_mask [];
  * interrupts.
  *
  * The board support package must provide a global symbol with this name to
- * specifiy the status register bits used in _CPU_ISR_Disable().
+ * specify the status register bits used in _CPU_ISR_Disable().
  */
 extern char _Nios2_ISR_Status_bits [];
 
@@ -407,12 +412,12 @@ bool _Nios2_MPU_Get_region_descriptor(
 );
 
 /**
- * @brief Seaches the region table part for a disabled region.
+ * @brief Searches the region table part for a disabled region.
  *
  * The table will be searched between indices @a begin and @a end.  The @a end
  * index is not part of the search range.  If @a end is negative, then the
  * region count will be used.  Thus a @a begin of 0 and a @a end of -1 will
- * specifiy the complete table.
+ * specify the complete table.
  *
  * @retval -1 No disabled region is available.
  * @retval other Index of disabled region.

@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <libchip/sersupp.h>
@@ -39,7 +39,9 @@ static const stm32f4_rcc_index usart_rcc_index [] = {
   STM32F4_RCC_USART3,
   STM32F4_RCC_UART4,
   STM32F4_RCC_UART5,
+#ifdef STM32F4_FAMILY_F4XXXX
   STM32F4_RCC_USART6
+#endif /* STM32F4_FAMILY_F4XXXX */
 };
 
 static stm32f4_rcc_index usart_get_rcc_index(const console_tbl *ct)
@@ -199,7 +201,7 @@ static int usart_set_attributes(int minor, const struct termios *term)
   return -1;
 }
 
-console_fns stm32f4_usart_fns = {
+const console_fns stm32f4_usart_fns = {
   .deviceProbe = libchip_serial_default_probe,
   .deviceFirstOpen = usart_first_open,
   .deviceLastClose = usart_last_close,

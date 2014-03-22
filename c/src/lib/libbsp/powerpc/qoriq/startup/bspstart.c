@@ -17,11 +17,12 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
 #include <rtems/config.h>
+#include <rtems/counter.h>
 
 #include <libchip/serial.h>
 
@@ -72,7 +73,6 @@ void _BSP_Fatal_error(unsigned n)
 
 void bsp_start(void)
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
   unsigned long i = 0;
 
   ppc_cpu_id_t myCpu;
@@ -90,6 +90,7 @@ void bsp_start(void)
     BSP_bus_frequency = bsp_uboot_board_info.bi_busfreq;
     bsp_clicks_per_usec = bsp_uboot_board_info.bi_busfreq / 8000000;
   #endif /* HAS_UBOOT */
+  rtems_counter_initialize_converter(BSP_bus_frequency / 8);
 
   /* Initialize some console parameters */
   for (i = 0; i < Console_Configuration_Count; ++i) {
@@ -108,15 +109,11 @@ void bsp_start(void)
   PPC_CLEAR_SPECIAL_PURPOSE_REGISTER_BITS(BOOKE_TCR, BOOKE_TCR_DIE);
 
   /* Initialize exception handler */
-  ppc_exc_vector_base = (uint32_t) bsp_exc_vector_base;
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
+  ppc_exc_initialize_with_vector_base(
     (uintptr_t) bsp_section_work_begin,
-    Configuration.interrupt_stack_size
+    rtems_configuration_get_interrupt_stack_size(),
+    bsp_exc_vector_base
   );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
 
   /* Now it is possible to make the code execute only */
   qoriq_mmu_change_perm(
@@ -126,10 +123,7 @@ void bsp_start(void)
   );
 
   /* Initalize interrupt support */
-  sc = bsp_interrupt_initialize();
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot intitialize interrupts\n");
-  }
+  bsp_interrupt_initialize();
 
   /* Disable boot page translation */
   qoriq.lcc.bptr &= ~BPTR_EN;

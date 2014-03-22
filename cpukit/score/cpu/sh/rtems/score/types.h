@@ -1,11 +1,13 @@
 /**
- * @file rtems/score/types.h
+ * @file
+ *
+ * @brief Hitachi SH CPU Type Definitions
+ *
+ * This include file contains information pertaining to the Hitachi SH
+ * processor.
  */
 
 /*
- *  This include file contains information pertaining to the Hitachi SH
- *  processor.
- *
  *  Authors: Ralf Corsepius (corsepiu@faw.uni-ulm.de) and
  *           Bernd Becker (becker@faw.uni-ulm.de)
  *
@@ -21,7 +23,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_TYPES_H

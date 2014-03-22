@@ -1,10 +1,18 @@
+/**
+ * @file
+ *
+ * @brief Releases the Specified API Mutex
+ *
+ * @ingroup ScoreAPIMutex
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -13,6 +21,7 @@
 
 #include <rtems/system.h>
 #include <rtems/score/apimutex.h>
+#include <rtems/score/coremuteximpl.h>
 
 void _API_Mutex_Unlock(
   API_Mutex_Control *the_mutex

@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -53,7 +53,7 @@ static const IMFS_node_control *const
   [IMFS_SYM_LINK] = &IMFS_node_control_sym_link,
   [IMFS_MEMORY_FILE] = &IMFS_node_control_memfile,
   [IMFS_LINEAR_FILE] = &IMFS_node_control_linfile,
-  [IMFS_FIFO] = &IMFS_node_control_default
+  [IMFS_FIFO] = &IMFS_node_control_enosys
 };
 
 int IMFS_initialize(

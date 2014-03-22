@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Limits for Scheduling Parameter
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  13.3.6 Get Scheduling Parameter Limits, P1003.1b-1993, p. 258
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,8 +25,7 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/threadimpl.h>
 #include <rtems/score/timespec.h>
 #include <rtems/seterr.h>
 

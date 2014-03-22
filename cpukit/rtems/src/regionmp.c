@@ -1,38 +1,33 @@
+/**
+ *  @file
+ *
+ *  @brief Region MP Support
+ *  @ingroup ClassicRegionMP
+ */
+
 /*
- *  Multiprocessing Support for the Region Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/rtems/region.h>
-#include <rtems/score/thread.h>
-#include <rtems/rtems/support.h>
+#include <rtems/rtems/regionimpl.h>
+#include <rtems/rtems/optionsimpl.h>
+#include <rtems/score/statesimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 RTEMS_STATIC_ASSERT(
   sizeof(Region_MP_Packet) <= MP_PACKET_MINIMUM_PACKET_SIZE,
   Region_MP_Packet
 );
-
-/*
- *  _Region_MP_Send_process_packet
- *
- */
 
 void _Region_MP_Send_process_packet (
   Region_MP_Remote_operations  operation,
@@ -74,11 +69,6 @@ void _Region_MP_Send_process_packet (
       break;
   }
 }
-
-/*
- *  _Region_MP_Send_request_packet
- *
- */
 
 rtems_status_code _Region_MP_Send_request_packet (
   Region_MP_Remote_operations  operation,
@@ -131,11 +121,6 @@ rtems_status_code _Region_MP_Send_request_packet (
   return RTEMS_INTERNAL_ERROR;
 }
 
-/*
- *  _Region_MP_Send_response_packet
- *
- */
-
 void _Region_MP_Send_response_packet (
   Region_MP_Remote_operations  operation,
   Objects_Id                   region_id,
@@ -173,12 +158,6 @@ void _Region_MP_Send_response_packet (
 
   }
 }
-
-/*
- *
- *  _Region_MP_Process_packet
- *
- */
 
 void _Region_MP_Process_packet (
   rtems_packet_prefix  *the_packet_prefix
@@ -279,11 +258,6 @@ void _Region_MP_Process_packet (
  *
  */
 
-/*
- *  _Region_MP_Send_extract_proxy
- *
- */
-
 void _Region_MP_Send_extract_proxy (
   void           *argument
 )
@@ -297,11 +271,6 @@ void _Region_MP_Send_extract_proxy (
     the_thread->Object.id
   );
 }
-
-/*
- *  _Region_MP_Get_packet
- *
- */
 
 Region_MP_Packet *_Region_MP_Get_packet ( void )
 {

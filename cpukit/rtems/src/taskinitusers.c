@@ -1,13 +1,17 @@
+/**
+ * @file
+ *
+ * @brief _RTEMS_tasks_Initialize_user_tasks_body
+ * @ingroup ClassicTasks Tasks
+ */
+
 /*
- *  RTEMS Task Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -19,18 +23,12 @@
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
 #include <rtems/rtems/modes.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/rtemsapi.h>
 #include <rtems/score/stack.h>
-#include <rtems/score/states.h>
-#include <rtems/rtems/tasks.h>
+#include <rtems/rtems/tasksimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/userext.h>
 #include <rtems/score/wkspace.h>
 #include <rtems/score/apiext.h>
-#include <rtems/score/sysstate.h>
 
 /*
  *  _RTEMS_tasks_Initialize_user_tasks_body
@@ -76,7 +74,7 @@ void _RTEMS_tasks_Initialize_user_tasks_body( void )
       &id
     );
     if ( !rtems_is_status_successful( return_value ) )
-      _Internal_error_Occurred( INTERNAL_ERROR_RTEMS_API, true, return_value );
+      _Terminate( INTERNAL_ERROR_RTEMS_API, true, return_value );
 
     return_value = rtems_task_start(
       id,
@@ -84,6 +82,6 @@ void _RTEMS_tasks_Initialize_user_tasks_body( void )
       user_tasks[ index ].argument
     );
     if ( !rtems_is_status_successful( return_value ) )
-      _Internal_error_Occurred( INTERNAL_ERROR_RTEMS_API, true, return_value );
+      _Terminate( INTERNAL_ERROR_RTEMS_API, true, return_value );
   }
 }

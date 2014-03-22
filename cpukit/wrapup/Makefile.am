@@ -27,6 +27,7 @@ TMP_LIBS += ../libfs/libdefaultfs.a
 TMP_LIBS += ../libfs/libdevfs.a
 TMP_LIBS += ../libfs/libimfs.a
 TMP_LIBS += ../libfs/librfs.a
+TMP_LIBS += ../libfs/libjffs2.a
 
 TMP_LIBS += ../libmisc/libmonitor.a
 TMP_LIBS += ../libmisc/libuntar.a
@@ -52,6 +53,11 @@ TMP_LIBS += ../libmisc/libfsmount.a
 TMP_LIBS += ../libmisc/libmouse.a
 TMP_LIBS += ../libmisc/libmw-fb.a
 TMP_LIBS += ../libmisc/libstringto.a
+
+if LIBUTF8PROC
+TMP_LIBS += ../libmisc/libutf8proc.a
+endif
+
 TMP_LIBS += ../libmisc/libuuid.a
 
 TMP_LIBS += ../libi2c/libi2c.a

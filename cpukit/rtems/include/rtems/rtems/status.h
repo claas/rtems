@@ -1,33 +1,41 @@
 /**
  * @file rtems/rtems/status.h
  *
- *  This include file contains the status codes returned from the
- *  executive directives.
+ * @defgroup ClassicStatus Status Codes
+ *
+ * @ingroup ClassicRTEMS
+ * @brief Status Codes Returned from Executive Directives
+ *
+ * This include file contains the status codes returned from the
+ * executive directives.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_STATUS_H
 #define _RTEMS_RTEMS_STATUS_H
+
+#include <rtems/score/basedefs.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  @defgroup ClassicStatus Status Codes
  *
  *  @ingroup ClassicRTEMS
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the status codes returned
+ *  by Classic API directives.
  */
 /**@{*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  *  @brief Classic API Status
@@ -183,21 +191,73 @@ typedef enum {
 #define RTEMS_STATUS_CODES_LAST  RTEMS_PROXY_BLOCKING
 
 /**
- *  This array is used to map SuperCore Object Handler return
- *  codes to Classic API status codes.
+ *  @brief Checks if the status code is equal to RTEMS_SUCCESSFUL.
+ *
+ *  This function returns TRUE if the status code is equal to RTEMS_SUCCESSFUL,
+ *  and FALSE otherwise.
  */
-extern const rtems_status_code _Status_Object_name_errors_to_status[];
+RTEMS_INLINE_ROUTINE bool rtems_is_status_successful(
+  rtems_status_code code
+)
+{
+  return (code == RTEMS_SUCCESSFUL);
+}
 
-/*
- *  Applications are allowed to use the macros to compare status codes.
+/**
+ *  @brief Checks if the status code1 is equal to code2.
+ *
+ *  This function returns TRUE if the status code1 is equal to code2,
+ *  and FALSE otherwise.
  */
-#include <rtems/rtems/status.inl>
+RTEMS_INLINE_ROUTINE bool rtems_are_statuses_equal(
+  rtems_status_code code1,
+  rtems_status_code code2
+)
+{
+   return (code1 == code2);
+}
+
+/**
+ *  @brief RTEMS Status Code to Errno Mapping Function
+ *
+ *  This function recieves an RTEMS status code and returns an
+ *  errno error code. The retval values show the mappings between
+ *  rtems_status_codes and errno error codes.
+ *
+ *  @retval 0 RTEMS_SUCCESSFUL
+ *  @retval EIO RTEMS_TASK_EXITED, RTEMS_MP_NOT_CONFIGURED, RTEMS_INVALID_ID,
+ *   RTEMS_TOO_MANY, RTEMS_OBJECT_WAS_DELETED, RTEMS_INVALID_SIZE,
+ *   RTEMS_INVALID_ADDRESS, RTEMS_NOT_DEFINED, RTEMS_INCORRECT_STATE,
+ *   RTEMS_ILLEGAL_ON_SELF, RTEMS_ILLEGAL_ON_REMOTE_OBJECT,
+ *   RTEMS_CALLED_FROM_ISR, RTEMS_INVALID_PRIORITY, RTEMS_INTERNAL_ERROR,
+ *   RTEMS_IO_ERROR, RTEMS_PROXY_BLOCKING
+ *  @retval EINVAL RTEMS_INVALID_NAME, RTEMS_INVALID_CLOCK, RTEMS_INVALID_NODE
+ *  @retval ETIMEDOUT RTEMS_TIMEOUT
+ *  @retval EBADF RTEMS_INVALID_NUMBER
+ *  @retval EBUSY RTEMS_RESOURCE_IN_USE
+ *  @retval ENODEV RTEMS_UNSATISFIED
+ *  @retval ENOSYS RTEMS_NOT_IMPLEMENTED, RTEMS_NOT_CONFIGURED
+ *  @retval ENOMEM RTEMS_NO_MEMORY
+ */
+int rtems_status_code_to_errno(rtems_status_code sc);
+
+/**
+ * @brief Returns a text for a status code.
+ *
+ * The text for each status code is the enumerator constant.
+ *
+ * @param[in] code The status code.
+ *
+ * @retval text The status code text.
+ * @retval "?" The passed status code is invalid.
+ */
+const char *rtems_status_text( rtems_status_code code );
+
+/**@}*/
 
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of include file */

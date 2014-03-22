@@ -1,50 +1,28 @@
-/*
- *  Object Handler - Object ID to Name (String)
+/**
+ * @file
  *
+ * @brief Object ID to Name
+ * @ingroup ScoreObject
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <rtems/score/objectimpl.h>
+
 #include <string.h>
 
-#include <rtems/system.h>
-#include <rtems/score/address.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/object.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/objectmp.h>
-#endif
-#include <rtems/score/thread.h>
-#include <rtems/score/wkspace.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/isr.h>
-
 #if defined(RTEMS_SCORE_OBJECT_ENABLE_STRING_NAMES)
-/*
- *  _Objects_Name_to_id_string
- *
- *  These kernel routines search the object table(s) for the given
- *  object name and returns the associated object id.
- *
- *  Input parameters:
- *    information - object information
- *    name        - user defined object name
- *    id          - address of return ID
- *
- *  Output parameters:
- *    id                                   - object id
- *    OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL - if successful
- *    error code                           - if unsuccessful
- */
-
 Objects_Name_or_id_lookup_errors _Objects_Name_to_id_string(
   Objects_Information *information,
   const char          *name,

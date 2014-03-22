@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS File System Location Support
+ *  @ingroup LibIOInternal
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
@@ -7,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -47,7 +54,11 @@ const rtems_filesystem_file_handlers_r rtems_filesystem_null_handlers = {
   .ftruncate_h = rtems_filesystem_default_ftruncate,
   .fsync_h = rtems_filesystem_default_fsync_or_fdatasync,
   .fdatasync_h = rtems_filesystem_default_fsync_or_fdatasync,
-  .fcntl_h = rtems_filesystem_default_fcntl
+  .fcntl_h = rtems_filesystem_default_fcntl,
+  .kqfilter_h = rtems_filesystem_default_kqfilter,
+  .poll_h = rtems_filesystem_default_poll,
+  .readv_h = rtems_filesystem_default_readv,
+  .writev_h = rtems_filesystem_default_writev
 };
 
 static void null_op_lock_or_unlock(
@@ -179,8 +190,8 @@ static int null_op_rename(
 }
 
 static int null_op_statvfs(
-  const rtems_filesystem_location_info_t *loc,
-  struct statvfs *buf
+  const rtems_filesystem_location_info_t *__restrict loc,
+  struct statvfs *__restrict buf
 )
 {
   return -1;
@@ -211,15 +222,9 @@ static const rtems_filesystem_operations_table null_ops = {
 };
 
 rtems_filesystem_mount_table_entry_t rtems_filesystem_null_mt_entry = {
-  .location_chain = {
-    .Head = {
-      .Node = {
-        .next = &rtems_filesystem_global_location_null.location.mt_entry_node,
-        .previous = NULL
-      },
-      .fill = &rtems_filesystem_global_location_null.location.mt_entry_node,
-    }
-  },
+  .location_chain = RTEMS_CHAIN_INITIALIZER_ONE_NODE(
+    &rtems_filesystem_global_location_null.location.mt_entry_node
+  ),
   .ops = &null_ops,
   .mt_point_node = &rtems_filesystem_global_location_null,
   .mt_fs_root = &rtems_filesystem_global_location_null,
@@ -229,10 +234,9 @@ rtems_filesystem_mount_table_entry_t rtems_filesystem_null_mt_entry = {
 
 rtems_filesystem_global_location_t rtems_filesystem_global_location_null = {
   .location = {
-    .mt_entry_node = {
-      .next = &rtems_filesystem_null_mt_entry.location_chain.Tail.Node,
-      .previous = &rtems_filesystem_null_mt_entry.location_chain.Head.Node
-    },
+    .mt_entry_node = RTEMS_CHAIN_NODE_INITIALIZER_ONE_NODE_CHAIN(
+      &rtems_filesystem_null_mt_entry.location_chain
+    ),
     .handlers = &rtems_filesystem_null_handlers,
     .mt_entry = &rtems_filesystem_null_mt_entry
   },

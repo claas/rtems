@@ -3,7 +3,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2010 Sebastien Bourdeauducq
  */
@@ -114,11 +114,10 @@ static int mmconsole_set_attributes(int minor, const struct termios *t)
 
 static ssize_t mmconsole_write(int minor, const char *buf, size_t n)
 {
-  rtems_interrupt_level level;
+  if (n > 0) {
+    MM_WRITE(MM_UART_RXTX, *buf);
+  }
 
-  rtems_interrupt_disable(level);
-  MM_WRITE(MM_UART_RXTX, *buf);
-  rtems_interrupt_enable(level);
   return 0;
 }
 

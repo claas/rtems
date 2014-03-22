@@ -121,6 +121,21 @@ SECTIONS {
 		PROVIDE (etext = .);
 	} > RAM
 
+	.tdata : {
+		_TLS_Data_begin = .;
+		*(.tdata .tdata.* .gnu.linkonce.td.*)
+		_TLS_Data_end = .;
+	} > RAM
+	.tbss : {
+		_TLS_BSS_begin = .;
+		*(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon)
+		_TLS_BSS_end = .;
+	} > RAM
+	_TLS_Data_size = _TLS_Data_end - _TLS_Data_begin;
+	_TLS_BSS_size = _TLS_BSS_end - _TLS_BSS_begin;
+	_TLS_Size = _TLS_BSS_end - _TLS_Data_begin;
+	_TLS_Alignment = ALIGNOF (.tdata);
+
 	.sdata2 : {
 		PROVIDE (_SDA2_BASE_ = 32768);
 
@@ -317,6 +332,8 @@ SECTIONS {
 	/* DWARF 3 */
 	.debug_pubtypes 0 : { *(.debug_pubtypes) }
 	.debug_ranges   0 : { *(.debug_ranges) }
+	/* DWARF extension */
+	.debug_macro    0 : { *(.debug_macro) }
 	.gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
 
 	/DISCARD/ : {

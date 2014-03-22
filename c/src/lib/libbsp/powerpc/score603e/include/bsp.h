@@ -7,7 +7,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSP_H
@@ -20,6 +20,7 @@ extern "C" {
 #define BSP_ZERO_WORKSPACE_AUTOMATICALLY TRUE
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 #include <rtems.h>
 #include <rtems/console.h>
 #include <libcpu/io.h>
@@ -123,11 +124,6 @@ rtems_isr_entry  set_EE_vector(
   rtems_vector_number vector                    /* vector number      */
 );
 void initialize_external_exception_vector ();
-
-/*
- * console.c
- */
-void BSP_fatal_return( void );
 
 /*
  * Hwr_init.c

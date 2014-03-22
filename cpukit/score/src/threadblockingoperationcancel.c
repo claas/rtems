@@ -1,24 +1,28 @@
+/**
+ * @file
+ * 
+ * @brief Cancel a Blocking Operation
+ * @ingroup ScoreThread
+ */
+
 /*
- *  Cancel Thread Blocking Operation
- *
- *
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/threadimpl.h>
 #if defined(RTEMS_DEBUG)
 #include <rtems/score/interr.h>
 #endif
+#include <rtems/score/watchdogimpl.h>
 
 void _Thread_blocking_operation_Cancel(
 #if defined(RTEMS_DEBUG)
@@ -47,7 +51,7 @@ void _Thread_blocking_operation_Cancel(
   #if defined(RTEMS_DEBUG)
     if ( (sync_state == THREAD_BLOCKING_OPERATION_SYNCHRONIZED) ||
          (sync_state == THREAD_BLOCKING_OPERATION_NOTHING_HAPPENED) ) {
-      _Internal_error_Occurred(
+      _Terminate(
         INTERNAL_ERROR_CORE,
         true,
         INTERNAL_ERROR_IMPLEMENTATION_BLOCKING_OPERATION_CANCEL

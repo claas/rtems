@@ -11,22 +11,46 @@ RTEMS_CANONICAL_TARGET_CPU
 AM_INIT_AUTOMAKE([no-define foreign 1.12.2])
 AM_MAINTAINER_MODE
 
+RTEMS_ENABLE_CXX
 RTEMS_ENV_RTEMSBSP
 RTEMS_CHECK_RTEMS_TEST_NO_PAUSE
 
 RTEMS_PROJECT_ROOT
 
 RTEMS_PROG_CC_FOR_TARGET
+RTEMS_PROG_CXX_FOR_TARGET
 
 RTEMS_CANONICALIZE_TOOLS
 
 RTEMS_CHECK_CUSTOM_BSP(RTEMS_BSP)
+RTEMS_CHECK_CXX(RTEMS_BSP)
+
+AM_CONDITIONAL([HAS_CPLUSPLUS],[test $HAS_CPLUSPLUS = "yes"])
 
 # FIXME: We should get rid of this. It's a cludge.
 AC_CHECK_SIZEOF([time_t])
 
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_HEADERS([sys/cpuset.h])
+AM_CONDITIONAL(HAS_CPUSET,test x"${ac_cv_header_sys_cpuset_h}" = x"yes")
+
 # Explicitly list all Makefiles here
 AC_CONFIG_FILES([Makefile
+spprofiling01/Makefile
+spcache01/Makefile
+sptls03/Makefile
+spcpucounter01/Makefile
+sptls02/Makefile
+sptls01/Makefile
+spintrcritical20/Makefile
+spintrcritical19/Makefile
+spcontext01/Makefile
+spfatal26/Makefile
+spinternalerror02/Makefile
+spinternalerror01/Makefile
+speventsystem01/Makefile
+speventtransient01/Makefile
+spintrcritical18/Makefile
 sp01/Makefile
 sp02/Makefile
 sp03/Makefile
@@ -103,6 +127,7 @@ sp73/Makefile
 sp74/Makefile
 sp75/Makefile
 sp76/Makefile
+sp77/Makefile
 sp2038/Makefile
 spassoc01/Makefile
 spcbssched01/Makefile
@@ -110,6 +135,7 @@ spcbssched02/Makefile
 spcbssched03/Makefile
 spchain/Makefile
 spclockget/Makefile
+spclock_err02/Makefile
 spcoverage/Makefile
 spedfsched01/Makefile
 spedfsched02/Makefile
@@ -137,9 +163,7 @@ spfatal17/Makefile
 spfatal18/Makefile
 spfatal19/Makefile
 spfatal20/Makefile
-spfatal21/Makefile
 spfatal22/Makefile
-spfatal23/Makefile
 spfatal24/Makefile
 spfatal25/Makefile
 spfifo01/Makefile
@@ -147,6 +171,7 @@ spfifo02/Makefile
 spfifo03/Makefile
 spfifo04/Makefile
 spfifo05/Makefile
+spfreechain01/Makefile
 spintrcritical01/Makefile
 spintrcritical02/Makefile
 spintrcritical03/Makefile
@@ -170,10 +195,13 @@ spmountmgr01/Makefile
 spnotepad01/Makefile
 spnsext01/Makefile
 spobjgetnext/Makefile
+sppagesize/Makefile
 spprintk/Makefile
 spprivenv01/Makefile
 spqreslib/Makefile
 sprbtree01/Makefile
+spsem01/Makefile
+spsem02/Makefile
 spsimplesched01/Makefile
 spsimplesched02/Makefile
 spsimplesched03/Makefile
@@ -181,7 +209,13 @@ spsize/Makefile
 spstkalloc/Makefile
 spstkalloc02/Makefile
 spthreadq01/Makefile
+sptimespec01/Makefile
 spwatchdog/Makefile
 spwkspace/Makefile
+sptimer_err01/Makefile
+sptimer_err02/Makefile
+spcpuset01/Makefile
+spregion_err01/Makefile
+sppartition_err01/Makefile
 ])
 AC_OUTPUT

@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_T32MPPC_BSP_H
@@ -20,6 +20,8 @@
 #ifndef ASM
 
 #include <rtems.h>
+
+#include <bsp/default-initial-extension.h>
 
 #ifdef __cplusplus
 extern "C" {

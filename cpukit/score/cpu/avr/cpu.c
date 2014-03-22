@@ -1,13 +1,16 @@
+/**
+ *  @file
+ *
+ *  @brief AVR CPU Dependent Source
+ */
+
 /*
- *  AVR CPU Dependent Source
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -20,16 +23,6 @@
 
 #include <rtems/bspIo.h> /* XXX remove me later */
 
-/*  _CPU_Initialize
- *
- *  This routine performs processor dependent initialization.
- *
- *  INPUT PARAMETERS: NONE
- *
- *  NO_CPU Specific Information:
- *
- *  XXX document implementation including references if appropriate
- */
 void _CPU_Initialize(void)
 {
 
@@ -42,14 +35,6 @@ void _CPU_Initialize(void)
 
   /* FP context initialization support goes here */
 }
-
-/*
- *  _CPU_ISR_Get_level
- *
- *  NO_CPU Specific Information:
- *
- *  XXX document implementation including references if appropriate
- */
 
 uint32_t   _CPU_ISR_Get_level( void )
 {
@@ -80,25 +65,6 @@ void _CPU_ISR_install_raw_handler(
    *  table used by the CPU to dispatch interrupt handlers.
    */
 }
-
-/*
- *  _CPU_ISR_install_vector
- *
- *  This kernel routine installs the RTEMS handler for the
- *  specified vector.
- *
- *  Input parameters:
- *    vector      - interrupt vector number
- *    old_handler - former ISR for this vector number
- *    new_handler - replacement ISR for this vector number
- *
- *  Output parameters:  NONE
- *
- *
- *  NO_CPU Specific Information:
- *
- *  XXX document implementation including references if appropriate
- */
 
 void _CPU_ISR_install_vector(
   uint32_t    vector,

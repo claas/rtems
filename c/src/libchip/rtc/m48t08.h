@@ -10,7 +10,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __LIBCHIP_M48T08_h
@@ -40,45 +40,45 @@ extern rtc_fns m48t08_fns;
  */
 
 uint32_t   m48t08_get_register(     /* registers are at 1 byte boundaries */
-  uint32_t    ulCtrlPort,           /*   and accessed as bytes            */
+  uintptr_t   ulCtrlPort,           /*   and accessed as bytes            */
   uint8_t     ucRegNum
 );
 
 void  m48t08_set_register(
-  uint32_t    ulCtrlPort,
+  uintptr_t   ulCtrlPort,
   uint8_t     ucRegNum,
   uint32_t    ucData
 );
 
 uint32_t   m48t08_get_register_2(   /* registers are at 2 byte boundaries */
-  uint32_t    ulCtrlPort,           /*   and accessed as bytes            */
+  uintptr_t   ulCtrlPort,           /*   and accessed as bytes            */
   uint8_t     ucRegNum
 );
 
 void  m48t08_set_register_2(
-  uint32_t    ulCtrlPort,
+  uintptr_t   ulCtrlPort,
   uint8_t     ucRegNum,
   uint32_t    ucData
 );
 
 uint32_t   m48t08_get_register_4(   /* registers are at 4 byte boundaries */
-  uint32_t    ulCtrlPort,           /*   and accessed as bytes            */
+  uintptr_t   ulCtrlPort,           /*   and accessed as bytes            */
   uint8_t     ucRegNum
 );
 
 void  m48t08_set_register_4(
-  uint32_t    ulCtrlPort,
+  uintptr_t   ulCtrlPort,
   uint8_t     ucRegNum,
   uint32_t    ucData
 );
 
 uint32_t   m48t08_get_register_8(   /* registers are at 8 byte boundaries */
-  uint32_t    ulCtrlPort,           /*   and accessed as bytes            */
+  uintptr_t   ulCtrlPort,           /*   and accessed as bytes            */
   uint8_t     ucRegNum
 );
 
 void  m48t08_set_register_8(
-  uint32_t    ulCtrlPort,
+  uintptr_t   ulCtrlPort,
   uint8_t     ucRegNum,
   uint32_t    ucData
 );

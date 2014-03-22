@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Suspends Process until Asynchronous I/O Operation completes
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  6.7.7 Wait for Asynchronous I/O Request, P1003.1b-1993, p. 164
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

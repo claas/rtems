@@ -1,11 +1,16 @@
-/*
- * nvdisk.c -- Non-volatile disk block device implementation
+/**
+ * @file
  *
+ * @brief Non-Volatile Disk Block Device Implementation
+ * @ingroup libblock
+ */
+
+/*
  * Copyright (C) 2007 Chris Johns
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -417,7 +422,7 @@ rtems_nvdisk_page_checksum (const uint8_t* buffer, uint32_t page_size)
   uint32_t i;
 
   for (i = 0; i < page_size; i++, buffer++)
-    cs = rtems_nvdisk_calc_crc16 (cs, *buffer);
+    cs = rtems_nvdisk_calc_crc16 (*buffer, cs);
 
   return cs;
 }
@@ -597,10 +602,9 @@ rtems_nvdisk_read (rtems_nvdisk* nvd, rtems_blkdev_request* req)
     }
   }
 
-  req->status = ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL;
-  req->req_done (req->done_arg, req->status);
+  rtems_blkdev_request_done (req, ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL);
 
-  return ret;
+  return 0;
 }
 
 /**
@@ -637,8 +641,7 @@ rtems_nvdisk_write (rtems_nvdisk* nvd, rtems_blkdev_request* req)
     }
   }
 
-  req->status = ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL;
-  req->req_done (req->done_arg, req->status);
+  rtems_blkdev_request_done (req, ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL);
 
   return 0;
 }

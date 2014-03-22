@@ -2,7 +2,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -22,9 +22,6 @@ scmv91111_configuration_t leon_scmv91111_configuration = {
   1,                                  /* fulldx */
   1                                   /* autoneg */
 };
-
-int _rtems_smc91111_driver_attach (struct rtems_bsdnet_ifconfig *config,
-				   scmv91111_configuration_t * scm_config);
 
 /*
  * Attach an SMC91111 driver to the system

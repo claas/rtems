@@ -23,7 +23,7 @@
  *
  *  The license and distribution terms for this file may be found in
  *  the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <string.h>
@@ -34,6 +34,7 @@
 #include <rtems/score/thread.h>
 #include <rtems/score/interr.h>
 #include <rtems/score/cpu.h>
+#include <rtems/score/tls.h>
 #include <rtems/powerpc/powerpc.h>
 
 /*  _CPU_Initialize
@@ -62,7 +63,8 @@ void _CPU_Context_Initialize(
   uint32_t          size,
   uint32_t          new_level,
   void             *entry_point,
-  bool              is_fp
+  bool              is_fp,
+  void             *tls_area
 )
 {
   ppc_context *the_ppc_context;
@@ -129,37 +131,16 @@ void _CPU_Context_Initialize(
   the_ppc_context->lr = (uint32_t) entry_point;
 
 #ifdef __ALTIVEC__
-  _CPU_Context_initialize_altivec(the_context);
+  _CPU_Context_initialize_altivec( the_ppc_context );
 #endif
-}
 
-/*PAGE
- *
- *  _CPU_Install_interrupt_stack
- */
+  if ( tls_area != NULL ) {
+    void *tls_block = _TLS_TCB_before_tls_block_initialize( tls_area );
 
-void _CPU_Install_interrupt_stack( void )
-{
-}
+    the_ppc_context->gpr2 = (uint32_t) tls_block + 0x7000;
+  } else {
+    register uint32_t gpr2 __asm__("2");
 
-/*  _CPU_ISR_install_vector
- *
- *  This kernel routine installs the RTEMS handler for the
- *  specified vector.
- *
- *  Input parameters:
- *    vector      - interrupt vector number
- *    old_handler - former ISR for this vector number
- *    new_handler - replacement ISR for this vector number
- *
- *  Output parameters:  NONE
- */
-
-void _CPU_ISR_install_vector(
-  uint32_t    vector,
-  proc_ptr    new_handler,
-  proc_ptr   *old_handler
-)
-{
-  BSP_panic("_CPU_ISR_install_vector called\n");
+    the_ppc_context->gpr2 = gpr2;
+  }
 }

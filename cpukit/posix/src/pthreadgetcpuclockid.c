@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Returns Clock ID for CPU time clock of the thread 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  20.1.6 Accessing a Thread CPU-time Clock, P1003.4b/Draft 8, p. 58
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

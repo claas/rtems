@@ -1,16 +1,17 @@
+/**
+ * @file
+ *
+ * @brief IMFS Create a New Symbolic Link Node
+ * @ingroup IMFS
+ */
+
 /*
- *  IMFS_symlink
- *
- *  The following rouine creates a new symbolic link node under parent
- *  with the name given in name.  The node is set to point to the node at
- *  to_loc.
- *
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,6 +21,7 @@
 #include "imfs.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 int IMFS_symlink(
   const rtems_filesystem_location_info_t *parentloc,

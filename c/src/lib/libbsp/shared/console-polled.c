@@ -8,7 +8,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -88,7 +88,6 @@ rtems_device_driver console_open(
   void                    * arg
 )
 {
-  rtems_status_code sc;
   static const rtems_termios_callbacks pollCallbacks = {
     NULL,                        /* firstOpen */
     NULL,                        /* lastClose */
@@ -104,7 +103,7 @@ rtems_device_driver console_open(
   if ( minor > 1 )
     return RTEMS_INVALID_NUMBER;
 
-  sc = rtems_termios_open( major, minor, arg, &pollCallbacks );
+  rtems_termios_open( major, minor, arg, &pollCallbacks );
 
   return RTEMS_SUCCESSFUL;
 }

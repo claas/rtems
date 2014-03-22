@@ -1,12 +1,17 @@
-/*
- *  rtems_memalign() - Raw aligned allocate from Protected Heap
+/**
+ *  @file
  *
+ *  @brief RTEMS Variation on Aligned Memory Allocation
+ *  @ingroup MallocSupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,6 +23,8 @@
 
 #include <stdlib.h>
 #include <errno.h>
+
+#include <rtems/score/sysstate.h>
 
 int rtems_memalign(
   void   **pointer,

@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBCPU_POWERPC_MPC55XX_REG_DEFS_H
@@ -25,7 +25,7 @@
 
 #include <bspopts.h>
 
-#if MPC55XX_CHIP_TYPE / 10 == 551
+#if MPC55XX_CHIP_FAMILY == 551
   #define FLASH_BIUCR   0xFFFF801C
 #else
   #define FLASH_BIUCR 0xC3F8801C

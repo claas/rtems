@@ -1,12 +1,25 @@
+/**
+ * @file
+ * @ingroup lm32_milkymist_usbinput lm32_milkymist_shared
+ * @brief Milkymist USB input devices driver
+ */
+
 /*  milkymist_usbinput.h
  *
  *  Milkymist USB input devices driver for RTEMS
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2010, 2012 Sebastien Bourdeauducq
+ */
+
+/**
+ * @defgroup lm32_milkymist_usbinput Milkymist USB input devices
+ * @ingroup lm32_milkymist_shared
+ * @brief Milkymist USB input devices driver
+ * @{
  */
 
 #ifndef __MILKYMIST_USBINPUT_H_

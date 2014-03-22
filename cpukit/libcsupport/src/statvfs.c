@@ -3,7 +3,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 /*
  * The statvfs as defined by the SUS:
@@ -19,7 +19,7 @@
 
 #include <rtems/libio_.h>
 
-int statvfs( const char *path, struct statvfs *buf )
+int statvfs( const char *__restrict path, struct statvfs *__restrict buf )
 {
   int rv = 0;
   rtems_filesystem_eval_path_context_t ctx;

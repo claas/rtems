@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (c) 2011 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2011-2012 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
  *  Obere Lagerstr. 30
@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,9 +35,14 @@
 #include <signal.h>
 #include <stdio.h>
 #include <time.h>
+#include <limits.h>
+
+#include <rtems/libcsupport.h>
 
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 5
 
+#define CONFIGURE_MAXIMUM_BARRIERS 2
+#define CONFIGURE_MAXIMUM_MESSAGE_QUEUES 7
 #define CONFIGURE_MAXIMUM_PARTITIONS 37
 #define CONFIGURE_MAXIMUM_PERIODS 41
 #define CONFIGURE_MAXIMUM_REGIONS 43
@@ -157,6 +162,19 @@
 #define CONFIGURE_MESSAGE_BUFFER_MEMORY \
   (MQ_BUFFER_MEMORY + POSIX_MQ_BUFFER_MEMORY)
 
+#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
+#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+
+#define CONFIGURE_MAXIMUM_DRIVERS 2
+
+#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
+
+#define CONFIGURE_INIT
+
+static rtems_task Init(rtems_task_argument argument);
+
+#include <rtems/confdefs.h>
+
 typedef struct {
   uint64_t data [16];
 } area;
@@ -228,6 +246,7 @@ static rtems_task Init(rtems_task_argument argument)
   rtems_id id = RTEMS_ID_NONE;
   rtems_name name = rtems_build_name('C', 'O', 'N', 'F');
   rtems_extensions_table table;
+  rtems_resource_snapshot snapshot;
   int i = 0;
 
   puts("\n\n*** POSIX TEST CONFIG 01 ***");
@@ -235,6 +254,10 @@ static rtems_task Init(rtems_task_argument argument)
   memset(posix_name, 'P', sizeof(posix_name) - 1);
 
   print_info();
+
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(rtems_resource_snapshot_equal(&snapshot, &snapshot));
+  rtems_test_assert(rtems_resource_snapshot_check(&snapshot));
 
 #ifdef CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS
   for (i = 3; i < CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS; ++i) {
@@ -244,6 +267,10 @@ static rtems_task Init(rtems_task_argument argument)
     int fd = open(path, oflag, mode);
     rtems_test_assert(fd == i);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.open_files == CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_USER_EXTENSIONS
@@ -252,6 +279,10 @@ static rtems_task Init(rtems_task_argument argument)
     sc = rtems_extension_create(name, &table, &id);
     directive_failed(sc, "rtems_extension_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_extensions == CONFIGURE_MAXIMUM_USER_EXTENSIONS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_BARRIERS
@@ -259,6 +290,10 @@ static rtems_task Init(rtems_task_argument argument)
     sc = rtems_barrier_create(name, RTEMS_DEFAULT_ATTRIBUTES, 1, &id);
     directive_failed(sc, "rtems_barrier_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_barriers == CONFIGURE_MAXIMUM_BARRIERS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_MESSAGE_QUEUES
@@ -272,6 +307,11 @@ static rtems_task Init(rtems_task_argument argument)
     );
     directive_failed(sc, "rtems_message_queue_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_message_queues
+      == CONFIGURE_MAXIMUM_MESSAGE_QUEUES
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_PARTITIONS
@@ -286,6 +326,10 @@ static rtems_task Init(rtems_task_argument argument)
     );
     directive_failed(sc, "rtems_partition_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_partitions == CONFIGURE_MAXIMUM_PARTITIONS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_PERIODS
@@ -293,6 +337,10 @@ static rtems_task Init(rtems_task_argument argument)
     sc = rtems_rate_monotonic_create(name, &id);
     directive_failed(sc, "rtems_rate_monotonic_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_periods == CONFIGURE_MAXIMUM_PERIODS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_REGIONS
@@ -307,6 +355,10 @@ static rtems_task Init(rtems_task_argument argument)
     );
     directive_failed(sc, "rtems_region_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_regions == CONFIGURE_MAXIMUM_REGIONS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_SEMAPHORES
@@ -320,6 +372,10 @@ static rtems_task Init(rtems_task_argument argument)
     );
     directive_failed(sc, "rtems_semaphore_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_semaphores >= CONFIGURE_MAXIMUM_SEMAPHORES
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_TASKS
@@ -334,6 +390,10 @@ static rtems_task Init(rtems_task_argument argument)
     );
     directive_failed(sc, "rtems_task_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_tasks == CONFIGURE_MAXIMUM_TASKS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_TASK_VARIABLES
@@ -348,6 +408,10 @@ static rtems_task Init(rtems_task_argument argument)
     sc = rtems_timer_create(name, &id);
     directive_failed(sc, "rtems_timer_create");
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.rtems_api.active_timers == CONFIGURE_MAXIMUM_TIMERS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_BARRIERS
@@ -356,6 +420,10 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_barrier_init(&barrier, NULL, 1);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_barriers == CONFIGURE_MAXIMUM_POSIX_BARRIERS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_CONDITION_VARIABLES
@@ -364,6 +432,11 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_cond_init(&cond, NULL);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_condition_variables
+      == CONFIGURE_MAXIMUM_POSIX_CONDITION_VARIABLES
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_KEYS
@@ -372,6 +445,10 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_key_create(&key, posix_key_dtor);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_keys == CONFIGURE_MAXIMUM_POSIX_KEYS
+  );
 #endif
 
 #ifdef POSIX_MQ_COUNT
@@ -386,6 +463,15 @@ static rtems_task Init(rtems_task_argument argument)
     mqd_t mq = mq_open(path, oflag, mode, &attr);
     rtems_test_assert(mq >= 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_message_queue_descriptors
+      == CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUE_DESCRIPTORS
+  );
+  rtems_test_assert(
+    snapshot.posix_api.active_message_queues
+      == CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_MUTEXES
@@ -394,6 +480,10 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_mutex_init(&mutex, NULL);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_mutexes == CONFIGURE_MAXIMUM_POSIX_MUTEXES
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_RWLOCKS
@@ -402,6 +492,10 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_rwlock_init(&rwlock, NULL);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_rwlocks == CONFIGURE_MAXIMUM_POSIX_RWLOCKS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_SEMAPHORES
@@ -413,6 +507,10 @@ static rtems_task Init(rtems_task_argument argument)
     sem_t *sem = sem_open(path, oflag, mode, value);
     rtems_test_assert(sem != SEM_FAILED);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_semaphores == CONFIGURE_MAXIMUM_POSIX_SEMAPHORES
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_SPINLOCKS
@@ -421,6 +519,10 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_spin_init(&spinlock, 0);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_spinlocks == CONFIGURE_MAXIMUM_POSIX_SPINLOCKS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_THREADS
@@ -429,6 +531,10 @@ static rtems_task Init(rtems_task_argument argument)
     eno = pthread_create(&thread, NULL, posix_thread, NULL);
     rtems_test_assert(eno == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_threads == CONFIGURE_MAXIMUM_POSIX_THREADS
+  );
 #endif
 
 #ifdef CONFIGURE_MAXIMUM_POSIX_TIMERS
@@ -437,6 +543,10 @@ static rtems_task Init(rtems_task_argument argument)
     rv = timer_create(CLOCK_REALTIME, NULL, &timer_id);
     rtems_test_assert(rv == 0);
   }
+  rtems_resource_snapshot_take(&snapshot);
+  rtems_test_assert(
+    snapshot.posix_api.active_timers == CONFIGURE_MAXIMUM_POSIX_TIMERS
+  );
 #endif
 
   printf("object creation done\n");
@@ -446,14 +556,3 @@ static rtems_task Init(rtems_task_argument argument)
 
   rtems_test_exit(0);
 }
-
-#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-
-#define CONFIGURE_MAXIMUM_DRIVERS 2
-
-#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-
-#define CONFIGURE_INIT
-
-#include <rtems/confdefs.h>

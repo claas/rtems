@@ -1,17 +1,19 @@
 /**
- * @file rtems/score/types.h
+ * @file
+ *
+ * @brief LM32 CPU Type Definitions
+ *
+ * This include file contains type definitions pertaining to the
+ * Lattice lm32 processor family.
  */
 
 /*
- *  This include file contains type definitions pertaining to the
- *  Lattice lm32 processor family.
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Jukka Pietarinen <jukka.pietarinen@mrf.fi>, 2008,
  *  Micro-Research Finland Oy

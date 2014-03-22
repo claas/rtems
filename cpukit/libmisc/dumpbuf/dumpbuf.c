@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Dump Buffer
+ * @ingroup libmisc_dumpbuf Print Memory Buffer
+ */
+
 /*
  *  COPYRIGHT (c) 1997-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may in
  *  the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H

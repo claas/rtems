@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include "tmacros.h"
@@ -31,13 +31,15 @@ rtems_task Test_task(
 #define CONFIGURE_MAXIMUM_TASKS            \
     (1 + CONFIGURE_SMP_MAXIMUM_PROCESSORS)
 
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
+
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 #define CONFIGURE_INIT_TASK_STACK_SIZE \
     (3 * CONFIGURE_MINIMUM_TASK_STACK_SIZE)
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
-#define CONFIGURE_MAXIMUM_SEMAPHORES          1
+#define CONFIGURE_MAXIMUM_SEMAPHORES          2
 
 #include <rtems/confdefs.h>
 
@@ -50,7 +52,7 @@ rtems_task Test_task(
 
 typedef struct {
   bool     IsLocked;
-  int      cpu_num;
+  uint32_t cpu_num;
   uint32_t task_index;
 } Log_t;
 

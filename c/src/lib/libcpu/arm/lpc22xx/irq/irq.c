@@ -6,8 +6,10 @@
  * Copyright (c)  2006 by Ray<rayx.cn@gmail.com>  to support LPC ARM
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
+
+#include <rtems/score/armv4.h>
 
 #include <bsp.h>
 #include <bsp/irq.h>
@@ -64,7 +66,7 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   VICVectAddr = 0;
 
   /* Install the IRQ exception handler */
-  _CPU_ISR_install_vector(ARM_EXCEPTION_IRQ, arm_exc_interrupt, NULL);
+  _CPU_ISR_install_vector(ARM_EXCEPTION_IRQ, _ARMV4_Exception_interrupt, NULL);
 
   return RTEMS_SUCCESSFUL;
 }

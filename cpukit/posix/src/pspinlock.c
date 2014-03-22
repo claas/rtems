@@ -1,12 +1,17 @@
-/*
- *  POSIX Spinlock Manager -- Wait at a Spinlock
+/**
+ *  @file
  *
+ *  @brief Wait at a Spinlock
+ *  @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,21 +22,17 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/spinlock.h>
+#include <rtems/posix/spinlockimpl.h>
 
-/*
- *  pthread_spin_lock
- *
+/**
  *  This directive allows a thread to wait at a spinlock.
  *
- *  Input parameters:
- *    spinlock    - spinlock id
- *
- *  Output parameters:
- *    0          - if successful
- *    error code - if unsuccessful
+ *  @param[in] spinlock is spinlock id
+ * 
+ *  @return This method returns 0 if there was not an
+ *  error. Otherwise, a status code is returned indicating the
+ *  source of the error.
  */
-
 int pthread_spin_lock(
   pthread_spinlock_t *spinlock
 )
@@ -48,7 +49,7 @@ int pthread_spin_lock(
 
     case OBJECTS_LOCAL:
       status = _CORE_spinlock_Wait( &the_spinlock->Spinlock, true, 0 );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_spinlock->Object );
       return _POSIX_Spinlock_Translate_core_spinlock_return_code( status );
 
 #if defined(RTEMS_MULTIPROCESSING)

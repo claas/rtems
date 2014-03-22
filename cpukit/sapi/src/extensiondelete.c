@@ -12,18 +12,16 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
+#include <rtems/extensionimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/extension.h>
+#include <rtems/score/userextimpl.h>
 
 rtems_status_code rtems_extension_delete(
   rtems_id id
@@ -38,7 +36,7 @@ rtems_status_code rtems_extension_delete(
       _User_extensions_Remove_set( &the_extension->Extension );
       _Objects_Close( &_Extension_Information, &the_extension->Object );
       _Extension_Free( the_extension );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_extension->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

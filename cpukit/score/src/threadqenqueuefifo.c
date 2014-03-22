@@ -1,42 +1,26 @@
+/**
+ *  @file
+ *
+ *  @brief  Thread queue Enqueue FIFO
+ *  @ingroup ScoreThreadQ
+ */
+
 /*
- *  Thread Queue Handler
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
-
-/*
- *  _Thread_queue_Enqueue_fifo
- *
- *  This routine places a blocked thread on a FIFO thread queue.
- *
- *  Input parameters:
- *    the_thread_queue - pointer to threadq
- *    the_thread       - pointer to the thread to block
- *
- *  Output parameters: NONE
- *
- *  INTERRUPT LATENCY:
- *    only case
- */
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/chainimpl.h>
+#include <rtems/score/isrlevel.h>
 
 Thread_blocking_operation_States _Thread_queue_Enqueue_fifo (
   Thread_queue_Control *the_thread_queue,

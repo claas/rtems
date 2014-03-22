@@ -17,7 +17,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Minor adaptations for sh2 by:
  *  John M. Mills (jmills@tga.com)
@@ -43,6 +43,7 @@ extern "C" {
 #include <rtems/console.h>
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #define BSP_SMALL_MEMORY 1
 
@@ -65,19 +66,11 @@ extern "C" {
 /* Constants */
 
 /*
- *  Simple spin delay in microsecond units for device drivers.
- *  This is very dependent on the clock speed of the target.
- */
-
-#define rtems_bsp_delay( microseconds ) CPU_delay(microseconds)
-#define sh_delay( microseconds ) CPU_delay( microseconds )
-
-/*
  * Defined in the linker script 'linkcmds'
  */
 
-extern void *CPU_Interrupt_stack_low ;
-extern void *CPU_Interrupt_stack_high ;
+extern void *CPU_Interrupt_stack_low;
+extern void *CPU_Interrupt_stack_high;
 
 /*
  *  Device Driver Table Entries

@@ -1,17 +1,19 @@
 /**
- * @file rtems/score/cpu.h
+ * @file
+ *
+ * @brief Hitachi H8300 CPU Department Source
+ *
+ * This include file contains information pertaining to the H8300
+ *  processor.
  */
 
 /*
- *  This include file contains information pertaining to the H8300
- *  processor.
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_CPU_H
@@ -340,6 +342,8 @@ extern "C" {
 
 #define CPU_MODES_INTERRUPT_MASK   0x00000001
 
+#define CPU_PER_CPU_CONTROL_SIZE 0
+
 /*
  *  Processor defined structures required for cpukit/score.
  *
@@ -390,6 +394,10 @@ extern "C" {
  */
 
 #ifndef ASM
+
+typedef struct {
+  /* There is no CPU specific per-CPU state */
+} CPU_Per_CPU_control;
 
 #define nogap __attribute__ ((packed))
 
@@ -496,6 +504,12 @@ SCORE_EXTERN Context_Control_fp  _CPU_Null_fp_context;
  */
 
 #define CPU_STACK_MINIMUM_SIZE          (1536)
+
+#if defined(__H8300H__) || defined(__H8300S__) || defined(__H8300SX__)
+  #define CPU_SIZEOF_POINTER 4
+#else
+  #define CPU_SIZEOF_POINTER 2
+#endif
 
 /*
  *  CPU's worst alignment requirement for data types on a byte boundary.  This
@@ -742,7 +756,7 @@ uint32_t   _CPU_ISR_Get_level( void );
 #define CPU_CCR_INTERRUPTS_OFF 0x00
 
 #define _CPU_Context_Initialize( _the_context, _stack_base, _size, \
-                                   _isr, _entry_point, _is_fp ) \
+                                   _isr, _entry_point, _is_fp, _tls_area ) \
   /* Locate Me */ \
   do { \
     uintptr_t   _stack; \
@@ -1089,6 +1103,23 @@ void _CPU_Context_restore_fp(
   Context_Control_fp **fp_context_ptr
 );
 
+static inline void _CPU_Context_volatile_clobber( uintptr_t pattern )
+{
+  /* TODO */
+}
+
+static inline void _CPU_Context_validate( uintptr_t pattern )
+{
+  while (1) {
+    /* TODO */
+  }
+}
+
+/* FIXME */
+typedef CPU_Interrupt_frame CPU_Exception_frame;
+
+void _CPU_Exception_frame_print( const CPU_Exception_frame *frame );
+
 /*  The following routine swaps the endian format of an unsigned int.
  *  It must be static because it is referenced indirectly.
  *
@@ -1130,6 +1161,18 @@ static inline uint32_t   CPU_swap_u32(
 
 #define CPU_swap_u16( value ) \
   (((value&0xff) << 8) | ((value >> 8)&0xff))
+
+typedef uint32_t CPU_Counter_ticks;
+
+CPU_Counter_ticks _CPU_Counter_read( void );
+
+static inline CPU_Counter_ticks _CPU_Counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+)
+{
+  return second - first;
+}
 
 /* to be provided by the BSP */
 extern void H8BD_Install_IRQ(

@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Get Region Information
+ *  @ingroup ClassicRegion
+ */
+
 /*
- *  Region Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,27 +21,10 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/options.h>
-#include <rtems/rtems/region.h>
-#include <rtems/score/states.h>
+#include <rtems/rtems/regionimpl.h>
 #include <rtems/score/apimutex.h>
 #include <rtems/score/thread.h>
-
-/*
- *  rtems_region_get_information
- *
- *  This directive will return information about the region specified.
- *
- *  Input parameters:
- *    id         - region id
- *    the_info   - pointer to region information block
- *
- *  Output parameters:
- *    *the_info   - region information block filled in
- *    RTEMS_SUCCESSFUL - if successful
- *    error code - if unsuccessful
- */
 
 rtems_status_code rtems_region_get_information(
   rtems_id                id,
@@ -46,7 +33,7 @@ rtems_status_code rtems_region_get_information(
 {
   Objects_Locations        location;
   rtems_status_code        return_status;
-  register Region_Control *the_region;
+  Region_Control          *the_region;
 
   if ( !the_info )
     return RTEMS_INVALID_ADDRESS;

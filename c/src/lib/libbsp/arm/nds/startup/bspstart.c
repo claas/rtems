@@ -6,7 +6,7 @@
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
  *
- * http://www.rtems.com/license/LICENSE
+ * http://www.rtems.org/license/LICENSE
  */
 
 #include <bsp.h>
@@ -41,9 +41,6 @@ void bsp_start (void)
 
   /* set the cpu mode to system user */
   arm_cpu_mode = 0x1f;
-
-  /* configure clock period */
-  rtems_configuration_set_microseconds_per_tick (10000);
 
   defaultExceptionHandler ();
 }

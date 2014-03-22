@@ -10,21 +10,20 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /*
  *  Some of the fatal error cases require the ability to peek inside RTEMS
  */
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #include <rtems.h>
 #include <tmacros.h>
 
 /* functions */
 void force_error(void);
 
-void Put_Source(uint32_t source);
+void Put_Source( rtems_fatal_source source );
 
 void Put_Error(
   uint32_t source,
@@ -36,9 +35,9 @@ void *POSIX_Init(
 );
 
 void Fatal_extension(
-  uint32_t   source,
-  bool    is_internal,
-  uint32_t   error
+  rtems_fatal_source source,
+  bool               is_internal,
+  rtems_fatal_code   error
 );
 
 /* need prototypes */

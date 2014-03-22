@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +31,8 @@
 
 #include "test-http-client.h"
 
+const char rtems_test_name[] = "MGHTTPD 1";
+
 #define TARFILE_START init_fs_tar
 #define TARFILE_SIZE  init_fs_tar_size
 
@@ -44,7 +46,7 @@
 #define INDEX_HTML      "HTTP/1.1 200 OK\r\n" \
                         "Date: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n" \
                         "Last-Modified: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n" \
-                        "Etag: \"21dae501.a2\"\r\n" \
+                        "Etag: \"21dae500.162\"\r\n" \
                         "Content-Type: text/html\r\n" \
                         "Content-Length: 162\r\n" \
                         "Connection: close\r\n" \
@@ -80,26 +82,18 @@ static void test_tarfs_load(void)
   printf ("successful\n");
 }
 
-typedef struct {
-  char *string;
-  int size;
-} printctx;
-
-static void *callback(enum mg_event event,
-    struct mg_connection *conn,
-    const struct mg_request_info *request_info)
+static int callback(struct mg_connection *conn)
 {
-  if (event == MG_NEW_REQUEST) {
-    int cbacktest = strncmp(request_info->uri, CBACKTEST_URI, sizeof(CBACKTEST_URI));
-    if (cbacktest == 0)
-    {
-      mg_write(conn, CBACKTEST_TXT, sizeof(CBACKTEST_TXT));
+  int cbacktest = strncmp(mg_get_request_info(conn)->uri, CBACKTEST_URI, sizeof(CBACKTEST_URI));
+  if (cbacktest == 0)
+  {
+    mg_write(conn, CBACKTEST_TXT, sizeof(CBACKTEST_TXT));
 
-      /* Mark as processed */
-      return "";
-    }
+    /* Mark as processed */
+    return 1;
   }
-  return NULL;
+
+  return 0;
 }
 
 static void test_mg_index_html(void)
@@ -172,26 +166,29 @@ static void test_mg_callback(void)
 
 static void test_mongoose(void)
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
+  const struct mg_callbacks callbacks = {
+    .begin_request = callback
+  };
   const char *options[] = {
     "listening_ports", "80",
-    "document_root", "/www/",
+    "document_root", "/www",
     "num_threads", "1",
-    "max_request_size", "2048",
     "thread_stack_size", "16384",
     "thread_priority", "250",
     "thread_policy", "o",
     NULL};
+  const struct mg_callbacks callbacks2 = {
+    NULL
+  };
   const char *options2[] = {
     "listening_ports", "8080",
-    "document_root", "/www2/",
+    "document_root", "/www2",
     "num_threads", "1",
     "thread_stack_size", "16384",
-    "max_request_size", "2048",
     NULL};
 
-  struct mg_context *mg1 = mg_start(&callback, NULL, options);
-  struct mg_context *mg2 = mg_start(NULL, NULL, options2);
+  struct mg_context *mg1 = mg_start(&callbacks, NULL, options);
+  struct mg_context *mg2 = mg_start(&callbacks2, NULL, options2);
 
   test_mg_index_html();
   test_mg_callback();
@@ -204,7 +201,7 @@ static void Init(rtems_task_argument arg)
 {
   int rv = 0;
 
-  puts("\n\n*** TEST MGHTTPD 01 ***");
+  TEST_BEGIN();
 
   rv = rtems_bsdnet_initialize_network();
   rtems_test_assert(rv == 0);
@@ -213,7 +210,7 @@ static void Init(rtems_task_argument arg)
 
   test_mongoose();
 
-  puts("*** END OF TEST MGHTTPD 01 ***");
+  TEST_END();
 
   rtems_test_exit(0); 
 }
@@ -230,6 +227,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_UNLIMITED_OBJECTS
 
 #define CONFIGURE_UNIFIED_WORK_AREAS
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (c) 2009-2012 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2009-2013 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
  *  Obere Lagerstr. 30
@@ -17,12 +17,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp/stackalloc.h>
 
 #include <rtems.h>
+#include <rtems/score/heapimpl.h>
 #include <rtems/score/wkspace.h>
 
 #include <bsp/linker-symbols.h>

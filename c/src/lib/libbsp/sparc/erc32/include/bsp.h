@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @ingroup sparc_erc32
+ *
+ * @brief Global BSP Definitions.
+ */
+
 /*  bsp.h
  *
  *  This include file contains all SPARC simulator definitions.
@@ -7,7 +15,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Ported to ERC32 implementation of the SPARC by On-Line Applications
  *  Research Corporation (OAR) under contract to the European Space
@@ -25,6 +33,7 @@ extern "C" {
 #endif
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/iosupp.h>
@@ -32,6 +41,14 @@ extern "C" {
 #include <rtems/clockdrv.h>
 #include <rtems/console.h>
 #include <rtems/irq-extension.h>
+
+/**
+ * @defgroup sparc_erc32 ERC32 Support
+ *
+ * @ingroup bsp_sparc
+ *
+ * @brief ERC32 Support Package
+ */
 
 /*
  *  BSP provides its own Idle thread body
@@ -81,8 +98,8 @@ void bsp_spurious_initialize( void );
 
 /* Allocate 8-byte aligned non-freeable pre-malloc() memory. The function
  * can be called at any time. The work-area will shrink when called before
- * bsp_get_work_area(). malloc() is called to get memory when this function
- * is called after bsp_get_work_area().
+ * bsp_work_area_initialize(). malloc() is called to get memory when this function
+ * is called after bsp_work_area_initialize().
  */
 void *bsp_early_malloc(int size);
 
@@ -90,7 +107,7 @@ void *bsp_early_malloc(int size);
 typedef void (*bsp_shared_isr)(void *arg);
 
 /* Initializes the Shared System Interrupt service */
-extern int BSP_shared_interrupt_init(void);
+extern void BSP_shared_interrupt_init(void);
 
 /* Registers a shared IRQ handler, and enable it at IRQ controller. Multiple
  * interrupt handlers may use the same IRQ number, all ISRs will be called

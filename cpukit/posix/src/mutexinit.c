@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Initialize a Mutex
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,17 +22,17 @@
 #include <pthread.h>
 
 #include <rtems/system.h>
-#include <rtems/score/coremutex.h>
+#include <rtems/score/coremuteximpl.h>
 #include <rtems/score/watchdog.h>
-#include <rtems/posix/mutex.h>
-#include <rtems/posix/priority.h>
+#include <rtems/posix/muteximpl.h>
+#include <rtems/posix/priorityimpl.h>
 #include <rtems/posix/time.h>
 
-/*
- *  11.3.2 Initializing and Destroying a Mutex, P1003.1c/Draft 10, p. 87
+/**
+ * 11.3.2 Initializing and Destroying a Mutex, P1003.1c/Draft 10, p. 87
  *
- *  NOTE:  XXX Could be optimized so all the attribute error checking
- *             is not performed when attr is NULL.
+ * NOTE:  XXX Could be optimized so all the attribute error checking
+ *            is not performed when attr is NULL.
  */
 
 int pthread_mutex_init(
@@ -78,7 +85,7 @@ int pthread_mutex_init(
       mutex_in_use = _POSIX_Mutex_Get( mutex, &location );
       switch ( location ) {
         case OBJECTS_LOCAL:
-          _Thread_Enable_dispatch();
+          _Objects_Put( &mutex_in_use->Object );
           return EBUSY;
         #if defined(RTEMS_MULTIPROCESSING)
           case OBJECTS_REMOTE:
@@ -158,7 +165,7 @@ int pthread_mutex_init(
 
   the_mutex_attr = &the_mutex->Mutex.Attributes;
 
-  if ( the_attr->recursive )
+  if ( the_attr->type == PTHREAD_MUTEX_RECURSIVE )
     the_mutex_attr->lock_nesting_behavior = CORE_MUTEX_NESTING_ACQUIRES;
   else
     the_mutex_attr->lock_nesting_behavior = CORE_MUTEX_NESTING_IS_ERROR;
@@ -172,6 +179,7 @@ int pthread_mutex_init(
    */
   _CORE_mutex_Initialize(
     &the_mutex->Mutex,
+    NULL,
     the_mutex_attr,
     CORE_MUTEX_UNLOCKED
   );

@@ -15,6 +15,8 @@ RTEMS_ENABLE_MULTIPROCESSING
 RTEMS_ENABLE_POSIX
 RTEMS_ENABLE_RTEMS_DEBUG
 RTEMS_ENABLE_NETWORKING
+RTEMS_ENABLE_PARAVIRT
+RTEMS_ENABLE_PROFILING
 
 RTEMS_ENV_RTEMSCPU
 RTEMS_CHECK_RTEMS_DEBUG
@@ -96,6 +98,24 @@ RTEMS_CHECK_FUNC([pthread_attr_setguardsize],[#include <pthread.h>])
 RTEMS_CHECK_FUNC([pthread_attr_setstack],[#include <pthread.h>])
 RTEMS_CHECK_FUNC([pthread_attr_getstack],[#include <pthread.h>])
 
+# These are SMP related and were added to newlib by RTEMS.
+RTEMS_CHECK_FUNC([pthread_attr_setaffinity_np],[
+  #define _GNU_SOURCE
+  #include <pthread.h>])
+RTEMS_CHECK_FUNC([pthread_attr_getaffinity_np],[
+  #define _GNU_SOURCE
+  #include <pthread.h>])
+RTEMS_CHECK_FUNC([pthread_setaffinity_np],[
+  #define _GNU_SOURCE
+  #include <pthread.h>])
+RTEMS_CHECK_FUNC([pthread_getaffinity_np],[
+  #define _GNU_SOURCE
+  #include <pthread.h>])
+RTEMS_CHECK_FUNC([pthread_getattr_np],[
+  #define _GNU_SOURCE
+  #include <pthread.h>])
+AC_CHECK_HEADERS([sys/cpuset.h])
+
 # Mandated by POSIX, not declared in some versions of newlib.
 AC_CHECK_DECLS([getrusage],,,[#include sys/resource.h])
 
@@ -139,6 +159,7 @@ AC_CHECK_HEADER([pthread.h],[
   AC_CHECK_TYPES([pthread_rwlock_t])
   AC_CHECK_TYPES([pthread_barrier_t])
   AC_CHECK_TYPES([pthread_spinlock_t])
+  AC_CHECK_TYPES([struct _pthread_cleanup_context],[],[],[#include <pthread.h>])
 ])
 
 AC_CHECK_HEADER([signal.h],[
@@ -149,14 +170,13 @@ RTEMS_CHECK_MULTIPROCESSING
 RTEMS_CHECK_POSIX_API
 RTEMS_CHECK_NETWORKING
 RTEMS_CHECK_SMP
+if test "${RTEMS_HAS_SMP}" = "yes"; then
+  AC_CHECK_HEADERS([stdatomic.h],[],[AC_MSG_ERROR([<stdatomic.h> is required for SMP support])])
+fi
 
 rtems_major=`echo _RTEMS_VERSION | sed "s/\..*//"`
 rtems_minor=`echo _RTEMS_VERSION | sed "s/[[0-9]][[0-9]]*\.//;s/\..*//"`
 rtems_revision=`echo _RTEMS_VERSION | sed "s/[[0-9]][[0-9]]*\.//;s/[[0-9]][[0-9]]*\.//;s/\..*//"`
-
-## This is needed to generate the field offsets of the per CPU 
-## data structure so they can be accessed from assembly code.
-AC_CHECK_SIZEOF([void *])
 
 _RTEMS_CPUOPT_INIT
 
@@ -185,6 +205,16 @@ RTEMS_CPUOPT([RTEMS_SMP],
   [1],
   [if SMP is enabled])
 
+RTEMS_CPUOPT([RTEMS_PARAVIRT],
+  [test x"$RTEMS_HAS_PARAVIRT" = xyes],
+  [1],
+  [PARAVIRT is enabled])
+
+RTEMS_CPUOPT([RTEMS_PROFILING],
+  [test x"$RTEMS_HAS_PROFILING" = xyes],
+  [1],
+  [if profiling is enabled])
+
 RTEMS_CPUOPT([RTEMS_NETWORKING],
   [test x"$rtems_cv_HAS_NETWORKING" = xyes],
   [1],
@@ -200,15 +230,11 @@ RTEMS_CPUOPT([__RTEMS_USE_TICKS_FOR_STATISTICS__],
   [1],
   [disable nanosecond granularity for statistics])
 
-RTEMS_CPUOPT([__RTEMS_USE_TICKS_CPU_USAGE_STATISTICS__],
-  [test x"${USE_TICKS_FOR_CPU_USAGE_STATISTICS}" = x"1"],
+## Header file differences that need to be known in .h after install
+RTEMS_CPUOPT([__RTEMS_HAVE_SYS_CPUSET_H__],
+  [test x"${ac_cv_header_sys_cpuset_h}" = x"yes"],
   [1],
-  [disable nanosecond granularity for cpu usage statistics])
-
-RTEMS_CPUOPT([__RTEMS_USE_TICKS_RATE_MONOTONIC_STATISTICS__],
-  [test x"${USE_TICKS_FOR_RATE_MONOTONIC_STATISTICS}" = x"1"],
-  [1],
-  [disable nanosecond granularity for period statistics])
+  [indicate if <sys/cpuset.h> is present in toolset])
 
 ## This improves both the size and coverage analysis.
 RTEMS_CPUOPT([__RTEMS_DO_NOT_INLINE_THREAD_ENABLE_DISPATCH__],
@@ -242,11 +268,6 @@ RTEMS_CPUOPT([__RTEMS_ADA__],
 
 ## Then we propagate a private copy of the value into cpuopts.h
 ## so it is always available to the RTEMS header files.
-
-RTEMS_CPUOPT([__RTEMS_SIZEOF_VOID_P__],
-  [true],
-  [$ac_cv_sizeof_void_p],
-  [Size of a void * pointer])
 
 RTEMS_CPUOPT([__RTEMS_MAJOR__],
   [true],
@@ -293,6 +314,8 @@ AC_CHECK_SIZEOF([off_t])
 # FIXME: We should get rid of this. It's a cludge.
 AC_CHECK_SIZEOF([time_t])
 
+AC_CHECK_SIZEOF([size_t])
+
 # FIXME: Mandatory in SUSv4, optional in SUSv3. 
 #   Not implemented in GCC/newlib, so far.
 AC_CHECK_DECLS([WORD_BIT],,,[#include <limits.h>])
@@ -329,6 +352,8 @@ AM_CONDITIONAL([LIBSERDBG],[test x"$rtems_cv_cc_attribute_weak" = x"yes"])
 AM_CONDITIONAL([LIBGNAT],[test x"$rtems_cv_HAS_POSIX_API" = x"yes" \
 && test x"$enable_ada" = x"yes"])
 
+AM_CONDITIONAL([LIBUTF8PROC],[test $ac_cv_sizeof_size_t -gt 2])
+
 AM_CONDITIONAL([LIBDOSFS],[dnl
 test x"$ac_cv_type_uint8_t" = xyes \
 && test x"$ac_cv_type_uint16_t" = xyes])
@@ -361,6 +386,7 @@ score/cpu/m68k/Makefile
 score/cpu/m32c/Makefile
 score/cpu/m32r/Makefile
 score/cpu/mips/Makefile
+score/cpu/moxie/Makefile
 score/cpu/nios2/Makefile
 score/cpu/powerpc/Makefile
 score/cpu/sh/Makefile

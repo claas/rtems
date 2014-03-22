@@ -1,40 +1,30 @@
+/**
+ * @file 
+ * 
+ * @brief Obtain RWLock for reading
+ * @ingroup ScoreRWLock
+ */
+
 /*
- *  SuperCore RWLock Handler -- Obtain RWLock for reading
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/corerwlock.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/corerwlockimpl.h>
+#include <rtems/score/threadqimpl.h>
 #include <rtems/score/watchdog.h>
-
-/*
- *  _CORE_rwlock_Obtain_for_reading
- *
- *  This function waits for the rwlock to become available.  Optionally,
- *  a limit may be placed on the duration of the spin.
- *
- *  Input parameters:
- *    the_rwlock    - the rwlock control block to initialize
- *    timeout_allowed - true if timeout allowed
- *    timeout         - the maximum number of ticks to spin
- *
- *  Output parameters:  NONE
- */
 
 void _CORE_RWLock_Obtain_for_reading(
   CORE_RWLock_Control                 *the_rwlock,
+  Thread_Control                      *executing,
   Objects_Id                           id,
   bool                                 wait,
   Watchdog_Interval                    timeout,
@@ -42,7 +32,6 @@ void _CORE_RWLock_Obtain_for_reading(
 )
 {
   ISR_Level       level;
-  Thread_Control *executing = _Thread_Executing;
 
   /*
    *  If unlocked, then OK to read.
@@ -97,6 +86,7 @@ void _CORE_RWLock_Obtain_for_reading(
 
     _Thread_queue_Enqueue_with_handler(
        &the_rwlock->Wait_queue,
+       executing,
        timeout,
        _CORE_RWLock_Timeout
     );

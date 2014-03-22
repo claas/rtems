@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Create Message Queue
+ *  @ingroup ClassicMessageQueue
+ */
+
 /*
- *  Message Queue Manager
- *
- *
- *  COPYRIGHT (c) 1989-1999.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,38 +22,14 @@
 #include <rtems/score/sysstate.h>
 #include <rtems/score/chain.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/coremsg.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
+#include <rtems/score/coremsgimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/wkspace.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
 #include <rtems/rtems/status.h>
-#include <rtems/rtems/attr.h>
-#include <rtems/rtems/message.h>
+#include <rtems/rtems/attrimpl.h>
+#include <rtems/rtems/messageimpl.h>
 #include <rtems/rtems/options.h>
 #include <rtems/rtems/support.h>
-
-/*
- *  rtems_message_queue_create
- *
- *  This directive creates a message queue by allocating and initializing
- *  a message queue data structure.
- *
- *  Input parameters:
- *    name             - user defined queue name
- *    count            - maximum message and reserved buffer count
- *    max_message_size - maximum size of each message
- *    attribute_set    - process method
- *    id               - pointer to queue
- *
- *  Output parameters:
- *    id                - queue id
- *    RTEMS_SUCCESSFUL  - if successful
- *    error code        - if unsuccessful
- */
 
 rtems_status_code rtems_message_queue_create(
   rtems_name       name,
@@ -59,11 +39,10 @@ rtems_status_code rtems_message_queue_create(
   rtems_id        *id
 )
 {
-  register Message_queue_Control *the_message_queue;
+  Message_queue_Control          *the_message_queue;
   CORE_message_queue_Attributes   the_msgq_attributes;
 #if defined(RTEMS_MULTIPROCESSING)
   bool                            is_global;
-  size_t                          max_packet_payload_size;
 #endif
 
   if ( !rtems_is_name_valid( name ) )
@@ -91,11 +70,14 @@ rtems_status_code rtems_message_queue_create(
    * It seems reasonable to create a que with a large max size,
    * and then just send smaller msgs from remote (or all) nodes.
    */
+  if ( is_global ) {
+    size_t max_packet_payload_size = _MPCI_table->maximum_packet_size
+      - MESSAGE_QUEUE_MP_PACKET_SIZE;
 
-  max_packet_payload_size = _MPCI_table->maximum_packet_size
-    - MESSAGE_QUEUE_MP_PACKET_SIZE;
-  if ( is_global && max_packet_payload_size < max_message_size )
-    return RTEMS_INVALID_SIZE;
+    if ( max_message_size > max_packet_payload_size ) {
+      return RTEMS_INVALID_SIZE;
+    }
+  }
 #endif
 #endif
 

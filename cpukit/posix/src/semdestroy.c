@@ -1,10 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief Destroy an Unnamed Semaphore
+ *  @ingroup POSIX_SEMAPHORE
+ */
+
 /*
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,20 +27,15 @@
 #include <limits.h>
 
 #include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/posix/semaphore.h>
+#include <rtems/posix/semaphoreimpl.h>
 #include <rtems/posix/time.h>
 #include <rtems/seterr.h>
-
-/*
- *  11.2.2 Destroy an Unnamed Semaphore, P1003.1b-1993, p.220
- */
 
 int sem_destroy(
   sem_t *sem
 )
 {
-  register POSIX_Semaphore_Control *the_semaphore;
+  POSIX_Semaphore_Control          *the_semaphore;
   Objects_Locations                 location;
 
   the_semaphore = _POSIX_Semaphore_Get( sem, &location );
@@ -45,12 +47,12 @@ int sem_destroy(
        */
 
       if ( the_semaphore->named == true ) {
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_semaphore->Object );
         rtems_set_errno_and_return_minus_one( EINVAL );
       }
 
       _POSIX_Semaphore_Delete( the_semaphore );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_semaphore->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Modified to support the MCP750.
  *  Modifications Copyright (C) 1999 Eric Valette. valette@crf.canon.fr
@@ -23,6 +23,7 @@
 #include <rtems.h>
 #include <bsp.h>
 #include <rtems/bspIo.h>
+#include <rtems/counter.h>
 #include <libcpu/spr.h>
 #include <libcpu/io.h>
 #include <libcpu/e500_mmu.h>
@@ -117,13 +118,6 @@ void _BSP_Fatal_error(unsigned int v)
   printk("\n%s PANIC ERROR %x\n",_RTEMS_version, v);
   __asm__ __volatile ("sc");
 }
-
-/*
- *  The original table from the application and our copy of it with
- *  some changes.
- */
-
-extern rtems_configuration_table Configuration;
 
 char *rtems_progname;
 
@@ -224,7 +218,6 @@ SPR_RW(HID1)
 
 void bsp_start( void )
 {
-rtems_status_code   sc;
 unsigned char       *stack;
 uintptr_t           intrStackStart;
 uintptr_t           intrStackSize;
@@ -277,14 +270,7 @@ VpdBufRec          vpdData [] = {
 	/*
 	 * Initialize default raw exception handlers.
 	 */
-	sc = ppc_exc_initialize(
-		PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-		intrStackStart,
-		intrStackSize
-	);
-	if (sc != RTEMS_SUCCESSFUL) {
-		BSP_panic("cannot initialize exceptions");
-	}
+	ppc_exc_initialize(intrStackStart, intrStackSize);
 
 	printk("CPU 0x%x - rev 0x%x\n", myCpu, myCpuRevision);
 
@@ -395,6 +381,9 @@ VpdBufRec          vpdData [] = {
 	_BSP_clear_hostbridge_errors(0 /* enableMCP */, 0/*quiet*/);
 
 	bsp_clicks_per_usec = BSP_bus_frequency/(BSP_time_base_divisor * 1000);
+	rtems_counter_initialize_converter(
+		BSP_bus_frequency / (BSP_time_base_divisor / 1000)
+	);
 
 	/*
 	 * Initalize RTEMS IRQ system

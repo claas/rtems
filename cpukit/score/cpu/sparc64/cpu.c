@@ -1,21 +1,26 @@
-/*
- *  SPARC-v9 Dependent Source
+/**
+ *  @file
  *
+ *  @brief SPARC64 CPU Dependent Source
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
- *  This file is based on the SPARC cpu.c file. Modifications are made to 
+ *  This file is based on the SPARC cpu.c file. Modifications are made to
  *  provide support for the SPARC-v9.
  *    COPYRIGHT (c) 2010. Gedare Bloom.
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems/system.h>
 #include <rtems/asm.h>
 #include <rtems/score/isr.h>
+#include <rtems/score/tls.h>
 #include <rtems/rtems/cache.h>
 
 /*
@@ -55,30 +60,14 @@ void _CPU_Initialize(void)
   _CPU_ISR_Dispatch_disable = 0;
 }
 
-/*
- *  _CPU_Context_Initialize
- *
- *  This kernel routine initializes the basic non-FP context area associated
- *  with each thread.
- *
- *  Input parameters:
- *    the_context  - pointer to the context area
- *    stack_base   - address of memory for the SPARC
- *    size         - size in bytes of the stack area
- *    new_level    - interrupt level for this context area
- *    entry_point  - the starting execution point for this this context
- *    is_fp        - TRUE if this context is associated with an FP thread
- *
- *  Output parameters: NONE
- */
-
 void _CPU_Context_Initialize(
   Context_Control  *the_context,
   void         *stack_base,
   uint32_t          size,
   uint32_t          new_level,
   void             *entry_point,
-  bool              is_fp
+  bool              is_fp,
+  void             *tls_area
 )
 {
     uint64_t     stack_high;  /* highest "stack aligned" address */
@@ -112,4 +101,10 @@ void _CPU_Context_Initialize(
    *  thread can have an _ISR_Dispatch stack frame on its stack.
    */
     the_context->isr_dispatch_disable = 0;
+
+  if ( tls_area != NULL ) {
+    void *tcb = _TLS_TCB_after_tls_block_initialize( tls_area );
+
+    the_context->g7 = (uintptr_t) tcb;
+  }
 }

@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 
@@ -16,18 +16,14 @@
 
 #include <tmacros.h>
 
+#include <rtems/score/watchdogimpl.h>
+
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
 rtems_timer_service_routine TIMER_service_routine(
   rtems_id  ignored_id,
   void     *user_data
 );
-
-/*
- *  We have to extern this rather than use __RTEMS_VIOLATE_KERNEL_VISIBILITY__
- *  because this variable isn't actually in any .h.
- */
-extern Watchdog_Interval _Timer_Server_ticks_last_time;
 
 volatile bool _timer_passage_1 = FALSE;
 volatile bool _timer_passage_2 = FALSE;

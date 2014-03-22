@@ -31,6 +31,9 @@ TA1 - rtems_clock_get_tod - RTEMS_NOT_DEFINED
 TA1 - rtems_clock_get_seconds_since_epoch - RTEMS_INVALID_ADDRESS
 TA1 - rtems_clock_get_seconds_since_epoch - RTEMS_NOT_DEFINED
 TA1 - rtems_clock_get_uptime - RTEMS_INVALID_ADDRESS
+TA1 - rtems_clock_get_uptime_timeval
+TA1 - rtems_clock_get_uptime_seconds
+TA1 - rtems_clock_get_uptime_nanoseconds
 TA1 - rtems_clock_get_tod_timeval - RTEMS_INVALID_ADDRESS
 TA1 - rtems_clock_get_tod_timeval - RTEMS_NOT_DEFINED
 TA1 - rtems_clock_set_nanoseconds_extension - RTEMS_INVALID_ADDRESS
@@ -56,7 +59,7 @@ TA1 - rtems_task_wake_when - 08:30:51   01/05/1988 - RTEMS_INVALID_CLOCK
 <pause - screen 3>
 TA1 - rtems_task_create - RTEMS_INVALID_NAME
 TA1 - rtems_task_create - RTEMS_INVALID_ADDRESS
-TA1 - rtems_task_create - stack size - RTEMS_UNSATISFIED
+TA1 - rtems_task_create - stack size - RTEMS_UNSATISFIED  -- SKIPPED
 TA1 - rtems_task_create - TA2 created - RTEMS_SUCCESSFUL
 TA1 - rtems_task_suspend - suspend TA2 - RTEMS_SUCCESSFUL
 TA1 - rtems_task_suspend - suspend TA2 - RTEMS_ALREADY_SUSPENDED
@@ -215,117 +218,4 @@ TA4 - rtems_task_delete - delete self - RTEMS_SUCCESSFUL
 TA1 - rtems_rate_monotonic_delete - RTEMS_INVALID_ID
 TA1 - rtems_rate_monotonic_delete - local RTEMS_INVALID_ID
 TA1 - rtems_rate_monotonic_delete - RTEMS_SUCCESSFUL
-<pause - screen 11>
-TA1 - rtems_partition_create - RTEMS_INVALID_NAME
-TA1 - rtems_partition_create - length - RTEMS_INVALID_SIZE
-TA1 - rtems_partition_create - buffer size - RTEMS_INVALID_SIZE
-TA1 - rtems_partition_create - length < buffer size - RTEMS_INVALID_SIZE
-TA1 - rtems_partition_create - buffer size < overhead - RTEMS_INVALID_SIZE
-TA1 - rtems_partition_create - RTEMS_MP_NOT_CONFIGURED
-TA1 - rtems_partition_create - RTEMS_INVALID_ADDRESS
-TA1 - rtems_partition_create - RTEMS_INVALID_SIZE
-TA1 - rtems_partition_delete - unknown RTEMS_INVALID_ID
-TA1 - rtems_partition_delete - local RTEMS_INVALID_ID
-TA1 - rtems_partition_get_buffer - RTEMS_INVALID_ADDRESS
-TA1 - rtems_partition_get_buffer - RTEMS_INVALID_ID
-TA1 - rtems_partition_ident - RTEMS_INVALID_NAME
-TA1 - rtems_partition_return_buffer - RTEMS_INVALID_ID
-TA1 - rtems_partition_create - RTEMS_INVALID_ADDRESS
-TA1 - rtems_partition_create - RTEMS_SUCCESSFUL
-TA1 - rtems_partition_create - RTEMS_TOO_MANY
-TA1 - rtems_partition_get_buffer - RTEMS_SUCCESSFUL
-TA1 - rtems_partition_get_buffer - RTEMS_SUCCESSFUL
-TA1 - rtems_partition_get_buffer - RTEMS_UNSATISFIED
-TA1 - rtems_partition_delete - RTEMS_RESOURCE_IN_USE
-TA1 - rtems_partition_return_buffer - RTEMS_INVALID_ADDRESS - out of range
-TA1 - rtems_partition_return_buffer - RTEMS_INVALID_ADDRESS - not on boundary
-<pause - screen 12>
-TA1 - rtems_region_create - RTEMS_INVALID_NAME
-TA1 - rtems_region_create - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_create - RTEMS_INVALID_SIZE
-TA1 - rtems_region_create - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_create - RTEMS_SUCCESSFUL
-TA1 - rtems_region_extend - NULL address - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_extend - address within - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_create - RTEMS_TOO_MANY
-TA1 - rtems_region_delete - unknown RTEMS_INVALID_ID
-TA1 - rtems_region_delete - local RTEMS_INVALID_ID
-TA1 - rtems_region_ident - RTEMS_INVALID_NAME
-TA1 - rtems_region_get_information - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_get_information - unknown RTEMS_INVALID_ID
-TA1 - rtems_region_get_free_information - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_get_free_information - unknown RTEMS_INVALID_ID
-TA1 - rtems_region_get_segment - RTEMS_INVALID_ID
-TA1 - rtems_region_get_segment - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_get_segment - 0 size - RTEMS_INVALID_SIZE
-TA1 - rtems_region_get_segment - too big - RTEMS_INVALID_SIZE
-TA1 - rtems_region_get_segment - RTEMS_SUCCESSFUL
-TA1 - rtems_region_get_segment - RTEMS_UNSATISFIED
-TA1 - rtems_region_get_segment - timeout in 3 seconds
-TA1 - rtems_region_get_segment - woke up with RTEMS_TIMEOUT
-TA1 - rtems_region_get_segment_size - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_get_segment_size - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_get_segment_size - unknown RTEMS_INVALID_ID
-TA1 - rtems_region_delete - RTEMS_RESOURCE_IN_USE
-TA1 - rtems_region_resize_segment - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_resize_segment - RTEMS_INVALID_ADDRESS
-TA1 - rtems_region_resize_segment - RTEMS_INVALID_ID
-TA1 - rtems_region_return_segment - RTEMS_INVALID_ID
-TA1 - rtems_region_return_segment - RTEMS_INVALID_ADDRESS
-TA1 - rtems_debug_disable - RTEMS_DEBUG_REGION
-TA1 - rtems_debug_enable - RTEMS_DEBUG_REGION
-TA1 - rtems_region_extend - RTEMS_INVALID_ID
-TA1 - rtems_region_extend - within heap - RTEMS_INVALID_ADDRESS
-<pause - screen 13>
-TA1 - rtems_io_close - RTEMS_INVALID_NUMBER
-TA1 - rtems_io_control - RTEMS_INVALID_NUMBER
-TA1 - rtems_io_initialize - RTEMS_INVALID_NUMBER
-TA1 - rtems_io_open - RTEMS_INVALID_NUMBER
-TA1 - rtems_io_read - RTEMS_INVALID_NUMBER
-TA1 - rtems_io_write - RTEMS_INVALID_NUMBER
-TA1 - rtems_clock_set - 23:59:59   12/31/2000 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_get_tod - 00:00:00   01/01/2001 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_set - 23:59:59   12/31/1999 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_get_tod - 00:00:00   01/01/2000 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_set - 23:59:59   12/31/2100 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_get_tod - 17:31:44   11/25/1964 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_set - 23:59:59   12/31/2099 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_get_tod - 17:31:44   11/25/1963 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_set - 23:59:59   12/31/1991 - RTEMS_SUCCESSFUL
-TA1 - rtems_clock_get_tod - 00:00:00   01/01/1992 - RTEMS_SUCCESSFUL
-<pause - screen 14>
-TA1 - rtems_timer_create - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_create - RTEMS_INVALID_NAME
-TA1 - rtems_timer_create - 1 - RTEMS_SUCCESSFUL
-TA1 - rtems_timer_create - 2 - RTEMS_TOO_MANY
-TA1 - rtems_timer_delete - local RTEMS_INVALID_ID
-TA1 - rtems_timer_delete - global RTEMS_INVALID_ID
-TA1 - rtems_timer_ident - RTEMS_INVALID_NAME
-TA1 - rtems_timer_cancel - RTEMS_INVALID_ID
-TA1 - rtems_timer_reset - RTEMS_INVALID_ID
-TA1 - rtems_timer_reset - RTEMS_NOT_DEFINED
-TA1 - rtems_timer_fire_after - RTEMS_INVALID_ID
-TA1 - rtems_timer_fire_when - RTEMS_INVALID_ID
-TA1 - rtems_timer_fire_after - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_fire_after - RTEMS_INVALID_NUMBER
-TA1 - rtems_timer_fire_when - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_fire_when - 08:30:45   02/05/1987 - RTEMS_INVALID_CLOCK
-TA1 - rtems_clock_get_tod       - 00:00:00   01/01/1992
-TA1 - rtems_timer_fire_when - 08:30:45   02/05/1990 - before RTEMS_INVALID_CLOCK
-TA1 - rtems_timer_get_information - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_get_information - RTEMS_INVALID_ID
-TA1 - rtems_timer_server_fire_after - RTEMS_INCORRECT_STATE
-TA1 - rtems_timer_server_fire_when - RTEMS_INCORRECT_STATE
-TA1 - rtems_timer_initiate_server - RTEMS_INVALID_PRIORITY
-TA1 - rtems_timer_initiate_server - RTEMS_UNSATISFIED
-TA1 - rtems_timer_initiate_server - SUCCESSFUL
-TA1 - rtems_timer_server_fire_after - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_server_fire_after - RTEMS_INVALID_ID
-TA1 - rtems_timer_server_fire_when - RTEMS_INVALID_ID
-TA1 - rtems_timer_server_fire_after - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_server_fire_after - RTEMS_INVALID_NUMBER
-TA1 - rtems_timer_server_fire_when - 08:30:45   02/05/1987 - RTEMS_INVALID_CLOCK
-TA1 - rtems_clock_get_tod       - 00:00:00   01/01/1992
-TA1 - rtems_timer_server_fire_when - RTEMS_INVALID_ADDRESS
-TA1 - rtems_timer_server_fire_when - 08:30:45   02/05/1990 - before RTEMS_INVALID_CLOCK
 *** END OF TEST 9 ***

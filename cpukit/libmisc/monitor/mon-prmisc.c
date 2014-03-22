@@ -11,8 +11,8 @@
 
 #include <rtems.h>
 #include <rtems/monitor.h>
-
 #include <rtems/assoc.h>
+#include <rtems/score/statesimpl.h>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -123,6 +123,7 @@ static const rtems_assoc_t rtems_monitor_state_assoc[] = {
     { "Wseg",   STATES_WAITING_FOR_SEGMENT, 0 },
     { "Wmsg" ,  STATES_WAITING_FOR_MESSAGE, 0 },
     { "Wevnt",  STATES_WAITING_FOR_EVENT, 0 },
+    { "Wsysev", STATES_WAITING_FOR_SYSTEM_EVENT, 0 },
     { "Wsem",   STATES_WAITING_FOR_SEMAPHORE, 0 },
     { "Wmutex", STATES_WAITING_FOR_MUTEX, 0 },
     { "Wcvar",  STATES_WAITING_FOR_CONDITION_VARIABLE, 0 },
@@ -133,6 +134,7 @@ static const rtems_assoc_t rtems_monitor_state_assoc[] = {
     { "Wbar",   STATES_WAITING_FOR_BARRIER, 0 },
     { "Wrwlk",  STATES_WAITING_FOR_RWLOCK, 0 },
     { "Wisig",  STATES_INTERRUPTIBLE_BY_SIGNAL, 0 },
+    { "Wwkup",  STATES_WAITING_FOR_BSD_WAKEUP, 0 },
     { 0, 0, 0 },
 };
 
@@ -237,7 +239,7 @@ static const rtems_assoc_t rtems_monitor_events_assoc[] = {
 int
 rtems_monitor_dump_events(rtems_event_set events)
 {
-    if (events == EVENT_SETS_NONE_PENDING)  /* value is 0 */
+    if (events == 0)
         return fprintf(stdout,"  NONE  ");
 
     return fprintf(stdout,"%08" PRIx32, events);

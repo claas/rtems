@@ -11,7 +11,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 | this file contains board specific definitions                   |
@@ -63,15 +63,16 @@ LINKER_SYMBOL(IMMRBAR);
 
 #ifndef ASM
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <rtems.h>
 #include <rtems/console.h>
 #include <rtems/clockdrv.h>
 #include <bsp/vectors.h>
 #include <bsp/irq.h>
+#include <bsp/default-initial-extension.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * indicate, that BSP has no IDE driver
@@ -143,6 +144,8 @@ extern uint32_t bsp_clicks_per_usec;
 void mpc83xx_zero_4( void *dest, size_t n);
 
 void cpu_init( void);
+
+void bsp_restart(void *addr);
 
 #ifdef __cplusplus
 }

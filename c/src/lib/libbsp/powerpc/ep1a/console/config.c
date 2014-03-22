@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <libchip/serial.h>
@@ -39,7 +39,7 @@ static bool config_68360_scc_base_probe_10(int minor);
 static bool config_68360_scc_base_probe_11(int minor);
 static bool config_68360_scc_base_probe_12(int minor);
 
-extern console_fns mc68360_scc_fns;
+extern const console_fns mc68360_scc_fns;
 
 /*
  * The following table configures the console drivers used in this BSP.

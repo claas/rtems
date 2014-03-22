@@ -1,8 +1,9 @@
 /**
- * @file bsp/exar17d15x.h
+ * @file
  *
- *  This file provides the interface to the Exar Multiport
- *  PCI UART controller.
+ * @ingroup i386_pc386
+ *
+ * @brief Exar Multiport PCI UART interface.
  */
 
 /*
@@ -11,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSP_EXAR17D15X__h

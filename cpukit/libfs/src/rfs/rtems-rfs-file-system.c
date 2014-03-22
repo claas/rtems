@@ -1,18 +1,17 @@
+/**
+ * @file
+ *
+ * @brief RTEMS File Systems Open
+ * @ingroup rtems_rfs
+ * 
+ * Open the file system by reading the superblock and then the group data.
+ */
 /*
  *  COPYRIGHT (c) 2010 Chris Johns <chrisj@rtems.org>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
- */
-/**
- * @file
- *
- * @ingroup rtems-rfs
- *
- * RTEMS File Systems Open
- *
- * Open the file system by reading the superblock and then the group data.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,6 +19,7 @@
 #endif
 
 #include <inttypes.h>
+#include <string.h>
 
 #include <rtems/rfs/rtems-rfs-data.h>
 #include <rtems/rfs/rtems-rfs-file-system.h>

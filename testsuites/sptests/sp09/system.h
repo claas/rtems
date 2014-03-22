@@ -1,14 +1,15 @@
-/*  system.h
- *
+/*
  *  This include file contains information that is included in every
  *  function in the test set.
- *
- *  COPYRIGHT (c) 1989-1999.
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <tmacros.h>
@@ -68,14 +69,6 @@ void Screen9( void );
 
 void Screen10( void );
 
-void Screen11( void );
-
-void Screen12( void );
-
-void Screen13( void );
-
-void Screen14( void );
-
 /* configuration information */
 
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
@@ -85,8 +78,6 @@ void Screen14( void );
 #define CONFIGURE_MAXIMUM_TIMERS              1
 #define CONFIGURE_MAXIMUM_SEMAPHORES          2
 #define CONFIGURE_MAXIMUM_MESSAGE_QUEUES      1
-#define CONFIGURE_MAXIMUM_PARTITIONS          1
-#define CONFIGURE_MAXIMUM_REGIONS             1
 #define CONFIGURE_MAXIMUM_PERIODS             1
 #define CONFIGURE_MAXIMUM_USER_EXTENSIONS     0
 #define CONFIGURE_TICKS_PER_TIMESLICE       100
@@ -102,20 +93,11 @@ void Screen14( void );
 TEST_EXTERN rtems_id   Task_id[ 11 ];       /* array of task ids */
 TEST_EXTERN rtems_name Task_name[ 11 ];     /* array of task names */
 
-TEST_EXTERN rtems_name Timer_name[ 2 ];     /* array of timer names */
-TEST_EXTERN rtems_id   Timer_id[ 2 ];       /* array of timer ids */
-
 TEST_EXTERN rtems_name Semaphore_name[ 4 ]; /* array of semaphore names */
 TEST_EXTERN rtems_id   Semaphore_id[ 4 ];   /* array of semaphore ids */
 
 TEST_EXTERN rtems_name Queue_name[ 3 ];     /* array of queue names */
 TEST_EXTERN rtems_id   Queue_id[ 3 ];       /* array of queue ids */
-
-TEST_EXTERN rtems_name Partition_name[ 2 ]; /* array of partition names */
-TEST_EXTERN rtems_id   Partition_id[ 2 ];   /* array of partition ids */
-
-TEST_EXTERN rtems_name Region_name[ 2 ];    /* array of region names */
-TEST_EXTERN rtems_id   Region_id[ 2 ];      /* array of region ids */
 
 TEST_EXTERN rtems_name Port_name[ 2 ];      /* array of port names */
 TEST_EXTERN rtems_id   Port_id[ 2 ];        /* array of port ids */
@@ -127,13 +109,5 @@ TEST_EXTERN rtems_id   Junk_id;             /* id used to return errors */
 
 #define Internal_port_area (void *) 0x00001000
 #define External_port_area (void *) 0x00002000
-
-TEST_EXTERN uint8_t   Partition_good_area[256] CPU_STRUCTURE_ALIGNMENT;
-#define Partition_bad_area (void *) 0x00000005
-
-TEST_EXTERN uint32_t   Region_good_area[4096] CPU_STRUCTURE_ALIGNMENT;
-#define Region_bad_area    (void *) 0x00000005
-#define REGION_START_OFFSET 1024
-#define REGION_LENGTH       512
 
 /* end of include file */

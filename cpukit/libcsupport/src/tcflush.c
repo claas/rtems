@@ -6,43 +6,18 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
-#include <rtems.h>
-#if defined(RTEMS_NEWLIB)
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
 #include <termios.h>
-/* #include <sys/ioctl.h> */
+#include <stdint.h>
+#include <sys/ioccom.h>
 
-#include <rtems/seterr.h>
-#include <rtems/libio.h>
-
-int tcflush (
-  int fd __attribute__((unused)),
-  int queue
-)
+int tcflush( int fd, int queue )
 {
-  switch (queue) {
-    case TCIFLUSH:
-    case TCOFLUSH:
-    case TCIOFLUSH:
-    default:
-      rtems_set_errno_and_return_minus_one( EINVAL );
-  }
-
-  /* fd is not validated */
-
-  /* When this is supported, implement it here */
-  rtems_set_errno_and_return_minus_one( ENOTSUP );
-  return 0;
+  return ioctl( fd, RTEMS_IO_TCFLUSH, (intptr_t) queue );
 }
-
-#endif

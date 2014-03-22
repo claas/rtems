@@ -1,5 +1,7 @@
 /**
- * @file rtems/posix/aio_misc.h
+ * @file
+ * 
+ * @brief POSIX Asynchronous Input and Output Private Support
  *
  * This defines private information for the AIO implementation.
  */
@@ -9,7 +11,7 @@
  * 
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _AIO_MISC_H

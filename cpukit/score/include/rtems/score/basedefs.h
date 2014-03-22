@@ -3,7 +3,7 @@
  *
  * @ingroup Score
  *
- * @brief Basic definitions.
+ * @brief Basic Definitions
  */
 
 /*
@@ -14,11 +14,18 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_BASEDEFS_H
 #define _RTEMS_BASEDEFS_H
+
+/**
+ *  @defgroup ScoreBaseDefs Basic Definitions
+ *
+ *  @ingroup Score
+ */
+/**@{*/
 
 #include <rtems/score/cpuopts.h>
 
@@ -26,6 +33,20 @@
   #include <stddef.h>
   #include <stdbool.h>
   #include <stdint.h>
+
+  /*
+   * FIXME: This include should not be present.  In older RTEMS versions
+   * <rtems.h> provided <limits.h> indirectly.  This include is here to not
+   * break application source files that relied on this accidentally.
+   */
+  #include <limits.h>
+
+  /*
+   * FIXME: This include should not be present.  In older RTEMS versions
+   * <rtems.h> provided <string.h> indirectly.  This include is here to not
+   * break application source files that relied on this accidentally.
+   */
+  #include <string.h>
 #endif
 
 #ifndef TRUE
@@ -130,7 +151,7 @@
  *  the method will NOT return to the caller.  This can assist the
  *  compiler in code generation and avoid unreachable paths.  This
  *  can impact the code generated following calls to
- *  rtems_fatal_error_occurred and _Internal_error_Occurred.
+ *  rtems_fatal_error_occurred and _Terminate.
  */
 #ifdef __GNUC__
   #define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE \
@@ -163,8 +184,29 @@
   #define RTEMS_COMPILER_DEPRECATED_ATTRIBUTE
 #endif
 
-#define RTEMS_STATIC_ASSERT(cond, msg) \
-  typedef int rtems_static_assert_ ## msg [(cond) ? 1 : -1]
+/**
+ *  Instructs the compiler that a specific variable is deliberately unused.
+ *  This can occur when reading volatile device memory or skipping arguments
+ *  in a variable argument method.
+ */
+#if defined(__GNUC__)        
+  #define RTEMS_COMPILER_UNUSED_ATTRIBUTE __attribute__((unused))
+#else
+  #define RTEMS_COMPILER_UNUSED_ATTRIBUTE
+#endif
+
+#if __cplusplus >= 201103L
+  #define RTEMS_STATIC_ASSERT(cond, msg) \
+    static_assert(cond, # msg)
+#elif __STDC_VERSION__ >= 201112L
+  #define RTEMS_STATIC_ASSERT(cond, msg) \
+    _Static_assert(cond, # msg)
+#else
+  #define RTEMS_STATIC_ASSERT(cond, msg) \
+    typedef int rtems_static_assert_ ## msg [(cond) ? 1 : -1]
+#endif
+
+#define RTEMS_ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
 
 #ifndef ASM
   #ifdef RTEMS_DEPRECATED_TYPES
@@ -178,5 +220,7 @@
    */
   typedef void * proc_ptr;
 #endif
+
+/**@}*/
 
 #endif /* _RTEMS_BASEDEFS_H */

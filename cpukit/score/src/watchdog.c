@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief Watchdog Handler Initialization
+ *  @ingroup ScoreWatchdog
+ */
+
 /*
  *  Watchdog Handler
  *
@@ -7,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,17 +23,7 @@
 
 #include <rtems/system.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/watchdog.h>
-
-/*
- *  _Watchdog_Handler_initialization
- *
- *  This routine initializes the watchdog handler.
- *
- *  Input parameters:  NONE
- *
- *  Output parameters: NONE
- */
+#include <rtems/score/watchdogimpl.h>
 
 void _Watchdog_Handler_initialization( void )
 {

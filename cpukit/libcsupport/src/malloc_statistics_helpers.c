@@ -1,12 +1,17 @@
-/*
- *  _calloc_r Implementation
+/**
+ *  @file
  *
+ *  @brief Malloc Statistics Support
+ *  @ingroup MallocSupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,7 +23,7 @@
 
 #include <sys/reent.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 static void rtems_malloc_statistics_initialize( void )
 {
@@ -48,7 +53,7 @@ static void rtems_malloc_statistics_at_malloc(
       s->max_depth = current_depth;
 }
 
-/*
+/**
  *  If the pointer is not in the heap, then we won't be able to get its
  *  size and thus we skip updating the statistics.
  */

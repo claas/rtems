@@ -1,9 +1,8 @@
 /**
  * @file
  *
+ * @brief Prints the Partition Table @a Partitions with @a Count Partitions
  * @ingroup rtems_bdpart
- *
- * Block device partition management.
  */
 
 /*
@@ -16,7 +15,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,7 +44,7 @@ void rtems_bdpart_dump( const rtems_bdpart_partition *pt, size_t count)
     "-------------------------------------------------------------------------------\n"
     "                                PARTITION TABLE\n"
     "------------+------------+-----------------------------------------------------\n"
-    " BEGIN      | END        | TYPE\n"
+    " BEGIN      | LAST       | TYPE\n"
     "------------+------------+-----------------------------------------------------\n"
   );
 
@@ -88,7 +87,7 @@ void rtems_bdpart_dump( const rtems_bdpart_partition *pt, size_t count)
     printf(
       " %10" PRIu32 " | %10" PRIu32 " |%52s\n",
       p->begin,
-      p->end,
+      p->end - 1U,
       type
     );
   }

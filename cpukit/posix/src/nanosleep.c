@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Suspends Execution of calling thread until Time elaps
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -14,14 +21,11 @@
 #include <time.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/scheduler.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/tod.h>
-
 #include <rtems/seterr.h>
+#include <rtems/score/schedulerimpl.h>
+#include <rtems/score/threadimpl.h>
 #include <rtems/score/timespec.h>
+#include <rtems/score/watchdogimpl.h>
 
 /*
  *  14.2.5 High Resolution Sleep, P1003.1b-1993, p. 269
@@ -32,6 +36,12 @@ int nanosleep(
   struct timespec        *rmtp
 )
 {
+  /*
+   * It is critical to obtain the executing thread after thread dispatching is
+   * disabled on SMP configurations.
+   */
+  Thread_Control *executing;
+
   Watchdog_Interval  ticks;
 
 
@@ -54,7 +64,8 @@ int nanosleep(
 
   if ( !ticks ) {
     _Thread_Disable_dispatch();
-      _Scheduler_Yield();
+      executing = _Thread_Executing;
+      _Scheduler_Yield( executing );
     _Thread_Enable_dispatch();
     if ( rmtp ) {
        rmtp->tv_sec = 0;
@@ -67,24 +78,24 @@ int nanosleep(
    *  Block for the desired amount of time
    */
   _Thread_Disable_dispatch();
+    executing = _Thread_Executing;
     _Thread_Set_state(
-      _Thread_Executing,
+      executing,
       STATES_DELAYING | STATES_INTERRUPTIBLE_BY_SIGNAL
     );
     _Watchdog_Initialize(
-      &_Thread_Executing->Timer,
+      &executing->Timer,
       _Thread_Delay_ended,
-      _Thread_Executing->Object.id,
+      executing->Object.id,
       NULL
     );
-    _Watchdog_Insert_ticks( &_Thread_Executing->Timer, ticks );
+    _Watchdog_Insert_ticks( &executing->Timer, ticks );
   _Thread_Enable_dispatch();
 
   /* calculate time remaining */
 
   if ( rmtp ) {
-    ticks -=
-      _Thread_Executing->Timer.stop_time - _Thread_Executing->Timer.start_time;
+    ticks -= executing->Timer.stop_time - executing->Timer.start_time;
 
     _Timespec_From_ticks( ticks, rmtp );
 

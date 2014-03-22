@@ -9,15 +9,16 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #include <tmacros.h>
+
+#include <rtems/score/objectimpl.h>
 
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument ignored);
@@ -76,7 +77,7 @@ rtems_task Init(
   puts( "INIT - _Objects_Set_name fails - out of memory" );
   rtems_workspace_greedy_allocate( NULL, 0 );
 
-  bc = _Objects_Set_name( &TestClass, &_Thread_Executing->Object, name );
+  bc = _Objects_Set_name( &TestClass, &_Thread_Get_executing()->Object, name );
   rtems_test_assert( bc == false );
 
   puts( "*** END OF POSIX OBJECT TEST 1 ***" );

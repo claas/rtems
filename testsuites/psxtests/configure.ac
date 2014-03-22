@@ -48,6 +48,37 @@ AC_CHECK_DECLS([pthread_attr_getguardsize],[],[],[[#include <pthread.h>]])
 # Added to pthreads after initial revision.  May not be in toolset
 AC_CHECK_DECLS([pthread_attr_setguardsize],[],[],[[#include <pthread.h>]])
 
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_DECLS([pthread_attr_setaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_DECLS([pthread_attr_getaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_DECLS([pthread_setaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_DECLS([pthread_getaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_DECLS([pthread_getattr_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_HEADERS([cpuset.h])
+
+# Mandated by POSIX, not declared in some versions of newlib.
+AC_CHECK_DECLS([getrusage],,,[#include sys/resource.h])
+
 # Mandated by POSIX, not declared in some versions of newlib.
 AC_CHECK_DECLS([getrusage],,,[#include sys/resource.h])
 
@@ -112,6 +143,7 @@ psxfchx01/Makefile
 psxfile01/Makefile
 psxfile02/Makefile
 psxfilelock01/Makefile
+psxgetattrnp01/Makefile
 psxgetrusage01/Makefile
 psxhdrs/Makefile
 psxid01/Makefile
@@ -122,6 +154,13 @@ psxitimer/Makefile
 psxkey01/Makefile
 psxkey02/Makefile
 psxkey03/Makefile
+psxkey04/Makefile
+psxkey05/Makefile
+psxkey06/Makefile
+psxkey07/Makefile
+psxkey08/Makefile
+psxkey09/Makefile
+psxkey10/Makefile
 psxmount/Makefile
 psxmsgq01/Makefile
 psxmsgq02/Makefile
@@ -129,6 +168,7 @@ psxmsgq03/Makefile
 psxmsgq04/Makefile
 psxmutexattr01/Makefile
 psxobj01/Makefile
+psxonce01/Makefile
 psxpasswd01/Makefile
 psxpasswd02/Makefile
 psxpipe01/Makefile

@@ -35,7 +35,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <stdlib.h>
@@ -144,10 +144,13 @@ ssize_t m5xx_uart_write(
   size_t len
 )
 {
-  volatile m5xxSCIRegisters_t *regs = sci_descs[minor].regs;
+  if (len > 0) {
+    volatile m5xxSCIRegisters_t *regs = sci_descs[minor].regs;
 
-  regs->scdr = *buf;			/* start transmission */
-  regs->sccr1 |= QSMCM_SCI_TIE;		/* enable interrupt */
+    regs->scdr = *buf;			/* start transmission */
+    regs->sccr1 |= QSMCM_SCI_TIE;		/* enable interrupt */
+  }
+
   return 0;
 }
 

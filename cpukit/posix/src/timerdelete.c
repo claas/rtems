@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Deletes a POSIX Interval Timer
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  14.2.3 Delete a Per_process Timer, P1003.1b-1993, p. 266
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,8 +27,9 @@
 #include <rtems/system.h>
 #include <rtems/seterr.h>
 #include <rtems/score/thread.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/posix/time.h>
-#include <rtems/posix/timer.h>
+#include <rtems/posix/timerimpl.h>
 
 
 int timer_delete(
@@ -47,7 +55,7 @@ int timer_delete(
       ptimer->state = POSIX_TIMER_STATE_FREE;
       (void) _Watchdog_Remove( &ptimer->Timer );
       _POSIX_Timer_Free( ptimer );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &ptimer->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

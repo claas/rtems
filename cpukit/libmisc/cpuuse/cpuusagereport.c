@@ -1,12 +1,17 @@
-/*
- *  CPU Usage Reporter
+/**
+ * @file
  *
+ * @brief CPU Usage Report
+ * @ingroup libmisc_cpuuse CPU Usage
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -20,6 +25,9 @@
 #include <inttypes.h>
 
 #include <rtems/cpuuse.h>
+#include <rtems/score/objectimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 #ifndef __RTEMS_USE_TICKS_FOR_STATISTICS__
   static bool is_executing_on_a_core(
@@ -33,13 +41,10 @@
         return true;
       }
     #else
-      int  cpu;
-      for ( cpu=0 ; cpu < rtems_smp_get_number_of_processors() ; cpu++ ) {
-        Per_CPU_Control *p = &_Per_CPU_Information[cpu];
-        if ( p->executing->Object.id == the_thread->Object.id ) {
-          *time_of_context_switch = p->time_of_last_context_switch;
-          return true;
-        }
+      /* FIXME: Locking */
+      if ( the_thread->is_executing ) {
+        *time_of_context_switch = the_thread->cpu->time_of_last_context_switch;
+        return true;
       }
     #endif
     return false;

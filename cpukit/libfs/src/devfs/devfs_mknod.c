@@ -1,7 +1,14 @@
+/**
+ * @file
+ *
+ * @brief Creates an item in the main device table.
+ * @ingroup DevFsDeviceTable Define Device Table Type
+ */
+
 /*
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

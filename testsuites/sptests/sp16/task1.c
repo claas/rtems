@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -37,11 +37,11 @@ rtems_task Task_1(
   directive_failed( status, "rtems_region_ident of RN1" );
 
   puts(
-    "TA1 - rtems_region_get_segment - wait on 100 byte segment from region 2"
+    "TA1 - rtems_region_get_segment - wait on 1000 byte segment from region 2"
   );
   status = rtems_region_get_segment(
     Region_id[ 2 ],
-    100,
+    1000,
     RTEMS_DEFAULT_OPTIONS,
     RTEMS_NO_TIMEOUT,
     &segment_address_1

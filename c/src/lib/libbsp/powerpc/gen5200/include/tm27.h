@@ -1,9 +1,13 @@
 /*
- *  tm27.h
- *
+ * @file
+ * @ingroup powerpc_gen5200
+ * @brief Implementations for interrupt mechanisms for Time Test 27
+ */
+
+/*
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_TMTEST27
@@ -13,6 +17,7 @@
 #ifndef __tm27_h
 #define __tm27_h
 
+#include <bsp/fatal.h>
 #include <bsp/irq.h>
 
 /*
@@ -33,7 +38,7 @@ void Install_tm27_vector(void (*_handler)())
   clockIrqData.hdl = _handler;
   if (!BSP_install_rtems_irq_handler (&clockIrqData)) {
         printk("Error installing clock interrupt handler!\n");
-        rtems_fatal_error_occurred(1);
+        bsp_fatal(MPC5200_FATAL_TM27_IRQ_INSTALL);
   }
 }
 

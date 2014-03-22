@@ -11,7 +11,7 @@
  *
  *  The license and distribution terms for this file may in
  *  the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Modified to support the MPC750.
  *  Modifications Copyright (c) 1999 Eric Valette valette@crf.canon.fr
@@ -98,8 +98,11 @@ static void clockHandler(void)
   #if (CLOCK_DRIVER_USE_FAST_IDLE == 1)
     do {
       rtems_clock_tick();
-    } while ( _Thread_Executing == _Thread_Idle &&
-              _Thread_Heir == _Thread_Executing);
+    } while (
+      _Thread_Heir == _Thread_Executing
+        && _Thread_Executing->Start.entry_point
+          == rtems_configuration_get_idle_task()
+    );
 
   #else
     rtems_clock_tick();

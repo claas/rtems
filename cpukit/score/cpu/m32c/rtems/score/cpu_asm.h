@@ -1,18 +1,20 @@
 /**
- * @file rtems/score/cpu_asm.h
+ * @file
+ * 
+ * @brief M32C CPU Assembly File
+ * 
+ * Very loose template for an include file for the cpu_asm.? file
+ * if it is implemented as a ".S" file (preprocessed by cpp) instead
+ * of a ".s" file (preprocessed by gm4 or gasp).
  */
 
 /*
- *  Very loose template for an include file for the cpu_asm.? file
- *  if it is implemented as a ".S" file (preprocessed by cpp) instead
- *  of a ".s" file (preprocessed by gm4 or gasp).
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

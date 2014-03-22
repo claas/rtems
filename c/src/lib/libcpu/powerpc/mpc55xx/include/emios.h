@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBCPU_POWERPC_MPC55XX_EMIOS_H
@@ -168,7 +168,7 @@ extern "C" {
 
 /** @} */
 
-#if MPC55XX_CHIP_TYPE / 10 == 567
+#if MPC55XX_CHIP_FAMILY == 566 || MPC55XX_CHIP_FAMILY == 567
   #define MPC55XX_EMIOS_CHANNEL_NUMBER 32U
 #else
   #define MPC55XX_EMIOS_CHANNEL_NUMBER 24U

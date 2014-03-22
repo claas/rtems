@@ -32,7 +32,9 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c ../../shared/bsppost.c \
   ../../shared/bsppredriverhook.c ../../shared/bspgetworkarea.c \
   ../../shared/bootcard.c ../../shared/sbrk.c \
   ../../shared/gnatinstallhandler.c ../../shared/bsppretaskinghook.c \
-  ../../shared/bspclean.c startup/bspstart.c startup/memmap.c
+  ../../shared/bspclean.c startup/bspstart.c startup/bspreset.c startup/memmap.c
+libbsp_a_SOURCES += ../../shared/cpucounterread.c
+libbsp_a_SOURCES += ../../shared/cpucounterdiff.c
 
 #console
 libbsp_a_SOURCES += console/uarts.c ../../shared/console.c \
@@ -49,6 +51,12 @@ libbsp_a_SOURCES += ../../shared/src/irq-server.c
 libbsp_a_SOURCES += ../../shared/src/irq-shell.c
 #abort
 libbsp_a_SOURCES += ../shared/abort/abort.c
+
+# Cache
+libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
+libbsp_a_SOURCES += ../../shared/include/cache_.h
+libbsp_a_CPPFLAGS = -I$(srcdir)/../../shared/include
+
 #framebuffer
 if ON_SKYEYE
 libbsp_a_SOURCES += fb/fb.c

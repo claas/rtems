@@ -1,26 +1,28 @@
+/**
+ * @file
+ *
+ * @brief RTEMS File Systems Group Routines
+ * @ingroup rtems_rfs
+ *
+ * These functions open and close a group as well as manage bit allocations
+ * within a group.
+ */
+
 /*
  *  COPYRIGHT (c) 2010 Chris Johns <chrisj@rtems.org>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
-/**
- * @file
- *
- * @ingroup rtems-rfs
- *
- * RTEMS File Systems Group Routines.
- *
- * These functions open and close a group as well as manage bit allocations
- * within a group.
- */
+
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <inttypes.h>
+#include <string.h>
 
 #include <rtems/rfs/rtems-rfs-file-system.h>
 #include <rtems/rfs/rtems-rfs-group.h>
@@ -230,10 +232,24 @@ rtems_rfs_group_bitmap_alloc (rtems_rfs_file_system* fs,
       return 0;
     }
 
+    /*
+     * If we are still looking back and forth around the
+     * group_start, then alternate the direction and
+     * increment the offset on every other iteration.
+     * Otherwise we are marching through the groups, so just
+     * increment the offset.
+     */
     if (updown)
+    {
       direction = direction > 0 ? -1 : 1;
+      if ( direction == -1 )
+        offset++;
+    }
+    else
+    {
+       offset++;
+    }
 
-    offset++;
   }
 
   if (rtems_rfs_trace (RTEMS_RFS_TRACE_GROUP_BITMAPS))

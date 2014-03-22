@@ -1,12 +1,17 @@
-/*
- *  fdatasync() - POSIX 1003.1b 6.6.2 - Synchronize the Data of a File
+/**
+ * @file
  *
+ * @brief POSIX 1003.1b 6.6.2 - Synchronize the Data of a File
+ * @ingroup libcsupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2011.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

@@ -1,9 +1,11 @@
 /**
- *  @file  rtems/system.h
+ * @file
  *
- *  This include file contains information that is included in every
- *  function in the executive.  This must be the first include file
- *  included in all internal RTEMS files.
+ * @brief Information Included in Every Function in the Executive
+ *
+ * This include file contains information that is included in every
+ * function in the executive.  This must be the first include file
+ * included in all internal RTEMS files.
  */
 
 /*
@@ -12,13 +14,20 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SYSTEM_H
 #define _RTEMS_SYSTEM_H
 
 #include <rtems/score/percpu.h>
+
+/**
+ *  @defgroup ScoreSystem System Information
+ *
+ *  @ingroup Score
+ */
+/**@{*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,5 +61,6 @@ extern const char _Copyright_Notice[];
 }
 #endif
 
+/**@}*/
 #endif
 /* end of include file */

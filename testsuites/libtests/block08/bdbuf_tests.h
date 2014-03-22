@@ -6,13 +6,14 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef BDBUF_TESTS_H
 #define BDBUF_TESTS_H
 
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 #include <rtems/diskdevs.h>
 #include <rtems/bdbuf.h>

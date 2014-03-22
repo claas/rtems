@@ -16,12 +16,11 @@ noinst_PROGRAMS =
 
 include_HEADERS += include/coverhd.h
 include_HEADERS += include/page_table.h
-include_HEADERS += include/fatal.h
 
 nodist_include_HEADERS += $(top_srcdir)/../shared/mvme/mvme16x_hw.h
 
 noinst_LIBRARIES = libbspstart.a
-libbspstart_a_SOURCES = ../../m68k/shared/start.S
+libbspstart_a_SOURCES = ../../m68k/shared/start/start.S
 project_lib_DATA = start.$(OBJEXT)
 
 dist_project_lib_DATA += startup/linkcmds
@@ -41,8 +40,6 @@ libbsp_a_SOURCES += startup/bspclean.c ../../shared/bsplibc.c \
 libbsp_a_SOURCES += clock/ckinit.c
 # console
 libbsp_a_SOURCES += console/console.c console/console-recording.h
-# fatal
-libbsp_a_SOURCES += fatal/bspfatal.c
 # timer
 libbsp_a_SOURCES += timer/timer.c timer/timerisr.S
 

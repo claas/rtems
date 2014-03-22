@@ -7,7 +7,7 @@
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
  *
- * http://www.rtems.com/license/LICENSE
+ * http://www.rtems.org/license/LICENSE
  */
 
 #include <bsp.h>
@@ -129,7 +129,7 @@ wifi_signal (struct mbuf *m)
   rtems_interrupt_enable (level);
 
   /* signal the rx daemon */
-  rtems_event_send (softc.rx_id, RECEIVE_EVENT);
+  rtems_bsdnet_event_send (softc.rx_id, RECEIVE_EVENT);
 }
 
 
@@ -309,7 +309,7 @@ wifi_start (struct ifnet *ifp)
 {
   /* wake up the send daemon */
   ifp->if_flags |= IFF_OACTIVE;
-  rtems_event_send (softc.tx_id, TRANSMIT_EVENT);
+  rtems_bsdnet_event_send (softc.tx_id, TRANSMIT_EVENT);
 }
 
 /*

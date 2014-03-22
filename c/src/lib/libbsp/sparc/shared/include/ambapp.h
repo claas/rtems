@@ -1,12 +1,18 @@
+/**
+ * @file
+ * @ingroup sparc_bsp
+ * @defgroup amba AMBA
+ * @ingroup amba
+ * @brief AMBA Plug &Play routines
+ */
+
 /*
- *  AMBA Plug & Play routines
- *
  *  COPYRIGHT (c) 2009.
  *  Aeroflex Gaisler.
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __AMBAPP_H__
@@ -352,6 +358,16 @@ extern int ambapp_find_ahbslvs(
 	struct ambapp_ahb_info *dev,
 	int maxno);
 
+
+extern int ambapp_get_number_ahbslv_devices(
+	struct ambapp_bus *abus,
+	int vendor,
+	int device);
+
+extern int ambapp_get_number_apbslv_devices(
+	struct ambapp_bus *abus,
+	int vendor,
+	int device);
 
 #ifdef __cplusplus
 }

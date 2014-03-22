@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (c) 2008-2011 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2008-2014 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
  *  Obere Lagerstr. 30
@@ -15,7 +15,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems/asm.h>
@@ -31,6 +31,22 @@
 	.extern	boot_card
 	.extern	bsp_start_hook_0
 	.extern	bsp_start_hook_1
+	.extern bsp_stack_irq_end
+	.extern bsp_stack_fiq_end
+	.extern bsp_stack_abt_end
+	.extern bsp_stack_und_end
+	.extern bsp_stack_svc_end
+#ifdef RTEMS_SMP
+	.extern bsp_stack_all_size
+#endif
+	.extern	_ARMV4_Exception_undef_default
+	.extern	_ARMV4_Exception_swi_default
+	.extern	_ARMV4_Exception_data_abort_default
+	.extern	_ARMV4_Exception_pref_abort_default
+	.extern	_ARMV4_Exception_reserved_default
+	.extern	_ARMV4_Exception_interrupt
+	.extern	_ARMV4_Exception_fiq_default
+	.extern	_ARMV7M_Exception_default
 
 	/* Global symbols */
 	.globl	_start
@@ -74,31 +90,31 @@ handler_addr_reset:
 
 handler_addr_undef:
 
-	.word	reset
+	.word	_ARMV4_Exception_undef_default
 
 handler_addr_swi:
 
-	.word	reset
+	.word	_ARMV4_Exception_swi_default
 
 handler_addr_prefetch:
 
-	.word	reset
+	.word	_ARMV4_Exception_pref_abort_default
 
 handler_addr_abort:
 
-	.word	reset
+	.word	_ARMV4_Exception_data_abort_default
 
 handler_addr_reserved:
 
-	.word	reset
+	.word	_ARMV4_Exception_reserved_default
 
 handler_addr_irq:
 
-	.word	reset
+	.word	_ARMV4_Exception_interrupt
 
 handler_addr_fiq:
 
-	.word	reset
+	.word	_ARMV4_Exception_fiq_default
 
 bsp_start_vector_table_end:
 
@@ -110,6 +126,16 @@ _start:
 	 * We do not save the context since we do not return to the boot
 	 * loader.
 	 */
+
+#ifdef RTEMS_SMP
+	/* Read MPIDR */
+	mrc	p15, 0, r0, c0, c0, 5
+
+	/* Calculate stack offset */
+	and	r0, #0xff
+	ldr	r1, =bsp_stack_all_size
+	mul	r1, r0
+#endif
 
 	/*
 	 * Set SVC mode, disable interrupts and enable ARM instructions.
@@ -123,28 +149,63 @@ _start:
 	mov	r0, #(ARM_PSR_M_IRQ | ARM_PSR_I | ARM_PSR_F)
 	msr	cpsr, r0
 	ldr	sp, =bsp_stack_irq_end
+#ifdef RTEMS_SMP
+	add	sp, r1
+#endif
 
 	/* Enter FIQ mode and set up the FIQ stack pointer */
 	mov	r0, #(ARM_PSR_M_FIQ | ARM_PSR_I | ARM_PSR_F)
 	msr	cpsr, r0
 	ldr	sp, =bsp_stack_fiq_end
+#ifdef RTEMS_SMP
+	add	sp, r1
+#endif
 
 	/* Enter ABT mode and set up the ABT stack pointer */
 	mov	r0, #(ARM_PSR_M_ABT | ARM_PSR_I | ARM_PSR_F)
 	msr	cpsr, r0
 	ldr	sp, =bsp_stack_abt_end
+#ifdef RTEMS_SMP
+	add	sp, r1
+#endif
 
 	/* Enter UND mode and set up the UND stack pointer */
 	mov	r0, #(ARM_PSR_M_UND | ARM_PSR_I | ARM_PSR_F)
 	msr	cpsr, r0
 	ldr	sp, =bsp_stack_und_end
+#ifdef RTEMS_SMP
+	add	sp, r1
+#endif
 
 	/* Enter SVC mode and set up the SVC stack pointer */
 	mov	r0, #(ARM_PSR_M_SVC | ARM_PSR_I | ARM_PSR_F)
 	msr	cpsr, r0
 	ldr	sp, =bsp_stack_svc_end
+#ifdef RTEMS_SMP
+	add	sp, r1
+#endif
 
 	/* Stay in SVC mode */
+
+#ifdef ARM_MULTILIB_VFP_D32
+	/* Read CPACR */
+	mrc p15, 0, r0, c1, c0, 2
+
+	/* Enable CP10 and CP11 */
+	orr r0, r0, #(1 << 20)
+	orr r0, r0, #(1 << 22)
+
+	/* Clear ASEDIS and D32DIS */
+	bic r0, r0, #(3 << 30)
+
+	/* Write CPACR */
+	mcr p15, 0, r0, c1, c0, 2
+	isb
+
+	/* Enable FPU */
+	mov r0, #(1 << 30)
+	vmsr FPEXC, r0
+#endif
 
 	/*
 	 * Branch to start hook 0.
@@ -178,10 +239,14 @@ bsp_start_hook_0_done:
 
 	ldr	r0, =bsp_vector_table_begin
 	adr	r1, bsp_start_vector_table_begin
+	cmp	r0, r1
+	beq	bsp_vector_table_copy_done
 	ldmia	r1!, {r2-r9}
 	stmia	r0!, {r2-r9}
 	ldmia	r1!, {r2-r9}
 	stmia	r0!, {r2-r9}
+
+bsp_vector_table_copy_done:
 
 	SWITCH_FROM_ARM_TO_THUMB	r0
 
@@ -199,13 +264,6 @@ twiddle:
 
 	b	twiddle
 
-.arm
-
-reset:
-
-	SWITCH_FROM_ARM_TO_THUMB	r0
-	b	twiddle
-
 #elif defined(ARM_MULTILIB_ARCH_V7M)
 
 	.syntax	unified
@@ -218,22 +276,22 @@ bsp_start_vector_table_begin:
 
 	.word	bsp_stack_main_end
 	.word	_start /* Reset */
-	.word	bsp_reset /* NMI */
-	.word	bsp_reset /* Hard Fault */
-	.word	bsp_reset /* MPU Fault */
-	.word	bsp_reset /* Bus Fault */
-	.word	bsp_reset /* Usage Fault */
-	.word	bsp_reset /* Reserved */
-	.word	bsp_reset /* Reserved */
-	.word	bsp_reset /* Reserved */
-	.word	bsp_reset /* Reserved */
-	.word	bsp_reset /* SVC */
-	.word	bsp_reset /* Debug Monitor */
-	.word	bsp_reset /* Reserved */
-	.word	bsp_reset /* PendSV */
-	.word	bsp_reset /* SysTick */
+	.word	_ARMV7M_Exception_default /* NMI */
+	.word	_ARMV7M_Exception_default /* Hard Fault */
+	.word	_ARMV7M_Exception_default /* MPU Fault */
+	.word	_ARMV7M_Exception_default /* Bus Fault */
+	.word	_ARMV7M_Exception_default /* Usage Fault */
+	.word	_ARMV7M_Exception_default /* Reserved */
+	.word	_ARMV7M_Exception_default /* Reserved */
+	.word	_ARMV7M_Exception_default /* Reserved */
+	.word	_ARMV7M_Exception_default /* Reserved */
+	.word	_ARMV7M_Exception_default /* SVC */
+	.word	_ARMV7M_Exception_default /* Debug Monitor */
+	.word	_ARMV7M_Exception_default /* Reserved */
+	.word	_ARMV7M_Exception_default /* PendSV */
+	.word	_ARMV7M_Exception_default /* SysTick */
 	.rept	BSP_INTERRUPT_VECTOR_MAX + 1
-	.word	bsp_reset /* IRQ */
+	.word	_ARMV7M_Exception_default /* IRQ */
 	.endr
 
 bsp_start_vector_table_end:

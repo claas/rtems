@@ -1,17 +1,20 @@
 /**
- * @file rtems/score/h8300.h
+ * @file
+ *
+ * @brief Information Required to Build RTEMS for a Particular Member
+ * of the Hitachi H8/300 Family
+ *
+ * This file contains information pertaining to the Hitachi H8/300
+ * processor family.
  */
 
 /*
- *  This file contains information pertaining to the Hitachi H8/300
- *  processor family.
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_H8300_H

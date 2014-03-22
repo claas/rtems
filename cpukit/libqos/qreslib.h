@@ -1,8 +1,11 @@
 /**
  * @file qreslib.h
  *
- *  This include file contains all the constants and structures associated
- *  with the QoS RES library in RTEMS.
+ * @brief Constants and Structures Associated
+ * with the QoS RES library in RTEMS
+ *
+ * This include file contains all the constants and structures
+ * associated with the QoS RES library in RTEMS.
  *
  * @note The library is available only together with CBS scheduler.
  */
@@ -13,7 +16,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef CONFIGURE_SCHEDULER_CBS
@@ -64,9 +67,9 @@ typedef time_t qres_atime_t;
 /** Server parameters. */
 typedef struct {
   /** Relative deadline of the server. */
-  uint32_t P;
+  qres_time_t P;
   /** Budget (computation time) of the server. */
-  uint32_t Q;
+  qres_time_t Q;
 } qres_params_t;
 
 /**

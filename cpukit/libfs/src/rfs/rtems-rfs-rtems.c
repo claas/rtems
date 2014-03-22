@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief RTEMS File System Interface for RTEMS
+ * @ingroup rtems_rfs
+ */
+
 /*
  *  COPYRIGHT (c) 2010 Chris Johns <chrisj@rtems.org>
  *
@@ -6,21 +13,16 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
- */
-/**
- * @file
- *
- * @ingroup rtems-rfs
- *
- * RTEMS File System Interface for RTEMS.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <sys/param.h>
 #include <inttypes.h>
+#include <string.h>
 #include <stdlib.h>
 
 #if SIZEOF_MODE_T == 8
@@ -467,10 +469,6 @@ rtems_rfs_rtems_fchmod (const rtems_filesystem_location_info_t* pathloc,
   rtems_rfs_file_system*  fs = rtems_rfs_rtems_pathloc_dev (pathloc);
   rtems_rfs_ino           ino = rtems_rfs_rtems_get_pathloc_ino (pathloc);
   rtems_rfs_inode_handle  inode;
-  uint16_t                imode;
-#if defined (RTEMS_POSIX_API)
-  uid_t                   uid;
-#endif
   int                     rc;
 
   if (rtems_rfs_rtems_trace (RTEMS_RFS_RTEMS_DEBUG_FCHMOD))
@@ -483,25 +481,7 @@ rtems_rfs_rtems_fchmod (const rtems_filesystem_location_info_t* pathloc,
     return rtems_rfs_rtems_error ("fchmod: opening inode", rc);
   }
 
-  imode = rtems_rfs_inode_get_mode (&inode);
-
-  /*
-   *  Verify I am the owner of the node or the super user.
-   */
-#if defined (RTEMS_POSIX_API)
-  uid = geteuid();
-
-  if ((uid != rtems_rfs_inode_get_uid (&inode)) && (uid != 0))
-  {
-    rtems_rfs_inode_close (fs, &inode);
-    return rtems_rfs_rtems_error ("fchmod: checking uid", EPERM);
-  }
-#endif
-
-  imode &= ~(S_IRWXU | S_IRWXG | S_IRWXO | S_ISUID | S_ISGID | S_ISVTX);
-  imode |= mode & (S_IRWXU | S_IRWXG | S_IRWXO | S_ISUID | S_ISGID | S_ISVTX);
-
-  rtems_rfs_inode_set_mode (&inode, imode);
+  rtems_rfs_inode_set_mode (&inode, mode);
 
   rc = rtems_rfs_inode_close (fs, &inode);
   if (rc > 0)
@@ -609,13 +589,8 @@ rtems_rfs_rtems_mknod (const rtems_filesystem_location_info_t *parentloc,
   gid_t                   gid;
   int                     rc;
 
-#if defined(RTEMS_POSIX_API)
   uid = geteuid ();
   gid = getegid ();
-#else
-  uid = 0;
-  gid = 0;
-#endif
 
   rc = rtems_rfs_inode_create (fs, parent, name, namelen,
                                rtems_rfs_rtems_imode (mode),
@@ -677,9 +652,6 @@ rtems_rfs_rtems_rmnod (const rtems_filesystem_location_info_t* parent_pathloc,
   if (rtems_rfs_rtems_trace (RTEMS_RFS_RTEMS_DEBUG_RMNOD))
     printf ("rtems-rfs: rmnod: parent:%" PRId32 " doff:%" PRIu32 ", ino:%" PRId32 "\n",
             parent, doff, ino);
-
-  if (ino == RTEMS_RFS_ROOT_INO)
-    return rtems_rfs_rtems_error ("rmnod: root inode", EBUSY);
 
   rc = rtems_rfs_unlink (fs, parent, ino, doff, rtems_rfs_unlink_dir_if_empty);
   if (rc)
@@ -768,8 +740,9 @@ rtems_rfs_rtems_rename(const rtems_filesystem_location_info_t* old_parent_loc,
  * @return int
  */
 static int
-rtems_rfs_rtems_statvfs (const rtems_filesystem_location_info_t* pathloc,
-                         struct statvfs*                         sb)
+rtems_rfs_rtems_statvfs (
+  const rtems_filesystem_location_info_t *__restrict pathloc,
+  struct statvfs *__restrict                         sb)
 {
   rtems_rfs_file_system* fs = rtems_rfs_rtems_pathloc_dev (pathloc);
   size_t                 blocks;
@@ -780,7 +753,7 @@ rtems_rfs_rtems_statvfs (const rtems_filesystem_location_info_t* pathloc,
   sb->f_bsize   = rtems_rfs_fs_block_size (fs);
   sb->f_frsize  = rtems_rfs_fs_media_block_size (fs);
   sb->f_blocks  = rtems_rfs_fs_media_blocks (fs);
-  sb->f_bfree   = rtems_rfs_fs_blocks (fs) - blocks;
+  sb->f_bfree   = rtems_rfs_fs_blocks (fs) - blocks - 1; /* do not count the superblock */
   sb->f_bavail  = sb->f_bfree;
   sb->f_files   = rtems_rfs_fs_inodes (fs);
   sb->f_ffree   = rtems_rfs_fs_inodes (fs) - inodes;
@@ -807,7 +780,11 @@ const rtems_filesystem_file_handlers_r rtems_rfs_rtems_link_handlers =
   .ftruncate_h = rtems_filesystem_default_ftruncate,
   .fsync_h     = rtems_filesystem_default_fsync_or_fdatasync,
   .fdatasync_h = rtems_filesystem_default_fsync_or_fdatasync,
-  .fcntl_h     = rtems_filesystem_default_fcntl
+  .fcntl_h     = rtems_filesystem_default_fcntl,
+  .kqfilter_h  = rtems_filesystem_default_kqfilter,
+  .poll_h      = rtems_filesystem_default_poll,
+  .readv_h     = rtems_filesystem_default_readv,
+  .writev_h    = rtems_filesystem_default_writev
 };
 
 /**
@@ -915,7 +892,7 @@ rtems_rfs_rtems_initialise (rtems_filesystem_mount_table_entry_t* mt_entry,
   if (rc)
   {
     free (rtems);
-    return rtems_rfs_rtems_error ("initialise: open", rc);
+    return rtems_rfs_rtems_error ("initialise: open", errno);
   }
 
   mt_entry->fs_info                          = fs;

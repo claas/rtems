@@ -1,12 +1,17 @@
-/*
- *  POSIX RWLock Manager -- Attempt to Obtain a Read Lock on a RWLock Instance
+/**
+ * @file
  *
+ * @brief Attempt to Obtain a Read Lock on a RWLock Instance
+ * @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,8 +21,8 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/posix/rwlock.h>
+#include <rtems/posix/rwlockimpl.h>
+#include <rtems/score/thread.h>
 
 /*
  *  pthread_rwlock_tryrdlock
@@ -38,6 +43,7 @@ int pthread_rwlock_tryrdlock(
 {
   POSIX_RWLock_Control  *the_rwlock;
   Objects_Locations      location;
+  Thread_Control        *executing;
 
   if ( !rwlock )
     return EINVAL;
@@ -47,18 +53,20 @@ int pthread_rwlock_tryrdlock(
 
     case OBJECTS_LOCAL:
 
+      executing = _Thread_Executing;
       _CORE_RWLock_Obtain_for_reading(
-	&the_rwlock->RWLock,
-	*rwlock,
-	false,                  /* do not wait for the rwlock */
-	0,
-	NULL
+        &the_rwlock->RWLock,
+        executing,
+        *rwlock,
+        false,                  /* do not wait for the rwlock */
+        0,
+        NULL
       );
 
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_rwlock->Object );
       return _POSIX_RWLock_Translate_core_RWLock_return_code(
-        (CORE_RWLock_Status) _Thread_Executing->Wait.return_code
+        (CORE_RWLock_Status) executing->Wait.return_code
       );
 
 #if defined(RTEMS_MULTIPROCESSING)

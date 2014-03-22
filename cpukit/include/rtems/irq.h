@@ -16,7 +16,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_IRQ_H
@@ -176,6 +176,27 @@ int BSP_remove_rtems_irq_handler        (const rtems_irq_connect_data*);
 #ifdef BSP_SHARED_HANDLER_SUPPORT
 int BSP_install_rtems_shared_irq_handler  (const rtems_irq_connect_data*);
 #endif
+
+/*
+ * Less cumbersome, alternate entry points;
+ * RETURNS: more traditional, 0 on success, nonzero on error
+ *
+ * The BSP_rtems_int_connect() and BSP_rtems_int_disconnect() functions are
+ * only present on some PowerPC BSPs.  Do not use them.  Use
+ * rtems_interrupt_handler_install() instead.
+ */
+
+int BSP_rtems_int_connect(
+  rtems_irq_number n,
+  rtems_irq_hdl hdl,
+  rtems_irq_hdl_param p
+);
+
+int BSP_rtems_int_disconnect(
+  rtems_irq_number n,
+  rtems_irq_hdl hdl,
+  rtems_irq_hdl_param p
+);
 
 /*
  * ----------------- RTEMS Global Irq Handler Mngt Routines ----------------

@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (c) 2010-2011 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2010-2012 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
  *  Obere Lagerstr. 30
@@ -17,12 +17,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_SHARED_LPC_DMA_H
 #define LIBBSP_ARM_SHARED_LPC_DMA_H
 
+#include <bspopts.h>
 #include <bsp/utility.h>
 
 #ifdef __cplusplus
@@ -32,8 +33,8 @@ extern "C" {
 /**
  * @defgroup lpc_dma DMA Support
  *
- * @ingroup lpc24xx
- * @ingroup lpc32xx
+ * @ingroup arm_lpc24xx
+ * @ingroup arm_lpc32xx
  *
  * @brief DMA support.
  *
@@ -78,7 +79,7 @@ typedef struct {
   uint32_t cfg;
   uint32_t sync;
   uint32_t reserved [50];
-  lpc_dma_channel channels [];
+  lpc_dma_channel channels [LPC_DMA_CHANNEL_COUNT];
 } lpc_dma;
 
 /**

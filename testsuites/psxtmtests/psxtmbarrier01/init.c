@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2012.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,7 +40,7 @@ static void benchmark_pthread_barrier_init(void)
   rtems_test_assert( status == 0 );
 
   put_time(
-    "pthread_barrier_init",
+    "pthread_barrier_init: only case",
     end_time,
     1,        /* Only executed once */
     0,
@@ -59,7 +59,7 @@ static void benchmark_pthread_barrier_destroy(void)
   rtems_test_assert( status == 0 );
 
   put_time(
-    "pthread_barrier_destroy",
+    "pthread_barrier_destroy: only case",
     end_time,
     1,        /* Only executed once */
     0,

@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <assert.h>
@@ -113,7 +113,7 @@ static void mpci_receive_packet(rtems_packet_prefix **prefix_ptr)
 
 rtems_mpci_table qoriq_intercom_mpci = {
 	.default_timeout = UINT32_MAX,
-	.maximum_packet_size = 512 - sizeof(rtems_packet_prefix),
+	.maximum_packet_size = 512,
 	.initialization = mpci_init,
 	.get_packet = mpci_get_packet,
 	.return_packet = mpci_return_packet,

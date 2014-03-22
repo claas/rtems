@@ -14,18 +14,18 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
-#include <string.h>
-
-#include <rtems/system.h>
-#include <rtems/score/heap.h>
+#include <rtems/score/heapimpl.h>
+#include <rtems/score/threadimpl.h>
 #include <rtems/score/interr.h>
+
+#include <string.h>
 
 #if CPU_ALIGNMENT == 0 || CPU_ALIGNMENT % 2 != 0
   #error "invalid CPU_ALIGNMENT value"
@@ -132,7 +132,7 @@ static uint32_t instance = 0;
     block->Protection_begin.protector [0] = HEAP_BEGIN_PROTECTOR_0;
     block->Protection_begin.protector [1] = HEAP_BEGIN_PROTECTOR_1;
     block->Protection_begin.next_delayed_free_block = NULL;
-    block->Protection_begin.task = _Thread_Executing;
+    block->Protection_begin.task = _Thread_Get_executing();
     block->Protection_begin.tag = NULL;
     block->Protection_end.protector [0] = HEAP_END_PROTECTOR_0;
     block->Protection_end.protector [1] = HEAP_END_PROTECTOR_1;
@@ -159,7 +159,7 @@ static uint32_t instance = 0;
   )
   {
     /* FIXME */
-    _Internal_error_Occurred( INTERNAL_ERROR_CORE, false, 0xdeadbeef );
+    _Terminate( INTERNAL_ERROR_CORE, false, 0xdeadbeef );
   }
 #endif
 

@@ -1,3 +1,11 @@
+/**
+ * @file
+ * 
+ * @ingroup lm32_evr
+ *
+ * @brief C overhead definitions.
+ */
+
 /*  coverhd.h
  *
  *  This include file has defines to represent the overhead associated
@@ -19,7 +27,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __COVERHD_h

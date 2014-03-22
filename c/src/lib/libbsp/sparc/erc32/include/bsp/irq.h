@@ -1,10 +1,16 @@
+/**
+ * @file
+ * @ingroup sparc_erc32
+ * @brief ERC32 generic shared IRQ setup
+ */
+
 /* ERC32 generic shared IRQ setup
  *
  * Based on libbsp/shared/include/irq.h.
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ERC32_IRQ_CONFIG_H

@@ -1,40 +1,25 @@
-/*
- *  Barrier Manager -- Delete a Barrier
+/**
+ *  @file
  *
+ *  @brief RTEMS Delete Barrier
+ *  @ingroup ClassicBarrier
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/support.h>
-#include <rtems/rtems/barrier.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-
-/*
- *  rtems_barrier_delete
- *
- *  This directive allows a thread to delete a barrier specified by
- *  the barrier id.  The barrier is freed back to the inactive
- *  barrier chain.
- *
- *  Input parameters:
- *    id - barrier id
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/rtems/barrierimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 rtems_status_code rtems_barrier_delete(
   rtems_id   id
@@ -57,7 +42,7 @@ rtems_status_code rtems_barrier_delete(
 
       _Barrier_Free( the_barrier );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_barrier->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

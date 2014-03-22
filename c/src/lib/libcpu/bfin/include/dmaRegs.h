@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _dmaRegs_h_
@@ -95,4 +95,3 @@
 #define HMDMA_CONTROL_HMDMAEN                         0x0001
 
 #endif /* _dmaRegs_h_ */
-

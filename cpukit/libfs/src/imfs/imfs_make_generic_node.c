@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief IMFS Make a Generic Node
+ * @ingroup IMFS
+ */
+
 /*
  * Copyright (c) 2012 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,6 +24,8 @@
 #endif
 
 #include "imfs.h"
+
+#include <string.h>
 
 IMFS_jnode_t *IMFS_node_initialize_generic(
   IMFS_jnode_t *node,
@@ -54,13 +63,14 @@ int IMFS_make_generic_node(
     case S_IFCHR:
     case S_IFIFO:
     case S_IFREG:
+    case S_IFSOCK:
       break;
     default:
       errno = EINVAL;
       rv = -1;
       break;
   }
-  
+
   if ( rv == 0 ) {
     if ( node_control->imfs_type == IMFS_GENERIC ) {
       rtems_filesystem_eval_path_context_t ctx;
@@ -87,8 +97,7 @@ int IMFS_make_generic_node(
         if ( new_node != NULL ) {
           IMFS_jnode_t *parent = currentloc->node_access;
 
-          IMFS_update_ctime( parent );
-          IMFS_update_mtime( parent );
+          IMFS_mtime_ctime_update( parent );
         } else {
           rv = -1;
         }

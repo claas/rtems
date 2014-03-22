@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Message Queue Receive
+ *  @ingroup ClassicMessageQueue
+ */
+
 /*
- *  Message Queue Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,40 +19,16 @@
 #endif
 
 #include <rtems/system.h>
-#include <rtems/score/sysstate.h>
 #include <rtems/score/chain.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/coremsg.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
+#include <rtems/score/coremsgimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/wkspace.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
 #include <rtems/rtems/status.h>
-#include <rtems/rtems/attr.h>
-#include <rtems/rtems/message.h>
-#include <rtems/rtems/options.h>
+#include <rtems/rtems/attrimpl.h>
+#include <rtems/rtems/messageimpl.h>
+#include <rtems/rtems/optionsimpl.h>
 #include <rtems/rtems/support.h>
-
-/*
- *  rtems_message_queue_receive
- *
- *  This directive dequeues a message from the designated message queue
- *  and copies it into the requesting thread's buffer.
- *
- *  Input parameters:
- *    id         - queue id
- *    buffer     - pointer to message buffer
- *    size       - size of message receive
- *    option_set - options on receive
- *    timeout    - number of ticks to wait
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
 
 rtems_status_code rtems_message_queue_receive(
   rtems_id        id,
@@ -58,9 +38,10 @@ rtems_status_code rtems_message_queue_receive(
   rtems_interval  timeout
 )
 {
-  register Message_queue_Control *the_message_queue;
+  Message_queue_Control          *the_message_queue;
   Objects_Locations               location;
   bool                            wait;
+  Thread_Control                 *executing;
 
   if ( !buffer )
     return RTEMS_INVALID_ADDRESS;
@@ -77,17 +58,19 @@ rtems_status_code rtems_message_queue_receive(
       else
         wait = true;
 
+      executing = _Thread_Executing;
       _CORE_message_queue_Seize(
         &the_message_queue->message_queue,
+        executing,
         the_message_queue->Object.id,
         buffer,
         size,
         wait,
         timeout
       );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_message_queue->Object );
       return _Message_queue_Translate_core_message_queue_return_code(
-        _Thread_Executing->Wait.return_code
+        executing->Wait.return_code
       );
 
 #if defined(RTEMS_MULTIPROCESSING)

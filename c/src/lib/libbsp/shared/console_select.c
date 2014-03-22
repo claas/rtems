@@ -15,10 +15,11 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
+#include <bsp/fatal.h>
 #include <rtems/libio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -71,7 +72,7 @@ static rtems_device_minor_number bsp_First_Available_Device( void )
   /*
    *  Error No devices were found.  We will want to bail here.
    */
-  rtems_fatal_error_occurred(RTEMS_IO_ERROR);
+  bsp_fatal(BSP_FATAL_CONSOLE_NO_DEV);
 }
 
 void bsp_console_select(void)
@@ -91,10 +92,6 @@ void bsp_console_select(void)
    * let the user know and select the first available device.
    */
   if ( !bsp_Is_Available( Console_Port_Minor ) ) {
-    printk(
-      "Error finding %s setting console to first available\n",
-      Console_Port_Tbl[Console_Port_Minor]->sDeviceName
-    );
     Console_Port_Minor = bsp_First_Available_Device();
   }
 }

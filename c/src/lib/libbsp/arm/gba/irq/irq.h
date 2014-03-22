@@ -1,9 +1,11 @@
 /**
- *  @file irq.h
+ * @file
  *
- *  This include file describe the data structure and the functions implemented
- *  by rtems to write interrupt handlers.
+ * @ingroup gba_interrupt
+ *
+ * @brief Interrupt definitions.
  */
+
 /*
  *  RTEMS GBA BSP
  *
@@ -13,7 +15,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __asm__
@@ -26,6 +28,14 @@
 
 #ifndef _IRQ_H_
 #define _IRQ_H_
+
+/**
+ * @defgroup gba_interrupt Interrupt Support
+ * 
+ * @ingroup arm_gba
+ * 
+ * @brief Interrupt support.
+ */
 
 /*---------------------------------------------------------------------------*
  *  MACROS                                                                   *

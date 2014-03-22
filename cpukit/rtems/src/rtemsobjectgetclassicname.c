@@ -1,39 +1,26 @@
+/**
+ *  @file
+ *
+ *  @brief Obtain Name of Object
+ *  @ingroup ClassicClassInfo
+ */
+
 /*
- *  RTEMS ID To Name Lookup
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/types.h>
 #include <rtems/rtems/object.h>
-
-/*
- *  rtems_object_get_classic_name
- *
- *  This directive returns the name associated with the specified
- *  object ID.
- *
- *  Input parameters:
- *    id   - message queue id
- *
- *  Output parameters:
- *    *name            - user defined object name
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/rtems/statusimpl.h>
+#include <rtems/score/objectimpl.h>
 
 rtems_status_code rtems_object_get_classic_name(
   rtems_id      id,

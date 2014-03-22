@@ -1,5 +1,5 @@
 /*
- *  This file contains the termios TTY driver for the i386 
+ *  This file contains the termios TTY driver for the i386
  *  vga.
  *
  *  COPYRIGHT (c) 1989-2011.
@@ -7,7 +7,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
@@ -20,22 +20,10 @@
 #include <bsp/irq.h>
 #include <bsp.h>
 #include <crt.h>
+#include <assert.h>
+#include "keyboard.h"
 
 #define VGACONS_STATIC static
-
-static int isr_is_on(const rtems_irq_connect_data *irq)
-{
-  return BSP_irq_enabled_at_i8259s(irq->name);
-}
-
-static rtems_irq_connect_data keyboard_isr_data = {
-  BSP_KEYBOARD,
-  keyboard_interrupt,
-  0,
-  NULL,
-  NULL,
-  isr_is_on
-};
 
 /*
  *  vgacons_init
@@ -44,7 +32,7 @@ static rtems_irq_connect_data keyboard_isr_data = {
  */
 VGACONS_STATIC void vgacons_init(int minor)
 {
-  /* 
+  /*
    * Note:  We do not initialize the KBD interface here since
    *        it was initialized regardless of whether the
    *        vga is available or not.  Therefore it is initialized
@@ -160,7 +148,7 @@ bool vgacons_probe(
   int minor
 )
 {
-  int         status;
+  rtems_status_code status;
   static bool firstTime = true;
 
   if ((*(unsigned char*) NB_MAX_ROW_ADDR == 0) &&
@@ -175,18 +163,21 @@ bool vgacons_probe(
    *  can be COM1 and you can still use the mouse/VGA for graphics.
    */
   if ( firstTime ) {
-    status = BSP_install_rtems_irq_handler(&keyboard_isr_data);
-    if (!status) {
-      printk("Error installing keyboard interrupt handler!\n");
-      rtems_fatal_error_occurred(status);
-    }
+    status = rtems_interrupt_handler_install(
+      BSP_KEYBOARD,
+      "vgacons",
+      RTEMS_INTERRUPT_UNIQUE,
+      keyboard_interrupt,
+      NULL
+    );
+    assert(status == RTEMS_SUCCESSFUL);
   }
   firstTime = false;
 
   return true;
 }
 
-console_fns vgacons_fns =
+const console_fns vgacons_fns =
 {
   libchip_serial_default_probe,        /* deviceProbe */
   vgacons_open,                        /* deviceFirstOpen */

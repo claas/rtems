@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15,6 +15,8 @@
 #include <termios.h>
 #include <errno.h>
 #include <unistd.h>
+
+const char rtems_test_name[] = "TERMIOS 2";
 
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
@@ -28,7 +30,7 @@ rtems_task Init(
   char *term_name_p;
   char term_name[32];
 
-  puts( "\n\n*** TERMIOS 02 TEST ***" );
+  TEST_BEGIN();
 
   puts( "tcdrain(12) - EBADF" );
   sc = tcdrain(12);
@@ -47,56 +49,63 @@ rtems_task Init(
   tcdrain(2);
   rtems_test_assert( !sc );
 
-  puts( "" ); 
+  puts( "" );
 
   /***** TEST TCFLOW *****/
   puts( "tcflow(stdin, TCOOFF) - ENOTSUP" );
+  errno = 0;
   sc = tcflow( 0, TCOOFF );
   rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( errno == ENOTSUP );
 
   puts( "tcflow(stdin, TCOON) - ENOTSUP" );
+  errno = 0;
   sc = tcflow( 0, TCOON );
   rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( errno == ENOTSUP );
 
   puts( "tcflow(stdin, TCIOFF) - ENOTSUP" );
+  errno = 0;
   sc = tcflow( 0, TCIOFF );
   rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( errno == ENOTSUP );
 
   puts( "tcflow(stdin, TCION) - ENOTSUP" );
+  errno = 0;
   sc = tcflow( 0, TCION );
   rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( errno == ENOTSUP );
 
   puts( "tcflow(stdin, 22) - EINVAL" );
+  errno = 0;
   sc = tcflow( 0, 22 );
   rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = EINVAL );
+  rtems_test_assert( errno == EINVAL );
 
-  puts( "" ); 
+  puts( "" );
 
   /***** TEST TCFLUSH *****/
-  puts( "tcflush(stdin, TCIFLUSH) - ENOTSUP" );
+  puts( "tcflush(stdin, TCIFLUSH) - OK" );
+  errno = 0;
   sc = tcflush( 0, TCIFLUSH );
-  rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( sc == 0 );
+  rtems_test_assert( errno == 0 );
 
-  puts( "tcflush(stdin, TCOFLUSH) - ENOTSUP" );
+  puts( "tcflush(stdin, TCOFLUSH) - OK" );
   sc = tcflush( 0, TCOFLUSH );
-  rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( sc == 0 );
+  rtems_test_assert( errno == 0 );
 
-  puts( "tcflush(stdin, TCIOFLUSH) - ENOTSUP" );
+  puts( "tcflush(stdin, TCIOFLUSH) - OK" );
   sc = tcflush( 0, TCIOFLUSH );
-  rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = ENOTSUP );
+  rtems_test_assert( sc == 0 );
+  rtems_test_assert( errno == 0 );
 
   puts( "tcflush(stdin, 22) - EINVAL" );
+  errno = 0;
   sc = tcflush( 0, 22 );
   rtems_test_assert( sc == -1 );
-  rtems_test_assert( errno = EINVAL );
+  rtems_test_assert( errno == EINVAL );
 
   puts( "" );
 
@@ -129,7 +138,7 @@ rtems_task Init(
   rtems_test_assert( term_name_p == term_name );
   printf( "ctermid ==> %s\n", term_name_p );
 
-  puts( "*** END OF TERMIOS 02 TEST ***" );
+  TEST_END();
   exit( 0 );
 }
 
@@ -140,6 +149,8 @@ rtems_task Init(
 
 #define CONFIGURE_MAXIMUM_TASKS            1
 #define CONFIGURE_USE_DEVFS_AS_BASE_FILESYSTEM
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

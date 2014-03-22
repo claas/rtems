@@ -1,12 +1,16 @@
-/*
- *  POSIX RWLock Manager -- Destroy a RWLock
+/**
+ *  @file
  *
+ *  @brief Destroy a RWLock
+ *  @ingroup POSIXAPI
+ */
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,24 +20,20 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/posix/rwlock.h>
+#include <rtems/posix/rwlockimpl.h>
+#include <rtems/score/threadqimpl.h>
 
-/*
- *  pthread_rwlock_destroy
- *
+/**
  *  This directive allows a thread to delete a rwlock specified by
  *  the rwlock id.  The rwlock is freed back to the inactive
  *  rwlock chain.
  *
- *  Input parameters:
- *    rwlock - rwlock id
+ *  @param[in] rwlock is the rwlock id
  *
- *  Output parameters:
- *    0           - if successful
- *    error code  - if unsuccessful
+ *  @return This method returns 0 if there was not an
+ *  error. Otherwise, a status code is returned indicating the
+ *  source of the error.
  */
-
 int pthread_rwlock_destroy(
   pthread_rwlock_t *rwlock
 )
@@ -52,7 +52,7 @@ int pthread_rwlock_destroy(
        *  If there is at least one thread waiting, then do not delete it.
        */
       if ( _Thread_queue_First( &the_rwlock->RWLock.Wait_queue ) != NULL ) {
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_rwlock->Object );
         return EBUSY;
       }
 
@@ -64,7 +64,7 @@ int pthread_rwlock_destroy(
 
       _POSIX_RWLock_Free( the_rwlock );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_rwlock->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

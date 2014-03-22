@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2012.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -55,6 +55,9 @@ void *TestThread(
   act.sa_handler = Handler;
   act.sa_flags   = 0;
   sigaction( SIGUSR1, &act, NULL );
+
+  status = pthread_mutex_lock( &MutexId );
+  rtems_test_assert(  !status );
 
   /* interrupting condition wait returns 0 */
   puts( "Test: pthread_cond_wait - OK" );

@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/debug.h
  *
+ *  @brief Information Related to the Debug Support Within RTEMS
+ *
  *  This include file contains the information pertaining to the debug
  *  support within RTEMS.  It is currently cast in the form of a
  *  Manager since it is externally accessible.
@@ -12,13 +14,20 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_DEBUG_H
 #define _RTEMS_DEBUG_H
 
 #include <rtems/score/basedefs.h>
+
+/**
+ *  @defgroup ScoreDebug Debug Information
+ *
+ *  @ingroup Score
+ */
+/**@{*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,25 +54,27 @@ typedef uint32_t   rtems_debug_control;
 SCORE_EXTERN rtems_debug_control _Debug_Level;
 
 /**
- *  This routine performs the initialization necessary for this manager.
+ *  @brief Initialize debug manager.
  */
 void _Debug_Manager_initialization( void );
 
 /**
- *  This routine enables the specified types of debug checks.
+ *  @brief Enable debugging.
  */
 void rtems_debug_enable(
   rtems_debug_control  to_be_enabled
 );
 
 /**
- *  This routine disables the specified types of debug checks.
+ *  @brief Disable debugging.
  */
 void rtems_debug_disable(
   rtems_debug_control  to_be_disabled
 );
 
 /**
+ *  @brief Check if debug is enabled.
+ *
  *  This routine returns TRUE if the requested debug level is
  *  enabled, and FALSE otherwise.
  */
@@ -75,5 +86,6 @@ bool rtems_debug_is_enabled(
 }
 #endif
 
+/**@}*/
 #endif
 /* end of include file */

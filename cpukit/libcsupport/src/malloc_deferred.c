@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief Malloc Deferred Support
+ *  @ingroup libcsupport
+ */
+
 /*
  *  Process free requests deferred because they were from ISR
  *  or other critical section.
@@ -7,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,22 +27,16 @@
 
 #include "malloc_p.h"
 
-rtems_chain_control RTEMS_Malloc_GC_list;
+#include <rtems/score/threaddispatch.h>
+
+RTEMS_CHAIN_DEFINE_EMPTY(RTEMS_Malloc_GC_list);
 
 bool malloc_is_system_state_OK(void)
 {
-  if ( _Thread_Dispatch_in_critical_section() )
-    return false;
-
-  if ( _ISR_Nest_level > 0 )
+  if ( !_Thread_Dispatch_is_enabled() )
     return false;
 
   return true;
-}
-
-void malloc_deferred_frees_initialize(void)
-{
-  rtems_chain_initialize_empty(&RTEMS_Malloc_GC_list);
 }
 
 void malloc_deferred_frees_process(void)

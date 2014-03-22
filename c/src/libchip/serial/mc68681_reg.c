@@ -10,10 +10,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
+
+#include <libchip/serial.h>
+#include <libchip/mc68681.h>
 
 #ifndef _MC68681_MULTIPLIER
 #define _MC68681_MULTIPLIER 1

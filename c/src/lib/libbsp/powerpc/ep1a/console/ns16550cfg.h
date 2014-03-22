@@ -6,7 +6,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __NS16550_CONFIG_H
@@ -31,8 +31,8 @@ void  Write_ns16550_register(
   uint8_t   ucData
 );
 
-extern console_fns ns16550_fns_8245;
-extern console_fns ns16550_fns_polled_8245;
+extern const console_fns ns16550_fns_8245;
+extern const console_fns ns16550_fns_polled_8245;
 
 #ifdef __cplusplus
 }

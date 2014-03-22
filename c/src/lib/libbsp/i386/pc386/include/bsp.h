@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @ingroup i386_pc386
+ *
+ * @brief Global BSP definitions.
+ */
+
 /*-------------------------------------------------------------------------+
 | bsp.h v1.1 - PC386 BSP - 1997/08/07
 +--------------------------------------------------------------------------+
@@ -32,7 +40,7 @@
 | *
 | *  The license and distribution terms for this file may be
 | *  found in the file LICENSE in this distribution or at
-| *  http://www.rtems.com/license/LICENSE.
+| *  http://www.rtems.org/license/LICENSE.
 | **************************************************************************
 +--------------------------------------------------------------------------*/
 
@@ -44,6 +52,7 @@ extern "C" {
 #endif
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/iosupp.h>
@@ -51,6 +60,14 @@ extern "C" {
 #include <rtems/clockdrv.h>
 #include <libcpu/cpu.h>
 #include <rtems/bspIo.h>
+
+/**
+ * @degroup pc386_i386 PC386 Support
+ *
+ * @ingroup bsp_i386
+ *
+ * @brief PC386 support.
+ */
 
 #define BSP_HAS_FRAME_BUFFER 1
 
@@ -78,6 +95,10 @@ extern int rtems_wd_driver_attach(struct rtems_bsdnet_ifconfig *, int);
 extern int rtems_dec21140_driver_attach(struct rtems_bsdnet_ifconfig *, int);
 #define BSP_DEC21140_NETWORK_DRIVER_NAME    "dc1"
 #define BSP_DEC21140_NETWORK_DRIVER_ATTACH  rtems_dec21140_driver_attach
+
+extern int rtems_3c509_driver_attach(struct rtems_bsdnet_ifconfig *config);
+#define BSP_3C509_NETWORK_DRIVER_NAME    "3c1"
+#define BSP_3C509_NETWORK_DRIVER_ATTACH  rtems_3c509_driver_attach
 
 #ifndef RTEMS_BSP_NETWORK_DRIVER_NAME
 #define RTEMS_BSP_NETWORK_DRIVER_NAME   BSP_DEC21140_NETWORK_DRIVER_NAME
@@ -133,28 +154,12 @@ extern int rtems_dec21140_driver_attach(struct rtems_bsdnet_ifconfig *, int);
 
 /*-------------------------------------------------------------------------+
 | Console Defines
-|      WARNING: These Values MUST match the order in 
+|      WARNING: These Values MUST match the order in
 |               Console_Configuration_Ports
 +--------------------------------------------------------------------------*/
 #define    BSP_CONSOLE_VGA            0
 #define    BSP_CONSOLE_COM1           1
 #define    BSP_CONSOLE_COM2           2
-
-/*-------------------------------------------------------------------------+
-| Macros
-+--------------------------------------------------------------------------*/
-/* does anyone need this? if so, report it so we can rename this macro */
-#if 0
-/*-------------------------------------------------------------------------+
-| Simple spin delay in microsecond units for device drivers.
-| This is very dependent on the clock speed of the target.
-+--------------------------------------------------------------------------*/
-#define rtems_bsp_delay(_microseconds) \
-{ \
-  uint32_t         _cnt = _microseconds; \
-  __asm__ volatile ("0: nop; mov %0,%0; loop 0b" : "=c"(_cnt) : "0"(_cnt)); \
-}
-#endif
 
 /*-------------------------------------------------------------------------+
 | Convert microseconds to ticks and ticks to microseconds.
@@ -180,6 +185,10 @@ char          _IBMPC_inch     (void);    /* from 'inch.c'   */
 char          _IBMPC_inch_sleep (void);  /* from 'inch.c'   */
 
 void Wait_X_ms(unsigned int timeToWait); /* from 'timer.c'  */
+
+void Clock_driver_install_handler(void); /* from 'ckinit.c'  */
+void Clock_driver_support_initialize_hardware(void); /* from 'ckinit.c'  */
+size_t read_aux(char * buffer, size_t count); /* from 'ps2_mouse.c'  */
 
 /* Definitions for BSPConsolePort */
 #define BSP_CONSOLE_PORT_CONSOLE (-1)

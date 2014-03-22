@@ -127,8 +127,22 @@ SECTIONS
   } =0
   _etext = .;
   PROVIDE (etext = .);
-  .rodata  .  : { *(.rodata*) .rodata.* *(.gnu.linkonce.r*) }
-  .rodata1 .  : { *(.rodata1) }
+  .rodata  .  : { *(.rodata*) .rodata.* *(.gnu.linkonce.r*) } > ram
+  .rodata1 .  : { *(.rodata1) } > ram
+  .tdata : {
+    __TLS_Data_begin = .;
+    *(.tdata .tdata.* .gnu.linkonce.td.*)
+    __TLS_Data_end = .;
+  } > ram
+  .tbss : {
+    __TLS_BSS_begin = .;
+    *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon)
+    __TLS_BSS_end = .;
+  } > ram
+  __TLS_Data_size = __TLS_Data_end - __TLS_Data_begin;
+  __TLS_BSS_size = __TLS_BSS_end - __TLS_BSS_begin;
+  __TLS_Size = __TLS_BSS_end - __TLS_Data_begin;
+  __TLS_Alignment = ALIGNOF (.tdata);
   /* Adjust the address for the data segment.  We want to adjust up to
      the same address within the page on the next page up.  */
   . = ALIGN(128) + (. & (128 - 1));
@@ -157,7 +171,7 @@ SECTIONS
     *(.dtors)
     ___dtors_end = .;
   }
-  .robsdsets : {
+  .rtemsroset : {
     /* for pre rtems-libbsd FreeBSD code */
     __start_set_sysctl_set = .;
     *(set_sysctl_*);
@@ -165,20 +179,10 @@ SECTIONS
     *(set_domain_*);
     *(set_pseudo_*);
 
-    /* for rtems-libbsd FreeBSD code */
-    __bsd__start_set_modmetadata_set = .;
-    *(_bsd_set_modmetadata_set);
-    __bsd__stop_set_modmetadata_set = .;
-
-    __bsd__start_set_sysctl_set = .;
-    *(_bsd_set_sysctl_set);
-    __bsd__stop_set_sysctl_set = .;
-
-    __bsd__start_set_sysinit_set = .;
-    *(_bsd_set_sysinit_*);
-    __bsd__stop_set_sysinit_set = .;
-
-    _bsp_section_rodata_end = .;
+    KEEP (*(SORT(.rtemsroset.*)))
+  } >ram
+  .rtemsrwset : {
+    KEEP (*(SORT(.rtemsrwset.*)))
   } >ram
 
   .got     .      : { *(.got.plt) *(.got) }

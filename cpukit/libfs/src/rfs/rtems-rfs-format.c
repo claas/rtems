@@ -1,24 +1,25 @@
+/**
+ * @file
+ *
+ * @brief RTEMS File Systems Format
+ * @ingroup rtems_rfs
+ * 
+ * Format the file system ready for use.
+ */
+
 /*
  *  COPYRIGHT (c) 2010 Chris Johns <chrisj@rtems.org>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
- */
-/**
- * @file
- *
- * @ingroup rtems-rfs
- *
- * RTEMS File Systems Format
- *
- * Format the file system ready for use.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -47,7 +48,7 @@ rtems_rfs_bits_per_block (rtems_rfs_file_system* fs)
  * Return a rounded up integer quotient given a dividend and divisor. That is:
  * "quotient = dividend / divisor"
  */
-int
+static int
 rtems_rfs_rup_quotient (uint32_t dividend, uint32_t divisor)
 {
   if (dividend == 0)

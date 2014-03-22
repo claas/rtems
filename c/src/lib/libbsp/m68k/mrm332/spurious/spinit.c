@@ -11,11 +11,11 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
-#include <bsp/bootcard.h>
+#include <bsp/fatal.h>
 #include <stdio.h>
 
 const char * const _Spurious_Error_[] = {"Reset","Bus Error","Address Error",
@@ -72,12 +72,7 @@ rtems_isr Spurious_Isr(
   RAW_PUTI(sp);
   RAW_PUTS("\n\r");
 #endif
-  bsp_cleanup(1);
-
-  /* BDM SIGEMT */
-  __asm__ ("  .word  0x4afa");
-
-  for(;;);
+  bsp_fatal( MRM332_FATAL_SPURIOUS_INTERRUPT );
 }
 
 void Spurious_Initialize(void)

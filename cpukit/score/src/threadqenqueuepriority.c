@@ -1,26 +1,27 @@
-/*
- *  Thread Queue Handler - Enqueue By Priority
+/**
+ *  @file
  *
+ *  @brief Thread Queue Enqueue Priority
+ *  @ingroup ScoreThreadQ
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tqdata.h>
+#include <rtems/score/threadqimpl.h>
+#include <rtems/score/chainimpl.h>
+#include <rtems/score/isrlevel.h>
+#include <rtems/score/statesimpl.h>
 
 /*
  *  Support the user forcing the unrolling to be disabled.
@@ -29,22 +30,6 @@
   #undef CPU_UNROLL_ENQUEUE_PRIORITY
   #define CPU_UNROLL_ENQUEUE_PRIORITY FALSE
 #endif
-
-/*
- *  _Thread_queue_Enqueue_priority
- *
- *  This routine places a blocked thread on a priority thread queue.
- *
- *  Input parameters:
- *    the_thread_queue - pointer to threadq
- *    thread           - thread to insert
- *
- *  Output parameters: NONE
- *
- *  INTERRUPT LATENCY:
- *    forward less than
- *    forward equal
- */
 
 Thread_blocking_operation_States _Thread_queue_Enqueue_priority (
   Thread_queue_Control *the_thread_queue,

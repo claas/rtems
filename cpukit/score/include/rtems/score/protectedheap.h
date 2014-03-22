@@ -3,7 +3,7 @@
  *
  * @ingroup ScoreProtHeap
  *
- * @brief Protected Heap Handler API.
+ * @brief Protected Heap Handler API
  */
 
 /*
@@ -12,13 +12,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_PROTECTED_HEAP_H
 #define _RTEMS_SCORE_PROTECTED_HEAP_H
 
-#include <rtems/score/heap.h>
+#include <rtems/score/heapimpl.h>
 #include <rtems/score/apimutex.h>
 
 #ifdef __cplusplus
@@ -34,8 +34,8 @@ extern "C" {
  *
  * The @ref ScoreAllocatorMutex is used to protect the heap accesses.
  *
- * @{
  */
+/**@{**/
 
 /**
  * @brief See _Heap_Initialize().

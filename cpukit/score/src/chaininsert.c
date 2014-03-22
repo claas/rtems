@@ -1,10 +1,18 @@
+/**
+ * @file
+ *
+ * @brief Extracts a node from a given chain
+ *
+ * @ingroup ScoreChain
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -13,7 +21,7 @@
 
 #include <rtems/system.h>
 #include <rtems/score/address.h>
-#include <rtems/score/chain.h>
+#include <rtems/score/chainimpl.h>
 #include <rtems/score/isr.h>
 
 /*

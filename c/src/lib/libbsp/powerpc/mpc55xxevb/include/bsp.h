@@ -17,25 +17,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_MPC55XXEVB_BSP_H
 #define LIBBSP_POWERPC_MPC55XXEVB_BSP_H
 
-#include <stdint.h>
-
-#include <rtems.h>
-#include <rtems/console.h>
-#include <rtems/clockdrv.h>
-
 #include <bspopts.h>
-
-#include <bsp/tictac.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 #define BSP_SMALL_MEMORY 1
 
@@ -43,7 +31,24 @@ extern "C" {
 
 #define BSP_FEATURE_IRQ_EXTENSION
 
+#define MPC55XX_PERIPHERAL_CLOCK \
+  (MPC55XX_SYSTEM_CLOCK / MPC55XX_SYSTEM_CLOCK_DIVIDER)
+
 #ifndef ASM
+
+#include <rtems.h>
+#include <rtems/console.h>
+#include <rtems/clockdrv.h>
+
+#include <libcpu/powerpc-utility.h>
+
+#include <bsp/tictac.h>
+#include <bsp/linker-symbols.h>
+#include <bsp/default-initial-extension.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** @brief System clock frequency */
 extern unsigned int bsp_clock_speed;
@@ -74,10 +79,30 @@ rtems_status_code bsp_register_i2c(void);
 
 void bsp_restart(void *addr);
 
-#endif /* ASM */
+void *bsp_idle_thread(uintptr_t arg);
+
+#define BSP_IDLE_TASK_BODY bsp_idle_thread
+
+LINKER_SYMBOL(bsp_section_dsram_begin)
+LINKER_SYMBOL(bsp_section_dsram_end)
+LINKER_SYMBOL(bsp_section_dsram_size)
+LINKER_SYMBOL(bsp_section_dsram_load_begin)
+LINKER_SYMBOL(bsp_section_dsram_load_end)
+
+#define BSP_DSRAM_SECTION __attribute__((section(".bsp_dsram")))
+
+LINKER_SYMBOL(bsp_section_sysram_begin)
+LINKER_SYMBOL(bsp_section_sysram_end)
+LINKER_SYMBOL(bsp_section_sysram_size)
+LINKER_SYMBOL(bsp_section_sysram_load_begin)
+LINKER_SYMBOL(bsp_section_sysram_load_end)
+
+#define BSP_SYSRAM_SECTION __attribute__((section(".bsp_sysram")))
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* ASM */
 
 #endif /* LIBBSP_POWERPC_MPC55XXEVB_BSP_H */

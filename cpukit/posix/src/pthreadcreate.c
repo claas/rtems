@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Function Starts a New Thread in The Calling Process
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  16.1.2 Thread Creation, P1003.1c/Draft 10, p. 144
  */
@@ -7,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,12 +24,14 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/score/thread.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/priority.h>
+#include <rtems/posix/priorityimpl.h>
+#include <rtems/posix/pthreadimpl.h>
 #include <rtems/posix/time.h>
+#include <rtems/score/cpusetimpl.h>
+#include <rtems/score/threadimpl.h>
 #include <rtems/score/apimutex.h>
+#include <rtems/score/stackimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 static inline size_t _POSIX_Threads_Ensure_minimum_stack (
   size_t size
@@ -87,7 +96,7 @@ int pthread_create(
    */
   switch ( the_attr->inheritsched ) {
     case PTHREAD_INHERIT_SCHED:
-      api = _Thread_Executing->API_Extensions[ THREAD_API_POSIX ];
+      api = _Thread_Get_executing()->API_Extensions[ THREAD_API_POSIX ];
       schedpolicy = api->schedpolicy;
       schedparam  = api->schedparam;
       break;
@@ -127,6 +136,14 @@ int pthread_create(
   );
   if ( rc )
     return rc;
+
+#if defined(RTEMS_SMP)
+#if __RTEMS_HAVE_SYS_CPUSET_H__
+  rc = _CPU_set_Is_valid( the_attr->affinityset, the_attr->affinitysetsize );
+  if ( rc != 0 )
+    return EINVAL;
+#endif
+#endif
 
   /*
    *  Currently all POSIX threads are floating point if the hardware
@@ -171,22 +188,30 @@ int pthread_create(
     0,                    /* isr level */
     name                  /* posix threads don't have a name */
   );
-
   if ( !status ) {
     _POSIX_Threads_Free( the_thread );
     _RTEMS_Unlock_allocator();
     return EAGAIN;
   }
 
+#if defined(RTEMS_SMP)
+#if __RTEMS_HAVE_SYS_CPUSET_H__
+   the_thread->affinity.setsize   = the_attr->affinitysetsize;
+   *the_thread->affinity.set      = *the_attr->affinityset;
+#endif
+#endif
+
   /*
    *  finish initializing the per API structure
    */
   api = the_thread->API_Extensions[ THREAD_API_POSIX ];
 
-  api->Attributes  = *the_attr;
+  _POSIX_Threads_Copy_attributes( &api->Attributes, the_attr );
   api->detachstate = the_attr->detachstate;
   api->schedpolicy = schedpolicy;
   api->schedparam  = schedparam;
+
+  _Thread_Disable_dispatch();
 
   /*
    *  POSIX threads are allocated and started in one operation.
@@ -196,7 +221,8 @@ int pthread_create(
     THREAD_START_POINTER,
     start_routine,
     arg,
-    0                     /* unused */
+    0,                    /* unused */
+    NULL
   );
 
   #if defined(RTEMS_DEBUG)
@@ -207,6 +233,7 @@ int pthread_create(
      *        thread while we are creating it.
      */
     if ( !status ) {
+      _Thread_Enable_dispatch();
       _POSIX_Threads_Free( the_thread );
       _RTEMS_Unlock_allocator();
       return EINVAL;
@@ -219,6 +246,8 @@ int pthread_create(
       _Timespec_To_ticks( &api->schedparam.sched_ss_repl_period )
     );
   }
+
+  _Thread_Enable_dispatch();
 
   /*
    *  Return the id and indicate we successfully created the thread

@@ -1,24 +1,26 @@
-/*
- *  RTEMS Object Helper -- Set Name of Object as String
+/**
+ * @file
  *
+ * @brief Set Name of Object
+ * @ingroup ClassicClassInfo Object Class Information
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/score/thread.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/types.h>
 #include <rtems/rtems/object.h>
+#include <rtems/score/objectimpl.h>
+#include <rtems/score/thread.h>
 
 /*
  *  This method will set the object name based upon the user string.
@@ -38,7 +40,7 @@ rtems_status_code rtems_object_set_name(
   if ( !name )
     return RTEMS_INVALID_ADDRESS;
 
-  tmpId = (id == OBJECTS_ID_OF_SELF) ? _Thread_Executing->Object.id : id;
+  tmpId = (id == OBJECTS_ID_OF_SELF) ? _Thread_Get_executing()->Object.id : id;
 
   information  = _Objects_Get_information_id( tmpId );
   if ( !information )
@@ -49,7 +51,7 @@ rtems_status_code rtems_object_set_name(
 
     case OBJECTS_LOCAL:
       _Objects_Set_name( information, the_object, name );
-      _Thread_Enable_dispatch();
+      _Objects_Put( the_object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

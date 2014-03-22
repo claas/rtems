@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Timer Server Fire After
+ *  @ingroup ClassicTimer
+ */
+
 /*
- *  Timer Manager - rtems_timer_server fire_after directive
- *
- *
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,28 +21,9 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/score/thread.h>
-#include <rtems/rtems/timer.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/watchdog.h>
-
-/*
- *  rtems_timer_server_fire_after
- *
- *  This directive allows a thread to start a timer which will by
- *  executed by the Timer Server when it fires.
- *
- *  Input parameters:
- *    id        - timer id
- *    ticks     - interval until routine is fired
- *    routine   - routine to schedule
- *    user_data - passed as argument to routine when it is fired
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
+#include <rtems/rtems/timerimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 rtems_status_code rtems_timer_server_fire_after(
   rtems_id                           id,
@@ -76,7 +61,7 @@ rtems_status_code rtems_timer_server_fire_after(
 
         if ( the_timer->Ticker.state != WATCHDOG_INACTIVE ) {
           _ISR_Enable( level );
-          _Thread_Enable_dispatch();
+          _Objects_Put( &the_timer->Object );
           return RTEMS_SUCCESSFUL;
         }
 
@@ -92,7 +77,7 @@ rtems_status_code rtems_timer_server_fire_after(
 
       (*timer_server->schedule_operation)( timer_server, the_timer );
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_timer->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)

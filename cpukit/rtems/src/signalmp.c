@@ -1,30 +1,28 @@
+/**
+ *  @file
+ *
+ *  @brief Signal MP Support
+ *  @ingroup ClassicSignalMP
+ */
+
 /*
- *  Multiprocessing Support for the Signal Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/score/mpci.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/rtems/signal.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
-#include <rtems/rtems/support.h>
+#include <rtems/rtems/signalimpl.h>
+#include <rtems/rtems/optionsimpl.h>
+#include <rtems/score/statesimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/threadqimpl.h>
 
 RTEMS_STATIC_ASSERT(
   sizeof(Signal_MP_Packet) <= MP_PACKET_MINIMUM_PACKET_SIZE,
@@ -36,11 +34,6 @@ RTEMS_STATIC_ASSERT(
  *
  *  This subprogram is not needed since there are no process
  *  packets to be sent by this manager.
- *
- */
-
-/*
- *  _Signal_MP_Send_request_packet
  *
  */
 
@@ -82,11 +75,6 @@ rtems_status_code _Signal_MP_Send_request_packet (
   return RTEMS_INTERNAL_ERROR;
 }
 
-/*
- *  _Signal_MP_Send_response_packet
- *
- */
-
 void _Signal_MP_Send_response_packet (
   Signal_MP_Remote_operations  operation,
   Thread_Control              *the_thread
@@ -118,12 +106,6 @@ void _Signal_MP_Send_response_packet (
 
   }
 }
-
-/*
- *
- *  _Signal_MP_Process_packet
- *
- */
 
 void _Signal_MP_Process_packet (
   rtems_packet_prefix  *the_packet_prefix
@@ -172,11 +154,6 @@ void _Signal_MP_Process_packet (
  *
  *  This subprogram is not needed since there are no objects
  *  deleted by this manager.
- *
- */
-
-/*
- *  _Signal_MP_Get_packet
  *
  */
 

@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -29,6 +29,8 @@
 #include <rtems/blkdev.h>
 #include <rtems/dosfs.h>
 #include <rtems/ramdisk.h>
+
+const char rtems_test_name[] = "FSDOSFSSYNC 1";
 
 static void create_file(const char *file)
 {
@@ -89,6 +91,11 @@ static void check_file_size(const char *file, off_t size)
 
 static void test(const char *rda, const char *mnt, const char *file)
 {
+  static const msdos_format_request_param_t rqdata = {
+    .quick_format = true,
+    .sync_device = true
+  };
+
   rtems_status_code sc;
   int disk_fd;
   int rv;
@@ -99,7 +106,7 @@ static void test(const char *rda, const char *mnt, const char *file)
   disk_fd = open(rda, O_RDWR);
   rtems_test_assert(disk_fd >= 0);
 
-  rv = msdos_format(rda, NULL);
+  rv = msdos_format(rda, &rqdata);
   rtems_test_assert(rv == 0);
 
   rv = mount_and_make_target_path(
@@ -134,12 +141,11 @@ static void test(const char *rda, const char *mnt, const char *file)
 
 static void Init(rtems_task_argument arg)
 {
-  puts("\n\n*** TEST FSDOSFSSYNC 1 ***");
+  TEST_BEGIN();
 
   test("/dev/rda", "/mnt", "/mnt/file");
 
-  puts("*** END OF TEST FSDOSFSSYNC 1 ***");
-
+  TEST_END();
   rtems_test_exit(0);
 }
 
@@ -163,6 +169,8 @@ size_t rtems_ramdisk_configuration_size = 1;
 #define CONFIGURE_MAXIMUM_TASKS 2
 
 #define CONFIGURE_EXTRA_TASK_STACKS (8 * 1024)
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

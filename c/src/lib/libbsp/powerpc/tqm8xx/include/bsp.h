@@ -15,7 +15,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 | this file contains the console driver                           |
@@ -32,7 +32,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSP_H
@@ -74,9 +74,6 @@ LINKER_SYMBOL( bsp_interrupt_stack_size);
 LINKER_SYMBOL( bsp_work_area_start);
 
 #ifndef ASM
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <bspopts.h>
 
@@ -90,6 +87,11 @@ extern "C" {
 #include <bsp/vectors.h>
 #include <bsp/tqm.h>
 #include <libcpu/powerpc-utility.h>
+#include <bsp/default-initial-extension.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Network driver configuration

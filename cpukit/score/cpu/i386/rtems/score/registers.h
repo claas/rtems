@@ -1,15 +1,17 @@
 /**
- * @file rtems/score/registers.h
+ * @file
+ * 
+ * @brief Intel CPU Constants and Definitions
+ * 
+ * This file contains definition and constants related to Intel Cpu
  */
 
 /*
- *  This file contains definition and constants related to Intel Cpu
- *
  *  COPYRIGHT (c) 1998 valette@crf.canon.fr
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_REGISTERS_H

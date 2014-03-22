@@ -1,17 +1,17 @@
 /**
- * @file rtems/score/interrupts.h
+ * @file
+ * 
+ * @brief Intel I386 Interrupt Macros
+ *
+ * Formerly contained in and extracted from libcpu/i386/cpu.h
  */
 
 /*
- *  i386 interrupt macros.
- *
- *  Formerly contained in and extracted from libcpu/i386/cpu.h
- *
  *  COPYRIGHT (c) 1998 valette@crf.canon.fr
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Applications must not include this file directly.
  */
@@ -28,9 +28,11 @@ typedef void (*rtems_raw_irq_enable)		(const struct __rtems_raw_irq_connect_data
 typedef void (*rtems_raw_irq_disable)		(const struct __rtems_raw_irq_connect_data__*);
 typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_data__*);
 
-/*
- *  Interrupt Level Macros
+/**
+ * @name Interrupt Level Macros
+ * 
  */
+/**@{**/
 
 #define i386_disable_interrupts( _level ) \
   { \
@@ -72,6 +74,8 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
 
 #define _CPU_ISR_Disable( _level ) i386_disable_interrupts( _level )
 #define _CPU_ISR_Enable( _level ) i386_enable_interrupts( _level )
+
+/** @} */
 
 #endif
 #endif

@@ -10,7 +10,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Modifications for MBX860:
  *  Copyright (c) 1999, National Research Council of Canada
@@ -19,6 +19,7 @@
 #include <bsp.h>
 #include <bsp/irq.h>
 #include <rtems/bspIo.h>
+#include <rtems/counter.h>
 #include <libcpu/cpuIdent.h>
 #include <libcpu/spr.h>
 #include <rtems/powerpc/powerpc.h>
@@ -82,7 +83,6 @@ void _BSP_Fatal_error(unsigned int v)
  */
 void bsp_start(void)
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
   ppc_cpu_id_t myCpu;
   ppc_cpu_revision_t myCpuRevision;
 
@@ -113,20 +113,13 @@ void bsp_start(void)
 #endif
 
   /* Initialize exception handler */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
+  ppc_exc_initialize(
     (uintptr_t) IntrStack_start,
     (uintptr_t) intrStack - (uintptr_t) IntrStack_start
   );
-  if ( sc != RTEMS_SUCCESSFUL ) {
-    BSP_panic( "cannot initialize exceptions" );
-  }
 
   /* Initalize interrupt support */
-  sc = bsp_interrupt_initialize();
-  if ( sc != RTEMS_SUCCESSFUL ) {
-    BSP_panic( "cannot initialize interrupts" );
-  }
+  bsp_interrupt_initialize();
 
   /*
    *  initialize the device driver parameters
@@ -149,6 +142,7 @@ void bsp_start(void)
 #else
   bsp_clicks_per_usec = 1;  /* for 4MHz extclk */
 #endif
+  rtems_counter_initialize_converter(bsp_clicks_per_usec * 1000000);
 
   bsp_serial_per_sec = 10000000;
   bsp_serial_external_clock = true;

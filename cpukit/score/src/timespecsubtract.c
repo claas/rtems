@@ -1,5 +1,8 @@
 /**
  *  @file  score/src/timespecsubtract.c
+ *
+ *  @brief Subtract Two Timespec
+ *  @ingroup Timespec
  */
 
 /*
@@ -8,18 +11,15 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <sys/types.h>
 #include <rtems/score/timespec.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/score/todimpl.h>
 
 void _Timespec_Subtract(
   const struct timespec *start,

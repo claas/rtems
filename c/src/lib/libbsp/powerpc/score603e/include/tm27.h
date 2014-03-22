@@ -1,12 +1,16 @@
 /*
- *  tm27.h
- *
- *  COPYRIGHT (c) 1989-2009.
+ * @file
+ * @ingroup powerpc_score603e
+ * @brief Implementations for interrupt mechanisms for Time Test 27
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_TMTEST27

@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -24,6 +24,8 @@
 #include <unistd.h>
 
 #include "initial_filesystem_tar.h"
+
+const char rtems_test_name[] = "TAR 2";
 
 /* forward declarations to avoid warnings */
 rtems_task Init(rtems_task_argument argument);
@@ -55,7 +57,7 @@ void test_tarfs_load(void)
   test_cat( "/home/test_file", 0, 0 );
   
   /******************/
-  puts("*** Skipping symlink -- NOT CURRENTLY SUPPORTED ***" );
+  TEST_BEGIN();
 #if 0
   printf( "========= /symlink =========\n" );
   test_cat( "/symlink", 0, 0 );
@@ -66,12 +68,12 @@ rtems_task Init(
   rtems_task_argument ignored
 )
 {
-  printf( "\n\n*** TAR02 TEST ***\n" );
+  TEST_BEGIN();
 
   test_tarfs_load();
   IMFS_dump();
 
-  printf( "*** END OF TAR02 TEST ***\n" );
+  TEST_END();
   exit( 0 );
 }
 
@@ -83,6 +85,8 @@ rtems_task Init(
 #define CONFIGURE_MAXIMUM_TASKS            1
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 5
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

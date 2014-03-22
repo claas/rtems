@@ -1,20 +1,23 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Malloc Get Free Information
+ *  @ingroup libcsupport
+ */
+
 /*
- *  RTEMS Malloc Get Free Information
- *
- *
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #include <rtems.h>
 #include <rtems/libcsupport.h>
 #include <rtems/score/protectedheap.h>

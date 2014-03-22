@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2011 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2011-2014 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
- *  Obere Lagerstr. 30
+ *  Dornierstr. 4
  *  82178 Puchheim
  *  Germany
  *  <rtems@embedded-brains.de>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bspopts.h>
@@ -17,7 +17,7 @@
 #include <bsp/vectors.h>
 
 #define VECTOR_REGISTER r4
-#define ISR_NEST_HADDR_REGISTER r5
+#define SELF_CPU_REGISTER r5
 #define ISR_NEST_REGISTER r6
 #define DISPATCH_LEVEL_REGISTER r7
 #define HANDLER_REGISTER r8
@@ -30,7 +30,7 @@
 #define FRAME_REGISTER r14
 
 #define VECTOR_OFFSET(reg) GPR4_OFFSET(reg)
-#define ISR_NEST_HADDR_OFFSET(reg) GPR5_OFFSET(reg)
+#define SELF_CPU_OFFSET(reg) GPR5_OFFSET(reg)
 #define ISR_NEST_OFFSET(reg) GPR6_OFFSET(reg)
 #define DISPATCH_LEVEL_OFFSET(reg) GPR7_OFFSET(reg)
 #define HANDLER_OFFSET(reg) GPR8_OFFSET(reg)
@@ -46,14 +46,37 @@
  */
 #define FRAME_OFFSET(reg) GPR2_OFFSET(reg)
 
+#ifdef RTEMS_PROFILING
+/*
+ * The PPC_EXC_MINIMAL_FRAME_SIZE is enough to store this additional register.
+ */
+#define ENTRY_INSTANT_REGISTER r15
+#define ENTRY_INSTANT_OFFSET(reg) GPR13_OFFSET(reg)
+
+.macro GET_TIME_BASE REG
+#ifdef ppc8540
+	mfspr	\REG, TBRL
+#else /* ppc8540 */
+	mftb	\REG
+#endif /* ppc8540 */
+.endm
+#endif /* RTEMS_PROFILING */
+
+#ifdef PPC_EXC_CONFIG_USE_FIXED_HANDLER
+	.global	bsp_interrupt_dispatch
+#endif /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
+
 	.global	ppc_exc_min_prolog_async_tmpl_normal
 	.global ppc_exc_wrap_async_normal
 
 ppc_exc_min_prolog_async_tmpl_normal:
 
 	stwu	r1, -PPC_EXC_MINIMAL_FRAME_SIZE(r1)
+
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 	stw	VECTOR_REGISTER, PPC_EXC_VECTOR_PROLOGUE_OFFSET(r1)
 	li	VECTOR_REGISTER, 0xffff8000
+#endif /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
 
 	/*
 	 * We store the absolute branch target address here.  It will be used
@@ -62,6 +85,14 @@ ppc_exc_min_prolog_async_tmpl_normal:
 	.int	ppc_exc_wrap_async_normal
 
 ppc_exc_wrap_async_normal:
+
+#ifdef RTEMS_PROFILING
+	/* Save non-volatile ENTRY_INSTANT_REGISTER */
+	stw	ENTRY_INSTANT_REGISTER, ENTRY_INSTANT_OFFSET(r1)
+
+	/* Get entry instant */
+	GET_TIME_BASE	ENTRY_INSTANT_REGISTER
+#endif /* RTEMS_PROFILING */
 
 	/* Save non-volatile FRAME_REGISTER */
 	stw	FRAME_REGISTER, FRAME_OFFSET(r1)
@@ -78,15 +109,16 @@ ppc_exc_wrap_async_normal:
 	mr	FRAME_REGISTER, r1
 
 	/* Load ISR nest level and thread dispatch disable level */
-	PPC_GPR_STORE	ISR_NEST_HADDR_REGISTER, ISR_NEST_HADDR_OFFSET(r1)
-	lis	ISR_NEST_HADDR_REGISTER, ISR_NEST_LEVEL@ha
+	PPC_GPR_STORE	SELF_CPU_REGISTER, SELF_CPU_OFFSET(r1)
+	GET_SELF_CPU_CONTROL	SELF_CPU_REGISTER
 	PPC_GPR_STORE	ISR_NEST_REGISTER, ISR_NEST_OFFSET(r1)
-	lwz	ISR_NEST_REGISTER, ISR_NEST_LEVEL@l(ISR_NEST_HADDR_REGISTER)
+	lwz	ISR_NEST_REGISTER, PER_CPU_ISR_NEST_LEVEL(SELF_CPU_REGISTER)
 	PPC_GPR_STORE	DISPATCH_LEVEL_REGISTER, DISPATCH_LEVEL_OFFSET(r1)
-	lwz	DISPATCH_LEVEL_REGISTER, _Thread_Dispatch_disable_level@sdarel(r13)
+	lwz	DISPATCH_LEVEL_REGISTER, PER_CPU_THREAD_DISPATCH_DISABLE_LEVEL(SELF_CPU_REGISTER)
 
 	PPC_GPR_STORE	SCRATCH_0_REGISTER, SCRATCH_0_OFFSET(r1)
 
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 #ifdef __SPE__
 	/*
 	 * Save high order part of VECTOR_REGISTER here.  The low order part
@@ -95,9 +127,14 @@ ppc_exc_wrap_async_normal:
 	evmergehi	SCRATCH_0_REGISTER, SCRATCH_0_REGISTER, VECTOR_REGISTER
 	stw	SCRATCH_0_REGISTER, VECTOR_OFFSET(r1)
 #endif
+#else /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
+	/* The vector register has no special purpose in this case */
+	PPC_GPR_STORE	VECTOR_REGISTER, VECTOR_OFFSET(r1)
+#endif /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
 
 	PPC_GPR_STORE	HANDLER_REGISTER, HANDLER_OFFSET(r1)
 
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 	/*
 	 * Load the handler address.  Get the handler table index from the
 	 * vector number.  We have to discard the exception type.  Take only
@@ -108,6 +145,7 @@ ppc_exc_wrap_async_normal:
 	lis	HANDLER_REGISTER, ppc_exc_handler_table@h
 	ori	HANDLER_REGISTER, HANDLER_REGISTER, ppc_exc_handler_table@l
 	lwzx	HANDLER_REGISTER, HANDLER_REGISTER, SCRATCH_0_REGISTER
+#endif /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
 
 	PPC_GPR_STORE	SCRATCH_1_REGISTER, SCRATCH_1_OFFSET(r1)
 	PPC_GPR_STORE	SCRATCH_2_REGISTER, SCRATCH_2_OFFSET(r1)
@@ -142,13 +180,14 @@ ppc_exc_wrap_async_normal:
 	cmpwi	ISR_NEST_REGISTER, 0
 	addi	ISR_NEST_REGISTER, ISR_NEST_REGISTER, 1
 	addi	DISPATCH_LEVEL_REGISTER, DISPATCH_LEVEL_REGISTER, 1
-	stw	ISR_NEST_REGISTER, ISR_NEST_LEVEL@l(ISR_NEST_HADDR_REGISTER)
-	stw	DISPATCH_LEVEL_REGISTER, _Thread_Dispatch_disable_level@sdarel(r13)
+	stw	ISR_NEST_REGISTER, PER_CPU_ISR_NEST_LEVEL(SELF_CPU_REGISTER)
+	stw	DISPATCH_LEVEL_REGISTER, PER_CPU_THREAD_DISPATCH_DISABLE_LEVEL(SELF_CPU_REGISTER)
 
 	/* Switch stack if necessary */
 	mfspr	SCRATCH_0_REGISTER, SPRG1
 	iselgt	r1, r1, SCRATCH_0_REGISTER
 
+#ifndef PPC_EXC_CONFIG_USE_FIXED_HANDLER
 	/*
 	 * Call high level exception handler.
 	 *
@@ -159,11 +198,15 @@ ppc_exc_wrap_async_normal:
 	rlwinm	VECTOR_REGISTER, VECTOR_REGISTER, 0, 27, 31
 	mtctr	HANDLER_REGISTER
 	bctrl
+#else /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
+	/* Call fixed high level handler */
+	bl	bsp_interrupt_dispatch
+#endif /* PPC_EXC_CONFIG_USE_FIXED_HANDLER */
 
 	/* Load ISR nest level and thread dispatch disable level */
-	lis	ISR_NEST_HADDR_REGISTER, ISR_NEST_LEVEL@ha
-	lwz	ISR_NEST_REGISTER, ISR_NEST_LEVEL@l(ISR_NEST_HADDR_REGISTER)
-	lwz	DISPATCH_LEVEL_REGISTER, _Thread_Dispatch_disable_level@sdarel(r13)
+	GET_SELF_CPU_CONTROL	SELF_CPU_REGISTER
+	lwz	ISR_NEST_REGISTER, PER_CPU_ISR_NEST_LEVEL(SELF_CPU_REGISTER)
+	lwz	DISPATCH_LEVEL_REGISTER, PER_CPU_THREAD_DISPATCH_DISABLE_LEVEL(SELF_CPU_REGISTER)
 
 	/*
 	 * Switch back to original stack (FRAME_REGISTER == r1 if we are still
@@ -173,13 +216,33 @@ ppc_exc_wrap_async_normal:
 	lwz	FRAME_REGISTER, FRAME_OFFSET(r1)
 
 	/* Decrement ISR nest level and thread dispatch disable level */
+#ifdef RTEMS_PROFILING
+	subic.	ISR_NEST_REGISTER, ISR_NEST_REGISTER, 1
+	subi	DISPATCH_LEVEL_REGISTER, DISPATCH_LEVEL_REGISTER, 1
+	cmpwi	cr2, DISPATCH_LEVEL_REGISTER, 0
+#else /* RTEMS_PROFILING */
 	subi	ISR_NEST_REGISTER, ISR_NEST_REGISTER, 1
 	subic.	DISPATCH_LEVEL_REGISTER, DISPATCH_LEVEL_REGISTER, 1
-	stw	ISR_NEST_REGISTER, ISR_NEST_LEVEL@l(ISR_NEST_HADDR_REGISTER)
-	stw	DISPATCH_LEVEL_REGISTER, _Thread_Dispatch_disable_level@sdarel(r13)
+#endif /* RTEMS_PROFILING */
+	stw	ISR_NEST_REGISTER, PER_CPU_ISR_NEST_LEVEL(SELF_CPU_REGISTER)
+	stw	DISPATCH_LEVEL_REGISTER, PER_CPU_THREAD_DISPATCH_DISABLE_LEVEL(SELF_CPU_REGISTER)
+
+#ifdef RTEMS_PROFILING
+	/* Store profiling data if necessary */
+	bne	profiling_done
+	mr	r3, SELF_CPU_REGISTER
+	mr	r4, ENTRY_INSTANT_REGISTER
+	GET_TIME_BASE	r5
+	bl	_Profiling_Outer_most_interrupt_entry_and_exit
+profiling_done:
+#endif /* RTEMS_PROFILING */
 
 	/* Call thread dispatcher if necessary */
+#ifdef RTEMS_PROFILING
+	bne	cr2, thread_dispatching_done
+#else /* RTEMS_PROFILING */
 	bne	thread_dispatching_done
+#endif /* RTEMS_PROFILING */
 	bl	_Thread_Dispatch
 thread_dispatching_done:
 
@@ -198,7 +261,7 @@ thread_dispatching_done:
 	lwz	SCRATCH_5_REGISTER, EXC_LR_OFFSET(r1)
 
 	PPC_GPR_LOAD	VECTOR_REGISTER, VECTOR_OFFSET(r1)
-	PPC_GPR_LOAD	ISR_NEST_HADDR_REGISTER, ISR_NEST_HADDR_OFFSET(r1)
+	PPC_GPR_LOAD	SELF_CPU_REGISTER, SELF_CPU_OFFSET(r1)
 	PPC_GPR_LOAD	ISR_NEST_REGISTER, ISR_NEST_OFFSET(r1)
 
 #ifdef __SPE__
@@ -226,6 +289,11 @@ thread_dispatching_done:
 	PPC_GPR_LOAD	SCRATCH_4_REGISTER, SCRATCH_4_OFFSET(r1)
 	mtlr	SCRATCH_5_REGISTER
 	PPC_GPR_LOAD	SCRATCH_5_REGISTER, SCRATCH_5_OFFSET(r1)
+
+#ifdef RTEMS_PROFILING
+	/* Restore ENTRY_INSTANT_REGISTER */
+	lwz	ENTRY_INSTANT_REGISTER, ENTRY_INSTANT_OFFSET(r1)
+#endif /* RTEMS_PROFILING */
 
 	/* Pop stack */
 	addi	r1, r1, PPC_EXC_MINIMAL_FRAME_SIZE

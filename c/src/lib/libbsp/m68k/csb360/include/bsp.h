@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @ingroup m68k_csb360
+ *
+ * @brief Global BSP definitions.
+ */
+
 /*
  * Board Support Package for CSB360 evaluation board
  * BSP definitions
@@ -12,13 +20,21 @@
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
  *
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _BSP_H
 #define _BSP_H
 
 #include <mcf5272/mcf5272.h>
+
+/**
+ * @defgroup m68k_csb360 CSB360 Support
+ *
+ * @ingroup bsp_m68k
+ *
+ * @brief CSB360 support.
+ */
 
 
 /*** Board resources allocation ***/
@@ -110,6 +126,7 @@ extern "C" {
 #include <rtems/console.h>
 #include <rtems/iosupp.h>
 #include <rtems/clockdrv.h>
+#include <bsp/default-initial-extension.h>
 
 struct rtems_bsdnet_ifconfig;
 extern int rtems_enet_driver_attach (struct rtems_bsdnet_ifconfig *config);

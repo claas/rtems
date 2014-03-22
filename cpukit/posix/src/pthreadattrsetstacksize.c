@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Sets the Thread Creation Stacksize Attribute in the attr object 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  16.1.1 Thread Creation Attributes, P1003.1c/Draft 10, p, 140
  *
@@ -6,18 +13,18 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/score/stackimpl.h>
+
 #include <pthread.h>
 #include <errno.h>
-
-#include <rtems/system.h>
-#include <rtems/posix/pthread.h>
 
 int pthread_attr_setstacksize(
   pthread_attr_t  *attr,

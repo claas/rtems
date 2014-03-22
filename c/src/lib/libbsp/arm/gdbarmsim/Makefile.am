@@ -33,6 +33,8 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c ../../shared/bsppost.c \
     ../../shared/bsppredriverhook.c ../../shared/bspstart.c \
     ../../shared/bspclean.c startup/bspreset.c ../../shared/bootcard.c \
     ../../shared/sbrk.c ../../shared/gnatinstallhandler.c startup/syscalls.c
+libbsp_a_SOURCES += ../../shared/cpucounterread.c
+libbsp_a_SOURCES += ../../shared/cpucounterdiff.c
 # console
 libbsp_a_SOURCES += ../../shared/console-polled.c console/console-io.c
 # clock
@@ -41,6 +43,11 @@ libbsp_a_SOURCES += ../../shared/clock_driver_simidle.c
 libbsp_a_SOURCES += ../../shared/timerstub.c
 # above
 libbsp_a_SOURCES += ../shared/abort/abort.c
+
+# Cache
+libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c
+libbsp_a_SOURCES += ../../shared/include/cache_.h
+libbsp_a_CPPFLAGS = -I$(srcdir)/../../shared/include
 
 #libbsp_a_LIBADD = ../../../libcpu/@RTEMS_CPU@/shared/arm920.rel \
 #    ../../../libcpu/@RTEMS_CPU@/@RTEMS_CPU_MODEL@/clock.rel \

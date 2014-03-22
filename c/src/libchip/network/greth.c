@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  * 2007-09-07, Ported GBIT support from 4.6.5
  */
@@ -88,7 +88,7 @@ extern void ipalign(struct mbuf *m);
 #endif
 const struct timespec greth_tan = {
    GRETH_AUTONEGO_TIMEOUT_MS/1000,
-   GRETH_AUTONEGO_TIMEOUT_MS*1000000
+   (GRETH_AUTONEGO_TIMEOUT_MS % 1000) *1000000
 };
 
 /* For optimizing the autonegotiation time */
@@ -178,7 +178,7 @@ static char *almalloc(int sz)
 
 /* GRETH interrupt handler */
 
-void greth_interrupt_handler (void *arg)
+static void greth_interrupt_handler (void *arg)
 {
         uint32_t status;
         uint32_t ctrl;
@@ -211,7 +211,7 @@ void greth_interrupt_handler (void *arg)
 
         /* Send the event(s) */
         if ( events )
-                rtems_event_send (greth->daemonTid, events);
+                rtems_bsdnet_event_send (greth->daemonTid, events);
 }
 
 static uint32_t read_mii(uint32_t phy_addr, uint32_t reg_addr)
@@ -258,7 +258,7 @@ static void print_init_info(struct greth_softc *sc)
         }
 #ifdef GRETH_AUTONEGO_PRINT_TIME
         if ( sc->auto_neg ) {
-          printf("Autonegotiation Time: %dms\n", sc->auto_neg_time.tv_sec*1000 +
+          printf("Autonegotiation Time: %ldms\n", sc->auto_neg_time.tv_sec*1000 +
                  sc->auto_neg_time.tv_nsec/1000000);
         }
 #endif
@@ -306,6 +306,17 @@ greth_initialize_hardware (struct greth_softc *sc)
     write_mii(phyaddr, 0, 0x8000 | phyctrl);
 
     while ((read_mii(phyaddr, 0)) & 0x8000) {}
+    phystatus = read_mii(phyaddr, 1);
+
+    /* Disable Gbit auto-neg advertisement if MAC does not support it */
+
+    if ((!sc->gbit_mac) && (phystatus & 0x100)) write_mii(phyaddr, 9, 0);
+
+    /* Restart auto-negotiation if available */
+    if (phystatus & 0x08) {
+	write_mii(phyaddr, 0, phyctrl | 0x1200);
+	phyctrl = read_mii(phyaddr, 0);
+    }
 
     /* Check if PHY is autoneg capable and then determine operating mode,
        otherwise force it to 10 Mbit halfduplex */
@@ -344,7 +355,7 @@ greth_initialize_hardware (struct greth_softc *sc)
                                sc->gb = 1;
                                sc->fd = 1;
                        }
-                       if ( (sc->phydev.extadv & GRETH_MII_EXTADV_1000HD) &&
+		       else if ( (sc->phydev.extadv & GRETH_MII_EXTADV_1000HD) &&
                             (sc->phydev.extpart & GRETH_MII_EXTPRT_1000HD)) {
                                sc->gb = 1;
                                sc->fd = 0;
@@ -356,12 +367,12 @@ greth_initialize_hardware (struct greth_softc *sc)
                             sc->sp = 1;
                             sc->fd = 1;
                     }
-                    if ( (sc->phydev.adv & GRETH_MII_100TXHD) &&
+		    else if ( (sc->phydev.adv & GRETH_MII_100TXHD) &&
                          (sc->phydev.part & GRETH_MII_100TXHD)) {
                             sc->sp = 1;
                             sc->fd = 0;
                     }
-                    if ( (sc->phydev.adv & GRETH_MII_10FD) &&
+		    else if ( (sc->phydev.adv & GRETH_MII_10FD) &&
                          (sc->phydev.part & GRETH_MII_10FD)) {
                             sc->fd = 1;
                     }
@@ -522,7 +533,7 @@ void ipalign(struct mbuf *m)
 }
 #endif
 
-void
+static void
 greth_Daemon (void *arg)
 {
     struct ether_header *eh;
@@ -533,7 +544,9 @@ greth_Daemon (void *arg)
     rtems_event_set events;
     rtems_interrupt_level level;
     int first;
+#ifdef CPU_U32_FIX
     unsigned int tmp;
+#endif
 
     for (;;)
       {
@@ -616,7 +629,7 @@ again:
                                     tmp = GRETH_MEM_LOAD(4+(uintptr_t)eh);
                                     tmp = GRETH_MEM_LOAD(8+(uintptr_t)eh);
                                     tmp = GRETH_MEM_LOAD(12+(uintptr_t)eh);
-
+				    (void)tmp;
                                     ipalign(m);	/* Align packet on 32-bit boundary */
                             }
 #endif
@@ -727,7 +740,7 @@ sendpacket (struct ifnet *ifp, struct mbuf *m)
 }
 
 
-int
+static int
 sendpacket_gbit (struct ifnet *ifp, struct mbuf *m)
 {
         struct greth_softc *dp = ifp->if_softc;

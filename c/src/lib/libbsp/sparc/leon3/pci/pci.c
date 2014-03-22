@@ -11,7 +11,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Till Straumann, <strauman@slac.stanford.edu>, 1/2002
  *   - separated bridge detection code out of this file
@@ -223,7 +223,7 @@ rtems_pci_config_t BSP_pci_configuration = {
 };
 
 
-int init_grpci(void) {
+static int init_grpci(void) {
 
     volatile unsigned int *page0 =  (unsigned volatile int *) PCI_MEM_START;
     uint32_t data;
@@ -333,7 +333,7 @@ static inline void swap_res(struct pci_res **p1, struct pci_res **p2) {
  *
  *
 */
-void pci_allocate_resources(void) {
+static void pci_allocate_resources(void) {
 
     unsigned int slot, numfuncs, func, pos, i, swapped, addr, dev, fn;
     uint32_t id, tmp, size;

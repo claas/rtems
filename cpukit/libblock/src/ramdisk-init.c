@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,8 +31,8 @@
 
 ramdisk *ramdisk_allocate(
   void *area_begin,
-  uint32_t block_size,
-  rtems_blkdev_bnum block_count,
+  uint32_t media_block_size,
+  rtems_blkdev_bnum media_block_count,
   bool trace
 )
 {
@@ -43,7 +43,7 @@ ramdisk *ramdisk_allocate(
   }
 
   if (area_begin == NULL) {
-    area_begin = calloc(block_count, block_size);
+    area_begin = calloc(media_block_count, media_block_size);
     if (area_begin == NULL) {
       free(rd);
 
@@ -53,8 +53,8 @@ ramdisk *ramdisk_allocate(
   } else {
     rd->malloced = false;
   }
-  rd->block_size = block_size;
-  rd->block_num = block_count;
+  rd->block_size = media_block_size;
+  rd->block_num = media_block_count;
   rd->area = area_begin;
   rd->trace = trace;
   rd->initialized = true;

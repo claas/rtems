@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup sparc_leon2
+ * @brief Installs BSP pre-driver hook
+ */
+
 /*  Installs the BSP pre-driver hook
  *
  *  COPYRIGHT (c) 2011
@@ -5,7 +11,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>

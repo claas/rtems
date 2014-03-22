@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup arm_smdk2410
+ * @brief Global BSP definitions.
+ */
+
 /*-------------------------------------------------------------------------+
 | bsp.h - ARM BSP
 |
@@ -5,16 +11,25 @@
 |
 |  The license and distribution terms for this file may be
 |  found in the file LICENSE in this distribution or at
-|  http://www.rtems.com/license/LICENSE.
+|  http://www.rtems.org/license/LICENSE.
 +--------------------------------------------------------------------------*/
 
 
 #ifndef _BSP_H
 #define _BSP_H
 
+#include <bspopts.h>
+#include <bsp/default-initial-extension.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @defgroup arm_smdk2410 SMDK2410 Support
+ * @ingroup bsp_arm
+ * @brief SMDK2410 Support Package
+ */
 
 /**
  *  This file will not be pre-installed because the smdk2410 BSP uses

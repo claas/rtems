@@ -1,14 +1,21 @@
+/**
+ * @file
+ *
+ * @brief Function sets scheduling policy and parameters of the thread
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  13.5.2 Dynamic Thread Scheduling Parameters Access,
  *         P1003.1c/Draft 10, p. 124
  */
 
-/*  COPYRIGHT (c) 1989-2007.
+/*  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,10 +25,11 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <rtems/system.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/priority.h>
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/posix/priorityimpl.h>
 #include <rtems/posix/time.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 int pthread_setschedparam(
   pthread_t           thread,
@@ -29,7 +37,7 @@ int pthread_setschedparam(
   struct sched_param *param
 )
 {
-  register Thread_Control             *the_thread;
+  Thread_Control                      *the_thread;
   POSIX_API_Control                   *api;
   Thread_CPU_budget_algorithms         budget_algorithm;
   Thread_CPU_budget_algorithm_callout  budget_callout;
@@ -65,6 +73,9 @@ int pthread_setschedparam(
 
       api->schedpolicy = policy;
       api->schedparam  = *param;
+      api->Attributes.schedpolicy = policy;
+      api->Attributes.schedparam  = *param;
+
       the_thread->budget_algorithm = budget_algorithm;
       the_thread->budget_callout   = budget_callout;
 
@@ -91,7 +102,7 @@ int pthread_setschedparam(
           break;
       }
 
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_thread->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

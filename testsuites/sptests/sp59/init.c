@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -17,8 +17,8 @@
 rtems_task Init(rtems_task_argument argument);
 rtems_task Blocking_task(rtems_task_argument ignored);
 
-#define ALLOC_SIZE 400
 uint8_t Region_Memory[512] CPU_STRUCTURE_ALIGNMENT;
+#define ALLOC_SIZE ( sizeof( Region_Memory ) / 2 )
 rtems_id Region;
 
 rtems_task Blocking_task(

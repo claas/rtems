@@ -11,7 +11,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 | this file contains glue functions to the Freescale BestComm API |
@@ -27,6 +27,7 @@
 #include "bestcomm_api.h"
 #include "bestcomm_glue.h"
 #include "include/mgt5200/sdma.h"
+#include <rtems/score/heapimpl.h>
 
 extern const uint32 taskTableBytes;
 

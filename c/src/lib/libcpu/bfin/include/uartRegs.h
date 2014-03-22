@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _uartRegs_h_
@@ -68,4 +68,3 @@
 #define UART_GCTL_UCEN                                  0x01
 
 #endif /* _uartRegs_h_ */
-

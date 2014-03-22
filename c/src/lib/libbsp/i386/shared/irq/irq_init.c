@@ -11,7 +11,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems/bspIo.h>
@@ -158,13 +158,7 @@ void  rtems_irq_mngt_init(void)
     /*
      * Init initial Interrupt management config
      */
-    if (bsp_interrupt_initialize() != RTEMS_SUCCESSFUL) {
-      /*
-       * put something here that will show the failure...
-       */
-      printk("Unable to initialize RTEMS interrupt Management!!! System locked\n");
-      while (1);
-    }
+    bsp_interrupt_initialize();
 
     /*
      * #define DEBUG

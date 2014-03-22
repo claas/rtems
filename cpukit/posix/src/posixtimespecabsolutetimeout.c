@@ -1,5 +1,8 @@
-/*
- *  Convert abstime timeout to ticks
+/**
+ * @file
+ *
+ * @brief Convert Absolute Timeout to Ticks
+ * @ingroup POSIX_TIMETYPES Time Types
  */
 
 /*
@@ -8,7 +11,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -23,10 +26,9 @@
 #include <semaphore.h>
 #include <limits.h>
 
-#include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/posix/semaphore.h>
+#include <rtems/posix/semaphoreimpl.h>
 #include <rtems/posix/time.h>
+#include <rtems/score/todimpl.h>
 #include <rtems/seterr.h>
 
 /*

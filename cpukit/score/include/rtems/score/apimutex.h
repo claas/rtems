@@ -3,7 +3,7 @@
  *
  * @ingroup ScoreAPIMutex
  *
- * @brief API Mutex Handler API.
+ * @brief API Mutex Handler API
  */
 
 /*
@@ -12,15 +12,14 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_APIMUTEX_H
 #define _RTEMS_SCORE_APIMUTEX_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <rtems/score/coremutex.h>
+#include <rtems/score/object.h>
 
 /**
  * @defgroup ScoreAPIMutex API Mutex Handler
@@ -28,13 +27,12 @@ extern "C" {
  * @ingroup Score
  *
  * @brief Provides routines to ensure mutual exclusion on API level.
- *
- * @{
  */
+/**@{**/
 
-#include <rtems/score/coremutex.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Control block used to manage each API mutex.
@@ -52,15 +50,12 @@ typedef struct {
 } API_Mutex_Control;
 
 /**
- * @brief Information control block used to manage this class of objects.
- */
-SCORE_EXTERN Objects_Information _API_Mutex_Information;
-
-/**
- * @brief Performs the initialization necessary for this handler.
+ *  @brief Initialization for the API Mutexe Handler.
  *
- * The value @a maximum_mutexes is the maximum number of API mutexes that may
- * exist at any time.
+ *  The value @a maximum_mutexes is the maximum number of API mutexes that may
+ *  exist at any time.
+ *
+ *  @param[in] maximum_mutexes is the maximum number of API mutexes.
  */
 void _API_Mutex_Initialization( uint32_t maximum_mutexes );
 
@@ -71,12 +66,18 @@ void _API_Mutex_Initialization( uint32_t maximum_mutexes );
 void _API_Mutex_Allocate( API_Mutex_Control **mutex );
 
 /**
- * @brief Acquires the specified API mutex @a mutex.
+ *  @brief Acquires the specified API mutex.
  */
-void _API_Mutex_Lock( API_Mutex_Control *mutex );
+void _API_Mutex_Lock(
+   API_Mutex_Control *mutex
+   );
 
 /**
- * @brief Releases the specified API mutex @a mutex.
+ *  @brief Releases the specified API mutex.
+ *
+ *  Releases the specified @a mutex.
+ *
+ *  @param[in] mutex is the mutex to be removed.
  */
 void _API_Mutex_Unlock( API_Mutex_Control *mutex );
 
@@ -92,12 +93,11 @@ void _API_Mutex_Unlock( API_Mutex_Control *mutex );
  * When the APIs all use this for allocation and deallocation protection, then
  * this possibly should be renamed and moved to a higher level in the
  * hierarchy.
- *
- * @{
  */
+/**@{**/
 
 /**
- *  @brief Memory Allocation Mutex
+ *  @brief Memory allocation mutex.
  *
  *  This points to the API Mutex instance used to ensure that only
  *  one thread at a time is allocating or freeing memory.
@@ -105,7 +105,7 @@ void _API_Mutex_Unlock( API_Mutex_Control *mutex );
 SCORE_EXTERN API_Mutex_Control *_RTEMS_Allocator_Mutex;
 
 /**
- *  @brief Macro to Ease Locking the Allocator Mutex
+ *  @brief Macro to ease locking the allocator mutex.
  *
  *  This macro makes it explicit that one is locking the allocator mutex.
  */
@@ -113,12 +113,24 @@ SCORE_EXTERN API_Mutex_Control *_RTEMS_Allocator_Mutex;
   _API_Mutex_Lock( _RTEMS_Allocator_Mutex )
 
 /**
- *  @brief Macro to Ease Unlocking the Allocator Mutex
+ *  @brief Macro to ease unlocking the allocator mutex.
  *
  *  This macro makes it explicit that one is unlocking the allocator mutex.
  */
 #define _RTEMS_Unlock_allocator() \
   _API_Mutex_Unlock( _RTEMS_Allocator_Mutex )
+
+SCORE_EXTERN API_Mutex_Control *_Once_Mutex;
+
+static inline void _Once_Lock( void )
+{
+  _API_Mutex_Lock( _Once_Mutex );
+}
+
+static inline void _Once_Unlock( void )
+{
+  _API_Mutex_Unlock( _Once_Mutex );
+}
 
 /** @} */
 

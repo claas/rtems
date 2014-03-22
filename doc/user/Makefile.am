@@ -8,13 +8,14 @@ PROJECT = c_user
 include $(top_srcdir)/project.am
 include $(top_srcdir)/main.am
 
-FILES = bsp.texi dirstat.texi example.texi glossary.texi preface.texi
+FILES = bsp.texi example.texi glossary.texi preface.texi
 
 GENERATED_FILES = overview.texi concepts.texi datatypes.texi init.texi \
     task.texi intr.texi clock.texi timer.texi sem.texi msg.texi event.texi \
     signal.texi part.texi region.texi dpmem.texi io.texi fatal.texi \
     schedule.texi rtmon.texi barrier.texi bsp.texi userext.texi conf.texi \
-    mp.texi stackchk.texi cpuuse.texi object.texi chains.texi cbs.texi
+    mp.texi stackchk.texi cpuuse.texi object.texi chains.texi timespec.texi \
+    cbs.texi dirstat.texi smp.texi
 
 COMMON_FILES += $(top_srcdir)/common/cpright.texi
 
@@ -143,7 +144,7 @@ fatal.texi: fatal.t
 	    -n "Board Support Packages" < $< > $@
 
 bsp.texi: bsp.t
-	$(BMENU2) -p "Fatal Error Manager FATAL_ERROR_OCCURRED - Invoke the fatal error handler" \
+	$(BMENU2) -p "Fatal Error Manager INTERNAL_ERROR_TEXT - Returns a text for an internal error code" \
 	    -u "Top" \
 	    -n "User Extensions Manager" < $< > $@
 
@@ -158,12 +159,17 @@ conf.texi: conf.t
 	    -n "Multiprocessing Manager" < $< > $@
 
 mp.texi: mp.t
-	$(BMENU2) -p "Configuring a System Unlimited Objects" \
+	$(BMENU2) -p "Configuring a System Configuration Data Structures" \
+	    -u "Top" \
+	    -n "Symmetric Multiprocessing Services" < $< > $@
+
+smp.texi: smp.t
+	$(BMENU2) -p  "Multiprocessing Manager MULTIPROCESSING_ANNOUNCE - Announce the arrival of a packet"\
 	    -u "Top" \
 	    -n "Stack Bounds Checker" < $< > $@
 
 stackchk.texi: stackchk.t
-	$(BMENU2) -p "Multiprocessing Manager MULTIPROCESSING_ANNOUNCE - Announce the arrival of a packet" \
+	$(BMENU2) -p "Symmetric Multiprocessing Services rtems_task_set_affinity - Set Task Affinity" \
 	    -u "Top" \
 	    -n "CPU Usage Statistics" < $< > $@
 
@@ -180,17 +186,27 @@ object.texi: object.t
 chains.texi: chains.t
 	$(BMENU2) -p "Object Services OBJECT_GET_CLASS_INFORMATION - Obtain Class Information" \
 	    -u "Top" \
+	    -n "Timespec Helpers" < $< > $@
+
+timespec.texi: timespec.t
+	$(BMENU2) -p "Chains Prepend a Node" \
+	    -u "Top" \
 	    -n "Constant Bandwidth Server Scheduler API" < $< > $@
 
 cbs.texi: cbs.t
-	$(BMENU2) -p "Chains Prepend a Node" \
+	$(BMENU2) -p "Timespec Helpers TIMESPEC_FROM_TICKS - Convert Ticks to struct timespec Representation" \
 	    -u "Top" \
 	    -n "Directive Status Codes" < $< > $@
+
+dirstat.texi: dirstat.t
+	$(BMENU2) -p "Constant Bandwidth Server Scheduler API CBS_GET_APPROVED_BUDGET - Get scheduler approved execution time" \
+	    -u "Top" \
+	    -n "Example Application" < $< > $@
 
 EXTRA_DIST = bsp.t cbs.t clock.t chains.t concepts.t cpuuse.t datatypes.t conf.t \
     dpmem.t event.t fatal.t init.t intr.t io.t mp.t msg.t overview.t \
     part.t region.t rtmon.t sem.t schedule.t signal.t stackchk.t \
-    task.t timer.t userext.t $(TXT_FILES) $(PNG_FILES) $(EPS_IMAGES) \
+    task.t timer.t userext.t dirstat.t $(TXT_FILES) $(PNG_FILES) $(EPS_IMAGES) \
     $(noinst_DATA)
 
 CLEANFILES += c_user.info c_user.info-? c_user.info-??

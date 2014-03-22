@@ -22,6 +22,8 @@ RTEMS_PROG_CC_FOR_TARGET
 RTEMS_PROG_CXX_FOR_TARGET
 RTEMS_CANONICALIZE_TOOLS
 
+RTEMS_CHECK_CPUOPTS([RTEMS_POSIX_API])
+
 RTEMS_CHECK_CUSTOM_BSP(RTEMS_BSP)
 RTEMS_CHECK_CPUOPTS([RTEMS_MULTIPROCESSING])
 RTEMS_CHECK_CXX(RTEMS_BSP)
@@ -30,16 +32,52 @@ RTEMS_CHECK_CPUOPTS([RTEMS_SMP])
 
 AM_CONDITIONAL(SMPTESTS,test "$rtems_cv_RTEMS_SMP" = "yes")
 
+AM_CONDITIONAL([HAS_POSIX],[test x"${rtems_cv_RTEMS_POSIX_API}" = xyes])
+
+# These are SMP related and were added to newlib by RTEMS.
+AC_CHECK_DECLS([pthread_attr_setaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+AC_CHECK_DECLS([pthread_attr_getaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+AC_CHECK_DECLS([pthread_setaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+AC_CHECK_DECLS([pthread_getaffinity_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+AC_CHECK_DECLS([pthread_getattr_np],[],[],[[
+  #define _GNU_SOURCE
+  #include <pthread.h>]])
+
+# Added to newlib pthreads for RTEMS SMP (np), may not be present
+AC_CHECK_HEADERS([sys/cpuset.h])
+AM_CONDITIONAL(HAS_CPUSET,test x"${ac_cv_header_sys_cpuset_h}" = x"yes")
+
 # Explicitly list all Makefiles here
 AC_CONFIG_FILES([Makefile
+smpload01/Makefile
 smp01/Makefile
 smp02/Makefile
 smp03/Makefile
-smp04/Makefile
 smp05/Makefile
-smp06/Makefile
 smp07/Makefile
 smp08/Makefile
 smp09/Makefile
+smpaffinity01/Makefile
+smpatomic01/Makefile
+smpfatal01/Makefile
+smpfatal02/Makefile
+smpfatal03/Makefile
+smplock01/Makefile
+smpmigration01/Makefile
+smppsxaffinity01/Makefile
+smppsxaffinity02/Makefile
+smppsxsignal01/Makefile
+smpschedule01/Makefile
+smpsignal01/Makefile
+smpswitchextension01/Makefile
+smpunsupported01/Makefile
 ])
 AC_OUTPUT

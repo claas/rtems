@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -250,7 +250,7 @@ void bfin_ethernet_rxdma_isr(int vector) {
     rxdmaBase = sc->rxdmaBase;
     status = BFIN_REG16(rxdmaBase, DMA_IRQ_STATUS_OFFSET);
     if (status & DMA_IRQ_STATUS_DMA_DONE)
-        rtems_event_send (sc->rxDaemonTid, INTERRUPT_EVENT);
+        rtems_bsdnet_event_send (sc->rxDaemonTid, INTERRUPT_EVENT);
     BFIN_REG16(rxdmaBase, DMA_IRQ_STATUS_OFFSET) = status;
   }
 }
@@ -266,7 +266,7 @@ void bfin_ethernet_txdma_isr(int vector) {
     txdmaBase = sc->txdmaBase;
     status = BFIN_REG16(txdmaBase, DMA_IRQ_STATUS_OFFSET);
     if (status & DMA_IRQ_STATUS_DMA_DONE)
-        rtems_event_send (sc->txDaemonTid, INTERRUPT_EVENT);
+        rtems_bsdnet_event_send (sc->txDaemonTid, INTERRUPT_EVENT);
     BFIN_REG16(txdmaBase, DMA_IRQ_STATUS_OFFSET) = status;
   }
 }
@@ -629,7 +629,7 @@ static void initializeHardware(struct bfin_ethernetSoftc *sc) {
      including other status structures, so we can safely manage both the
      processor and DMA writing to them.  So this rounds up the structure
      sizes to a multiple of the cache line size. */
-  cacheAlignment = rtems_cache_get_data_line_size();
+  cacheAlignment = (int) rtems_cache_get_data_line_size();
   if (cacheAlignment == 0)
      cacheAlignment = 1;
   rxStatusSize = cacheAlignment * ((sizeof(rxStatusT) + cacheAlignment - 1) /
@@ -720,7 +720,7 @@ static void ethernetStart(struct ifnet *ifp) {
   sc = ifp->if_softc;
 
   ifp->if_flags |= IFF_OACTIVE;
-  rtems_event_send(sc->txDaemonTid, START_TRANSMIT_EVENT);
+  rtems_bsdnet_event_send(sc->txDaemonTid, START_TRANSMIT_EVENT);
 }
 
 /* initialize and start the device */
@@ -728,14 +728,10 @@ static void ethernetInit(void *arg) {
   struct bfin_ethernetSoftc *sc;
   struct ifnet *ifp;
   void *ethBase;
-  void *rxdmaBase;
-  void *txdmaBase;
 
   sc = arg;
   ifp = &sc->arpcom.ac_if;
   ethBase = sc->ethBase;
-  rxdmaBase = sc->rxdmaBase;
-  txdmaBase = sc->txdmaBase;
 
   if (sc->txDaemonTid == 0) {
     initializeHardware(sc);

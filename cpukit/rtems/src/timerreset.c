@@ -1,13 +1,17 @@
+/**
+ * @file
+ *
+ * @brief RTEMS Timer Reset
+ * @ingroup ClassicTimer Timers
+ */
+
 /*
- *  Timer Manager - rtems_timer_reset directive
- *
- *
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,11 +21,9 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/score/thread.h>
-#include <rtems/rtems/timer.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/rtems/timerimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 /*
  *  rtems_timer_reset
@@ -62,7 +64,7 @@ rtems_status_code rtems_timer_reset(
          */
         #if defined(RTEMS_DEBUG)
           if ( !timer_server ) {
-            _Thread_Enable_dispatch();
+            _Objects_Put( &the_timer->Object );
             return RTEMS_INCORRECT_STATE;
           }
         #endif
@@ -76,7 +78,7 @@ rtems_status_code rtems_timer_reset(
          */
         status = RTEMS_NOT_DEFINED;
       }
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_timer->Object );
       return status;
 
 #if defined(RTEMS_MULTIPROCESSING)

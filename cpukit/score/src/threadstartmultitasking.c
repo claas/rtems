@@ -1,66 +1,52 @@
+/**
+ *  @file
+ *
+ *  @brief Start Thread Multitasking
+ *  @ingroup ScoreThread
+ */
+
 /*
- *  Thread Handler
- *
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
-
-/*
- *  _Thread_Start_multitasking
- *
- *  This kernel routine readies the requested thread, the thread chain
- *  is adjusted.  A new heir thread may be selected.
- *
- *  Input parameters:
- *    system_thread - pointer to system initialization thread control block
- *    idle_thread   - pointer to idle thread control block
- *
- *  Output parameters:  NONE
- *
- *  NOTE:  This routine uses the "blocking" heir selection mechanism.
- *         This ensures the correct heir after a thread restart.
- *
- *  INTERRUPT LATENCY:
- *    ready chain
- *    select heir
- */
+#include <rtems/score/threadimpl.h>
 
 void _Thread_Start_multitasking( void )
 {
+  Per_CPU_Control *self_cpu = _Per_CPU_Get();
+  Thread_Control  *heir;
+
+#if defined(RTEMS_SMP)
+  _Per_CPU_State_change( self_cpu, PER_CPU_STATE_UP );
+
   /*
-   *  The system is now multitasking and completely initialized.
-   *  This system thread now "hides" in a single processor until
-   *  the system is shut down.
+   * Threads begin execution in the _Thread_Handler() function.   This
+   * function will set the thread dispatch disable level to zero and calls
+   * _Per_CPU_Release().
    */
+  _Per_CPU_Acquire( self_cpu );
+  _Profiling_Thread_dispatch_disable( self_cpu, 0 );
+  self_cpu->thread_dispatch_disable_level = 1;
+#endif
 
-  _System_state_Set( SYSTEM_STATE_UP );
+  heir = self_cpu->heir;
 
-  _Thread_Dispatch_necessary = false;
+#if defined(RTEMS_SMP)
+  self_cpu->executing->is_executing = false;
+  heir->is_executing = true;
+#endif
 
-  _Thread_Executing = _Thread_Heir;
+  self_cpu->dispatch_necessary = false;
+  self_cpu->executing = heir;
 
    /*
     * Get the init task(s) running.
@@ -80,13 +66,13 @@ void _Thread_Start_multitasking( void )
     *  don't need to worry about saving BSP's floating point state
     */
 
-   if ( _Thread_Heir->fp_context != NULL )
-     _Context_Restore_fp( &_Thread_Heir->fp_context );
+   if ( heir->fp_context != NULL )
+     _Context_Restore_fp( &heir->fp_context );
 #endif
 
 #if defined(_CPU_Start_multitasking)
-  _CPU_Start_multitasking( &_Thread_BSP_context, &_Thread_Heir->Registers );
+    _CPU_Start_multitasking( &heir->Registers );
 #else
-  _Context_Switch( &_Thread_BSP_context, &_Thread_Heir->Registers );
+    _CPU_Context_Restart_self( &heir->Registers );
 #endif
 }

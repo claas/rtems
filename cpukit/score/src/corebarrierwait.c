@@ -1,58 +1,38 @@
+/**
+ *  @file
+ *
+ *  @brief Wait For The Barrier
+ *  @ingroup ScoreBarrier
+ */
+
 /*
- *  SuperCore Barrier Handler
- *
- *  DESCRIPTION:
- *
- *  This package is part of the implementation of the SuperCore Barrier Handler.
- *
  *  COPYRIGHT (c) 1989-2006.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/corebarrier.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-
-/*
- *  _CORE_barrier_Wait
- *
- *  Input parameters:
- *    the_barrier - pointer to barrier control block
- *    id          - id of object to wait on
- *    wait        - true if wait is allowed, false otherwise
- *    timeout     - number of ticks to wait (0 means forever)
- *    api_barrier_mp_support - api dependent MP support actions
- *
- *  Output parameters:  NONE
- *
- *  INTERRUPT LATENCY:
- *    available
- *    wait
- */
+#include <rtems/score/corebarrierimpl.h>
+#include <rtems/score/isrlevel.h>
+#include <rtems/score/threadqimpl.h>
 
 void _CORE_barrier_Wait(
   CORE_barrier_Control                *the_barrier,
+  Thread_Control                      *executing,
   Objects_Id                           id,
   bool                                 wait,
   Watchdog_Interval                    timeout,
   CORE_barrier_API_mp_support_callout  api_barrier_mp_support
 )
 {
-  Thread_Control *executing;
   ISR_Level       level;
 
-  executing = _Thread_Executing;
   executing->Wait.return_code = CORE_BARRIER_STATUS_SUCCESSFUL;
   _ISR_Disable( level );
   the_barrier->number_of_waiting_threads++;
@@ -71,5 +51,5 @@ void _CORE_barrier_Wait(
   executing->Wait.id             = id;
   _ISR_Enable( level );
 
-  _Thread_queue_Enqueue( &the_barrier->Wait_queue, timeout );
+  _Thread_queue_Enqueue( &the_barrier->Wait_queue, executing, timeout );
 }

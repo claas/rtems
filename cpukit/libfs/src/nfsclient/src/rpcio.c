@@ -1,8 +1,10 @@
-/* RPC multiplexor for a multitasking environment */
-
-/* Author: Till Straumann <strauman@slac.stanford.edu>, 2002 */
-
-/* This code funnels arbitrary task's UDP/RPC requests
+/**
+ * @file
+ *
+ * @brief RPC Multiplexor for a Multitasking Environment
+ * @ingroup libfs
+ *
+ * This code funnels arbitrary task's UDP/RPC requests
  * through one socket to arbitrary servers.
  * The replies are gathered and dispatched to the
  * requestors.
@@ -15,6 +17,8 @@
  */
 
 /*
+ * Author: Till Straumann <strauman@slac.stanford.edu>, 2002
+ *
  * Authorship
  * ----------
  * This software (NFS-2 client implementation for RTEMS) was created by
@@ -689,7 +693,6 @@ register int	i,j;
 			return 0;
 		}
 		/* pick a free table slot and initialize the XID */
-		rval->obuf.xid = time(0) ^ (uintptr_t)rval;
 		MU_LOCK(hlock);
 		rval->obuf.xid = (xidHashSeed++ ^ ((uintptr_t)rval>>10)) & XACT_HASH_MSK;
 		i=j=(rval->obuf.xid & XACT_HASH_MSK);
@@ -739,7 +742,7 @@ int i = xact->obuf.xid & XACT_HASH_MSK;
 		/* remember XID we used last time so we can avoid
 		 * reusing the same one (incremented by rpcUdpSend routine)
 		 */
-		xidUpper[i]   = xact->obuf.xid & ~XACT_HASH_MSK;
+		xidUpper[i]   = xact->obuf.xid;
 		MU_UNLOCK(hlock);
 
 		bufFree(&xact->ibuf);
@@ -929,6 +932,18 @@ rxWakeupCB(struct socket *sock, void *arg)
   rtems_event_send(*rpciod, RPCIOD_RX_EVENT);
 }
 
+void
+rpcSetXIDs(uint32_t xid)
+{
+	uint32_t i;
+
+	xid &= ~XACT_HASH_MSK;
+
+	for (i = 0; i < XACT_HASHS; ++i) {
+		xidUpper[i] = xid | i;
+	}
+}
+
 int
 rpcUdpInit(void)
 {
@@ -1049,7 +1064,7 @@ enum clnt_stat	err;
 	return RPC_SUCCESS;
 }
 
-void
+static void
 rpcUdpClntDestroy(RpcUdpClnt xact)
 {
 	rpcUdpServerDestroy(xact->server);

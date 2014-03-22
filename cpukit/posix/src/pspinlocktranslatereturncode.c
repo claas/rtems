@@ -1,12 +1,17 @@
-/*
- *  Spinlock Manager -- Translate SuperCore Status
+/**
+ *  @file
  *
+ *  @brief POSIX Spinlock Translate Core Spinlock Return Code
+ *  @ingroup POSIX_SPINLOCK
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,18 +23,7 @@
 
 #include <rtems/system.h>
 #include <rtems/score/corespinlock.h>
-#include <rtems/posix/spinlock.h>
-
-/*
- *  _POSIX_Spinlock_Translate_core_spinlock_return_code
- *
- *  Input parameters:
- *    the_spinlock_status - spinlock status code to translate
- *
- *  Output parameters:
- *    status code - translated POSIX status code
- *
- */
+#include <rtems/posix/spinlockimpl.h>
 
 static int _POSIX_Spinlock_Return_codes[CORE_SPINLOCK_STATUS_LAST + 1] = {
   0,                        /* CORE_SPINLOCK_SUCCESSFUL */

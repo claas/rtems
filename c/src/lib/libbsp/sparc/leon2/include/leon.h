@@ -1,3 +1,10 @@
+/**
+ * @file
+ * @defgroup leon1 Leon-1 Handler
+ * @ingroup sparc_leon2
+ * @brief Handlers Leon-1
+ */
+
 /*  erc32.h
  *
  *  This include file contains information pertaining to the LEON-1.
@@ -20,7 +27,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Ported to LEON implementation of the SPARC by On-Line Applications
  *  Research Corporation (OAR) under contract to the European Space
@@ -388,7 +395,7 @@ static __inline__ int bsp_irq_fixup(int irq)
 static inline unsigned int leon_r32_no_cache(uintptr_t addr)
 {
 	unsigned int tmp;
-	asm volatile (" lda [%1] 1, %0\n" : "=r"(tmp) : "r"(addr));
+	__asm__ volatile (" lda [%1] 1, %0\n" : "=r"(tmp) : "r"(addr));
 	return tmp;
 }
 

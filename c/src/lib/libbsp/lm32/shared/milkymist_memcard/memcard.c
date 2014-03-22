@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2010, 2011 Sebastien Bourdeauducq
  */
@@ -197,14 +197,16 @@ static int memcard_disk_block_read(rtems_blkdev_request *r)
       return -RTEMS_IO_ERROR;
   }
 
-  r->req_done(r->done_arg, RTEMS_SUCCESSFUL);
+  rtems_blkdev_request_done(r, RTEMS_SUCCESSFUL);
 
   return 0;
 }
 
 static int memcard_disk_block_write(rtems_blkdev_request *r)
 {
-  return -RTEMS_IO_ERROR;
+  rtems_blkdev_request_done(r, RTEMS_IO_ERROR);
+
+  return 0;
 }
 
 static rtems_status_code memcard_init(void)

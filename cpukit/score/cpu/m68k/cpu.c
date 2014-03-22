@@ -1,12 +1,16 @@
-/*
- *  Motorola MC68xxx Dependent Source
+/**
+ *  @file
  *
+ *  @brief Motorola MC68xxx Dependent Source
+ */
+
+/*
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15,19 +19,11 @@
 
 #include <rtems/system.h>
 #include <rtems/score/isr.h>
+#include <rtems/score/tls.h>
 
 #if defined( __mcoldfire__ ) && ( M68K_HAS_FPU == 1 )
   uint32_t _CPU_cacr_shadow;
 #endif
-
-/*  _CPU_Initialize
- *
- *  This routine performs processor dependent initialization.
- *
- *  INPUT PARAMETERS: NONE
- *
- *  OUTPUT PARAMETERS: NONE
- */
 
 void _CPU_Initialize(void)
 {
@@ -46,10 +42,6 @@ void _CPU_Initialize(void)
   }
 #endif /* M68K_HAS_VBR */
 }
-
-/*
- *  _CPU_ISR_Get_level
- */
 
 uint32_t   _CPU_ISR_Get_level( void )
 {
@@ -110,20 +102,6 @@ void _CPU_ISR_install_raw_handler(
     interrupt_table[ vector ] = (proc_ptr) &_CPU_ISR_jump_table[vector];
 #endif /* M68K_HAS_VBR */
 }
-
-/*
- *  _CPU_ISR_install_vector
- *
- *  This kernel routine installs the RTEMS handler for the
- *  specified vector.
- *
- *  Input parameters:
- *    vector      - interrupt vector number
- *    new_handler - replacement ISR for this vector number
- *    old_handler - former ISR for this vector number
- *
- *  Output parameters:  NONE
- */
 
 void _CPU_ISR_install_vector(
   uint32_t    vector,
@@ -204,3 +182,29 @@ void _CPU_Context_restore_fp (Context_Control_fp **fp_context_ptr)
   _fpCCR = *fp;
 }
 #endif
+
+void _CPU_Context_Initialize(
+  Context_Control *the_context,
+  void *stack_area_begin,
+  size_t stack_area_size,
+  uint32_t new_level,
+  void (*entry_point)( void ),
+  bool is_fp,
+  void *tls_area
+)
+{
+  uint32_t stack;
+
+  the_context->sr      = 0x3000 | (new_level << 8);
+  stack                = (uint32_t)stack_area_begin + stack_area_size - 4;
+  the_context->a7_msp  = (void *)stack;
+  *(void **)stack      = (void *)entry_point;
+
+#if (defined(__mcoldfire__) && ( M68K_HAS_FPU == 1 ))
+  the_context->fpu_dis = is_fp ? 0x00 : 0x10;
+#endif
+
+  if ( tls_area != NULL ) {
+    _TLS_TCB_before_tls_block_initialize( tls_area );
+  }
+}

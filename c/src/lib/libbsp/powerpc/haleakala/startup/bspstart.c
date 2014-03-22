@@ -59,6 +59,8 @@
 #include <string.h>
 #include <fcntl.h>
 
+#include <rtems/counter.h>
+
 #include <bsp.h>
 #include <bsp/uart.h>
 #include <bsp/irq.h>
@@ -170,7 +172,6 @@ BSP_polling_getchar_function_type BSP_poll_char = NULL;
  */
 void bsp_start( void )
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
   ppc_cpu_id_t myCpu;
   ppc_cpu_revision_t myCpuRevision;
 
@@ -195,6 +196,7 @@ void bsp_start( void )
   /* Set globals visible to clock.c */
   /* timebase register ticks/microsecond = CPU Clk in MHz */
   bsp_clicks_per_usec = 400;
+  rtems_counter_initialize_converter(bsp_clicks_per_usec * 1000000);
 
   bsp_timer_internal_clock  = TRUE;
   bsp_timer_average_overhead = 2;
@@ -203,14 +205,10 @@ void bsp_start( void )
   /*
    * Initialize default raw exception handlers.
    */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
+  ppc_exc_initialize(
     (uintptr_t) intrStack_start,
     (uintptr_t) intrStack_size
   );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
 
   /*
    * Install our own set of exception vectors

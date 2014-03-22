@@ -1,42 +1,32 @@
-/*
- *  Thread Handler / Thread Initialize
+/**
+ *  @file
  *
- *  COPYRIGHT (c) 1989-2011.
+ *  @brief Initialize Thread
+ *
+ *  @ingroup ScoreThread
+ */
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/scheduler.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/watchdog.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/schedulerimpl.h>
+#include <rtems/score/stackimpl.h>
+#include <rtems/score/tls.h>
+#include <rtems/score/userextimpl.h>
+#include <rtems/score/watchdogimpl.h>
 #include <rtems/score/wkspace.h>
-
-/*
- *  _Thread_Initialize
- *
- *  This routine initializes the specified the thread.  It allocates
- *  all memory associated with this thread.  It completes by adding
- *  the thread to the local object table so operations on this
- *  thread id are allowed.
- */
+#include <rtems/score/cpusetimpl.h>
+#include <rtems/config.h>
 
 bool _Thread_Initialize(
   Objects_Information                  *information,
@@ -52,15 +42,27 @@ bool _Thread_Initialize(
   Objects_Name                          name
 )
 {
-  size_t               actual_stack_size = 0;
-  void                *stack = NULL;
+  size_t     actual_stack_size = 0;
+  void      *stack = NULL;
   #if ( CPU_HARDWARE_FP == TRUE ) || ( CPU_SOFTWARE_FP == TRUE )
-    void              *fp_area;
+    void    *fp_area;
   #endif
-  void                *sched = NULL;
-  void                *extensions_area;
-  bool                 extension_status;
-  int                  i;
+  void      *sched = NULL;
+  void      *extensions_area;
+  bool       extension_status;
+  int        i;
+
+  /*
+   * Do not use _TLS_Size here since this will lead GCC to assume that this
+   * symbol is not 0 and the later > 0 test will be optimized away.
+   */
+  uintptr_t  tls_size = (uintptr_t) _TLS_BSS_end - (uintptr_t) _TLS_Data_begin;
+
+#if defined( RTEMS_SMP )
+  if ( rtems_configuration_is_smp_enabled() && !is_preemptible ) {
+    return false;
+  }
+#endif
 
   /*
    *  Initialize the Ada self pointer
@@ -77,6 +79,7 @@ bool _Thread_Initialize(
 
   extensions_area = NULL;
   the_thread->libc_reent = NULL;
+  the_thread->Start.tls_area = NULL;
 
   #if ( CPU_HARDWARE_FP == TRUE ) || ( CPU_SOFTWARE_FP == TRUE )
     fp_area = NULL;
@@ -111,6 +114,19 @@ bool _Thread_Initialize(
      stack,
      actual_stack_size
   );
+
+  /* Thread-local storage (TLS) area allocation */
+  if ( tls_size > 0 ) {
+    uintptr_t tls_align = _TLS_Heap_align_up( (uintptr_t) _TLS_Alignment );
+    uintptr_t tls_alloc = _TLS_Get_allocation_size( tls_size, tls_align );
+
+    the_thread->Start.tls_area =
+      _Workspace_Allocate_aligned( tls_alloc, tls_align );
+
+    if ( the_thread->Start.tls_area == NULL ) {
+      goto failed;
+    }
+  }
 
   /*
    *  Allocate the floating point area for this thread
@@ -185,6 +201,19 @@ bool _Thread_Initialize(
 
   the_thread->Start.isr_level         = isr_level;
 
+#if defined(RTEMS_SMP)
+  the_thread->is_scheduled            = false;
+  the_thread->is_in_the_air           = false;
+  the_thread->is_executing            = false;
+
+  /* Initialize the cpu field for the non-SMP schedulers */
+  the_thread->cpu                     = _Per_CPU_Get_by_index( 0 );
+#if __RTEMS_HAVE_SYS_CPUSET_H__
+   the_thread->affinity               = *(_CPU_set_Default());
+   the_thread->affinity.set           = &the_thread->affinity.preallocated;
+#endif
+#endif
+
   the_thread->current_state           = STATES_DORMANT;
   the_thread->Wait.queue              = NULL;
   the_thread->resource_count          = 0;
@@ -205,6 +234,11 @@ bool _Thread_Initialize(
   #endif
 
   /*
+   * initialize thread's key vaule node chain
+   */
+  _Chain_Initialize_empty( &the_thread->Key_Chain );
+
+  /*
    *  Open the object
    */
   _Objects_Open( information, &the_thread->Object, name );
@@ -221,6 +255,8 @@ bool _Thread_Initialize(
     return true;
 
 failed:
+  _Workspace_Free( the_thread->Start.tls_area );
+
   _Workspace_Free( the_thread->libc_reent );
 
   for ( i=0 ; i <= THREAD_API_LAST ; i++ )

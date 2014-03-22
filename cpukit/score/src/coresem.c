@@ -1,49 +1,30 @@
+/**
+ *  @file
+ *
+ *  @brief Core Semaphore Initialize
+ *  @ingroup ScoreSemaphore
+ */
+
 /*
- *  CORE Semaphore Handler
- *
- *  DESCRIPTION:
- *
- *  This package is the implementation of the CORE Semaphore Handler.
- *  This core object utilizes standard Dijkstra counting semaphores to provide
- *  synchronization and mutual exclusion capabilities.
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/coresem.h>
-#include <rtems/score/states.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-
-/*
- *  CORE_semaphore_Initialize
- *
- *  This function initialize a semaphore and sets the initial value based
- *  on the given count.
- *
- *  Input parameters:
- *    the_semaphore            - the semaphore control block to initialize
- *    the_semaphore_attributes - the attributes specified at create time
- *    initial_value            - semaphore's initial value
- *
- *  Output parameters:  NONE
- */
+#include <rtems/score/coresemimpl.h>
+#include <rtems/score/statesimpl.h>
 
 void _CORE_semaphore_Initialize(
-  CORE_semaphore_Control       *the_semaphore,
-  CORE_semaphore_Attributes    *the_semaphore_attributes,
-  uint32_t                      initial_value
+  CORE_semaphore_Control          *the_semaphore,
+  const CORE_semaphore_Attributes *the_semaphore_attributes,
+  uint32_t                         initial_value
 )
 {
 

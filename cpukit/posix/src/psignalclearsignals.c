@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief POSIX Signals Clear Signals
+ * @ingroup POSIX_SIGNALS POSIX Signals Support
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,12 +25,11 @@
 #include <rtems/system.h>
 #include <rtems/score/isr.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/tqdata.h>
 #include <rtems/score/wkspace.h>
 #include <rtems/seterr.h>
 #include <rtems/posix/threadsup.h>
-#include <rtems/posix/psignal.h>
-#include <rtems/posix/pthread.h>
+#include <rtems/posix/psignalimpl.h>
+#include <rtems/posix/pthreadimpl.h>
 #include <rtems/posix/time.h>
 #include <stdio.h>
 
@@ -36,12 +42,13 @@ bool _POSIX_signals_Clear_signals(
   int                 signo,
   siginfo_t          *info,
   bool                is_global,
-  bool                check_blocked
+  bool                check_blocked,
+  bool                do_signals_acquire_release
 )
 {
   sigset_t                    mask;
   sigset_t                    signals_blocked;
-  ISR_Level                   level;
+  ISR_lock_Context            lock_context;
   bool                        do_callout;
   POSIX_signals_Siginfo_node *psiginfo;
 
@@ -61,7 +68,10 @@ bool _POSIX_signals_Clear_signals(
   /* XXX is this right for siginfo type signals? */
   /* XXX are we sure they can be cleared the same way? */
 
-  _ISR_Disable( level );
+  if ( do_signals_acquire_release ) {
+    _POSIX_signals_Acquire( &lock_context );
+  }
+
     if ( is_global ) {
        if ( mask & (_POSIX_signals_Pending & signals_blocked) ) {
          if ( _POSIX_signals_Vectors[ signo ].sa_flags == SA_SIGINFO ) {
@@ -91,6 +101,10 @@ bool _POSIX_signals_Clear_signals(
         do_callout = true;
       }
     }
-  _ISR_Enable( level );
+
+  if ( do_signals_acquire_release ) {
+    _POSIX_signals_Release( &lock_context );
+  }
+
   return do_callout;
 }

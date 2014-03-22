@@ -25,23 +25,25 @@ static void BSP_ISR_handler(rtems_vector_number vector)
 }
 
 /* Initialize interrupts */
-int BSP_shared_interrupt_init(void)
+void BSP_shared_interrupt_init(void)
 {
        rtems_vector_number vector;
        rtems_isr_entry previous_isr;
-       int sc, i;
+       int i;
 
        for (i=0; i <= BSP_INTERRUPT_VECTOR_MAX_STD; i++) {
+#if defined(LEON3_MP_IRQ) && \
+    (defined(RTEMS_SMP) || defined(RTEMS_MULTIPROCESSING))
+               /* Don't install IRQ handler on IPI interrupt */
+               if (i == LEON3_MP_IRQ)
+                       continue;
+#endif
                vector = SPARC_ASYNCHRONOUS_TRAP(i) + 0x10;
                rtems_interrupt_catch(BSP_ISR_handler, vector, &previous_isr);
        }
 
        /* Initalize interrupt support */
-       sc = bsp_interrupt_initialize();
-       if (sc != RTEMS_SUCCESSFUL)
-               return -1;
-
-       return 0;
+       bsp_interrupt_initialize();
 }
 
 /* Callback from bsp_interrupt_initialize() */

@@ -1,26 +1,27 @@
+/**
+ * @file
+ *
+ * @brief RTEMS Partition Create
+ * @ingroup ClassicPart Partitions
+ */
+
 /*
- *  Partition Manager
- *
- *
- *  COPYRIGHT (c) 1989-1999.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
+#include <rtems/rtems/partimpl.h>
+#include <rtems/rtems/attrimpl.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/address.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/part.h>
-#include <rtems/score/thread.h>
+#include <rtems/score/threaddispatch.h>
 #include <rtems/score/sysstate.h>
 
 /*
@@ -52,7 +53,7 @@ rtems_status_code rtems_partition_create(
   rtems_id        *id
 )
 {
-  register Partition_Control *the_partition;
+   Partition_Control           *the_partition;
 
   if ( !rtems_is_name_valid( name ) )
     return RTEMS_INVALID_NAME;

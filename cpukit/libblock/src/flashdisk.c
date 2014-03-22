@@ -1,11 +1,16 @@
-/*
- * flashdisk.c -- Flash disk block device implementation
+/**
+ * @file
  *
+ * @brief Flash Disk Block Device Implementation
+ * @ingroup libblock
+ */
+
+/*
  * Copyright (C) 2007 Chris Johns
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 /*
@@ -1052,7 +1057,7 @@ rtems_fdisk_page_checksum (const uint8_t* buffer, uint32_t page_size)
   uint32_t i;
 
   for (i = 0; i < page_size; i++, buffer++)
-    cs = rtems_fdisk_calc_crc16 (cs, *buffer);
+    cs = rtems_fdisk_calc_crc16 (*buffer, cs);
 
   return cs;
 }
@@ -1261,12 +1266,6 @@ rtems_fdisk_recycle_segment (rtems_flashdisk*         fd,
   {
     rtems_fdisk_page_desc* spd = &ssc->page_descriptors[spage];
 
-    if (!dsc && ssc->pages_active > 0)
-    {
-      rtems_fdisk_error ("recycle: no available dst segment");
-      return EIO;
-    }
-
     if (rtems_fdisk_page_desc_flags_set (spd, RTEMS_FDISK_PAGE_ACTIVE) &&
         !rtems_fdisk_page_desc_flags_set (spd, RTEMS_FDISK_PAGE_USED))
     {
@@ -1356,7 +1355,23 @@ rtems_fdisk_recycle_segment (rtems_flashdisk*         fd,
        */
       dst_pages = rtems_fdisk_seg_pages_available (dsc);
       if (dst_pages == 0)
+      {
         dsc = rtems_fdisk_seg_most_available (&fd->available);
+        if (!dsc)
+        {
+          if (ssc->pages_active == 0)
+          {
+            ret = rtems_fdisk_erase_segment (fd, ssc);
+          }
+          else
+          {
+            rtems_fdisk_error ("recycle: no available dst segment");
+            ret = EIO;
+          }
+
+          return ret;
+        }
+      }
 
       (*pages)--;
     }
@@ -2086,8 +2101,7 @@ rtems_fdisk_read (rtems_flashdisk* fd, rtems_blkdev_request* req)
     }
   }
 
-  req->status = ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL;
-  req->req_done (req->done_arg, req->status);
+  rtems_blkdev_request_done (req, ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL);
 
   return 0;
 }
@@ -2122,8 +2136,7 @@ rtems_fdisk_write (rtems_flashdisk* fd, rtems_blkdev_request* req)
     }
   }
 
-  req->status = ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL;
-  req->req_done (req->done_arg, req->status);
+  rtems_blkdev_request_done (req, ret ? RTEMS_IO_ERROR : RTEMS_SUCCESSFUL);
 
   return 0;
 }

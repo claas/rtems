@@ -17,7 +17,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Moved from file 'cpukit/score/cpu/arm/cpu.c'.
  */
@@ -42,7 +42,7 @@ static void _defaultExcHandler (CPU_Exception_frame *ctx)
     printk("----------------------------------------------------------\n\r");
 #if 1
     printk("Exception 0x%x caught at PC 0x%x by thread %d\n",
-           ctx->register_ip, ctx->register_lr - 4,
+           ctx->vector, ctx->register_lr - 4,
            _Thread_Executing->Object.id);
 #endif
     printk("----------------------------------------------------------\n\r");

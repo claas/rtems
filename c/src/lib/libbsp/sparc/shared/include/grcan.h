@@ -1,12 +1,18 @@
+/**
+ * @file
+ * @ingroup sparc_bsp
+ * @defgroup can GRCAN
+ * @ingroup can
+ * @brief Macros used for grcan controller
+ */
+
 /*
- *  Macros used for grcan controller
- *
  *  COPYRIGHT (c) 2007.
  *  Gaisler Research
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

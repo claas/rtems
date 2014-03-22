@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <assert.h>
@@ -153,28 +153,30 @@ static int last_close(int major, int minor, void *arg)
 
 static ssize_t write_with_interrupts(int minor, const char *buf, size_t len)
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
-  console_tbl *ct = Console_Port_Tbl[minor];
-  uart_bridge_slave_control *control = ct->pDeviceParams;
-  intercom_packet *packet = qoriq_intercom_allocate_packet(
-    control->type,
-    INTERCOM_SIZE_64
-  );
+  if (len > 0) {
+    rtems_status_code sc = RTEMS_SUCCESSFUL;
+    console_tbl *ct = Console_Port_Tbl[minor];
+    uart_bridge_slave_control *control = ct->pDeviceParams;
+    intercom_packet *packet = qoriq_intercom_allocate_packet(
+      control->type,
+      INTERCOM_SIZE_64
+    );
 
-  packet->size = len;
-  memcpy(packet->data, buf, len);
+    packet->size = len;
+    memcpy(packet->data, buf, len);
 
-  /*
-   * Due to the lovely Termios implementation we have to hand this over to
-   * another context.
-   */
-  sc = rtems_chain_append_with_notification(
-    &control->transmit_fifo,
-    &packet->glue.node,
-    control->transmit_task,
-    TRANSMIT_EVENT
-  );
-  assert(sc == RTEMS_SUCCESSFUL);
+    /*
+     * Due to the lovely Termios implementation we have to hand this over to
+     * another context.
+     */
+    sc = rtems_chain_append_with_notification(
+      &control->transmit_fifo,
+      &packet->glue.node,
+      control->transmit_task,
+      TRANSMIT_EVENT
+    );
+    assert(sc == RTEMS_SUCCESSFUL);
+  }
 
   return 0;
 }
@@ -198,7 +200,7 @@ static int set_attribues(int minor, const struct termios *term)
   return -1;
 }
 
-console_fns qoriq_uart_bridge_slave = {
+const console_fns qoriq_uart_bridge_slave = {
   .deviceProbe = libchip_serial_default_probe,
   .deviceFirstOpen = first_open,
   .deviceLastClose = last_close,

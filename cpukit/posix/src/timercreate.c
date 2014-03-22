@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Create a Per-Process Timer
+ * @ingroup POSIX_PRIV_TIMERS Timers
+ */
+
 /*
  *  14.2.2 Create a Per-Process Timer, P1003.1b-1993, p. 264
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,14 +27,15 @@
 #include <rtems/system.h>
 #include <rtems/seterr.h>
 #include <rtems/score/thread.h>
-#include <rtems/posix/psignal.h>
+#include <rtems/posix/sigset.h>
 #include <rtems/posix/time.h>
-#include <rtems/posix/timer.h>
+#include <rtems/posix/timerimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 int timer_create(
   clockid_t        clock_id,
-  struct sigevent *evp,
-  timer_t         *timerid
+  struct sigevent *__restrict evp,
+  timer_t         *__restrict timerid
 )
 {
   POSIX_Timer_Control *ptimer;
@@ -65,7 +73,7 @@ int timer_create(
    */
   ptimer = _POSIX_Timer_Allocate();
   if ( !ptimer ) {
-    _Thread_Enable_dispatch();
+    _Objects_Put( &ptimer->Object );
     rtems_set_errno_and_return_minus_one( EAGAIN );
   }
 
@@ -90,6 +98,6 @@ int timer_create(
   _Objects_Open_u32(&_POSIX_Timer_Information, &ptimer->Object, 0);
 
   *timerid  = ptimer->Object.id;
-  _Thread_Enable_dispatch();
+  _Objects_Put( &ptimer->Object );
   return 0;
 }

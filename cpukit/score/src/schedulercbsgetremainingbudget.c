@@ -1,20 +1,25 @@
+/**
+ *  @file
+ *
+ *  @brief Scheduler CBS Get Remaining Budget
+ *  @ingroup ScoreScheduler
+ */
+
 /*
  *  Copyright (C) 2011 Petr Benes.
  *  Copyright (C) 2011 On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/config.h>
-#include <rtems/score/scheduler.h>
 #include <rtems/score/schedulercbs.h>
+#include <rtems/score/threadimpl.h>
 
 int _Scheduler_CBS_Get_remaining_budget (
   Scheduler_CBS_Server_id  server_id,
@@ -39,8 +44,8 @@ int _Scheduler_CBS_Get_remaining_budget (
                );
   /* The routine _Thread_Get may disable dispatch and not enable again. */
   if ( the_thread ) {
-    _Thread_Enable_dispatch();
     *remaining_budget = the_thread->cpu_time_budget;
+    _Objects_Put( &the_thread->Object );
   }
   else {
     *remaining_budget = 0;

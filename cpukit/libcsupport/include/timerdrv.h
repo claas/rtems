@@ -1,7 +1,9 @@
 /**
- * @file rtems/timerdrv.h
+ * @file
  *
- *  This file describes the Timer Driver for all boards.
+ * @brief Timer Driver for all Boards
+ *
+ * This file describes the Timer Driver for all boards.
  */
 
 /*
@@ -11,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_TIMERDRV_H

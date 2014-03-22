@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +31,8 @@
 #include <rtems/nvdisk.h>
 #include <rtems/nvdisk-sram.h>
 #include <rtems/shell.h>
+
+const char rtems_test_name[] = "FILE I/O";
 
 #if FILEIO_BUILD
 
@@ -706,10 +708,11 @@ static void fileio_start_shell(void)
     "SHLL",                          /* task_name */
     RTEMS_MINIMUM_STACK_SIZE * 4,    /* task_stacksize */
     100,                             /* task_priority */
-    "/dev/console",                  /* devname */
+    "/dev/foobar",                   /* devname */
+    /* device is currently ignored by the shell if it is not a pty */
     false,                           /* forever */
     true,                            /* wait */
-    NULL                             /* login */
+    rtems_shell_login_check          /* login */
   );
 }
 #endif /* USE_SHELL */
@@ -1220,7 +1223,7 @@ Init (rtems_task_argument ignored)
   rtems_id   Task_id;
   rtems_status_code status;
 
-  puts( "\n\n*** TEST FILE I/O SAMPLE ***" );
+  TEST_BEGIN();
 
   status = rtems_shell_wait_for_input(
     STDIN_FILENO,
@@ -1244,7 +1247,7 @@ Init (rtems_task_argument ignored)
     status = rtems_task_delete( RTEMS_SELF );
     directive_failed( status, "delete" ); 
   } else {
-    puts( "*** END OF TEST FILE I/O SAMPLE ***" );
+    TEST_END();
 
     rtems_test_exit( 0 );
   }

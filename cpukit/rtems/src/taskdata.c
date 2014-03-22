@@ -1,3 +1,10 @@
+/**
+ *  @file
+ *
+ *  @brief Instantiate RTEMS Classic API Tasks Data
+ *  @ingroup ClassicTasks
+ */
+
 /*
  *  RTEMS Task Manager -- Instantiate Data
  *
@@ -6,15 +13,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-/* instantiate RTEMS Classic API tasks data */
 #define RTEMS_TASKS_EXTERN
 
-#include <rtems/system.h>
-#include <rtems/rtems/tasks.h>
+#include <rtems/rtems/tasksimpl.h>

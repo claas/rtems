@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -14,6 +14,8 @@
 #endif
 
 #include "system.h"
+
+#include <rtems/rtems/timerimpl.h>
 
 rtems_timer_service_routine Should_not_fire_TSR(
   rtems_id  ignored_id,

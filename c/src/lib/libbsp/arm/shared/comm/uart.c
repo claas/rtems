@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -371,8 +371,6 @@ BSP_uart_termios_set(int uart, void *ttyp)
 int
 BSP_uart_termios_write_com1(int minor, const char *buf, int len)
 {
-  assert(buf != NULL);
-
   if(len <= 0)
     {
       return 0;
@@ -410,8 +408,6 @@ BSP_uart_termios_write_com1(int minor, const char *buf, int len)
 int
 BSP_uart_termios_write_com2(int minor, const char *buf, int len)
 {
-  assert(buf != NULL);
-
   if(len <= 0)
     {
       return 0;

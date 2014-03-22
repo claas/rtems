@@ -1,13 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief Resize RTEMS Region Segment
+ *  @ingroup ClassicRegion
+ */
+
 /*
- *  Region Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,28 +21,10 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/options.h>
-#include <rtems/rtems/region.h>
-#include <rtems/score/states.h>
+#include <rtems/rtems/regionimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/apimutex.h>
-
-/*
- *  rtems_region_resize_segment
- *
- *  This directive will try to resize segment to the new size 'size'
- *  "in place".
- *
- *  Input parameters:
- *    id      - region id
- *    segment - pointer to segment address
- *    size    - new required size
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
 
 rtems_status_code rtems_region_resize_segment(
   rtems_id    id,
@@ -52,7 +38,7 @@ rtems_status_code rtems_region_resize_segment(
   uintptr_t                osize;
   rtems_status_code        return_status;
   Heap_Resize_status       status;
-  register Region_Control *the_region;
+  Region_Control          *the_region;
 
   if ( !old_size )
     return RTEMS_INVALID_ADDRESS;

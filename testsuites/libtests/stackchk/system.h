@@ -8,7 +8,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <tmacros.h>
@@ -41,10 +41,15 @@ void blow_stack( void );
 
 #define CONFIGURE_STACK_CHECKER_ENABLED
 
-void Fatal_extension( uint32_t source, bool is_internal, uint32_t error );
+void Fatal_extension(
+  rtems_fatal_source source,
+  bool               is_internal,
+  rtems_fatal_code   error
+);
 
 #define CONFIGURE_INITIAL_EXTENSIONS \
-  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, Fatal_extension }
+  { NULL, NULL, NULL, NULL, NULL, NULL, NULL, Fatal_extension }, \
+  RTEMS_TEST_INITIAL_EXTENSION
 
 #include <rtems/confdefs.h>
 

@@ -1,8 +1,11 @@
 /**
- *  @file  asm_macros.h
+ * @file
  *
- *  This include file contains definitions related to the GBA BSP.
+ * @ingroup arm_gba
+ *
+ * @brief ASM macros.
  */
+
 /*
  *  RTEMS GBA BSP
  *
@@ -10,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 /*-----------------------------------------------------------------------------*

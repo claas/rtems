@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @ingroup lpc32xx
+ * @ingroup arm_lpc32xx
  *
  * @brief Global BSP definitions.
  */
@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_LPC32XX_BSP_H
@@ -25,26 +25,27 @@
 
 #include <bspopts.h>
 
+#define BSP_FEATURE_IRQ_EXTENSION
+
+#ifndef ASM
+
 #include <rtems.h>
 #include <rtems/console.h>
 #include <rtems/clockdrv.h>
 
 #include <bsp/lpc32xx.h>
+#include <bsp/default-initial-extension.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#define BSP_FEATURE_IRQ_EXTENSION
-
-#ifndef ASM
-
 struct rtems_bsdnet_ifconfig;
 
 /**
- * @defgroup lpc32xx LPC32XX Support
+ * @defgroup arm_lpc32xx LPC32XX Support
  *
- * @ingroup bsp_kit
+ * @ingroup bsp_arm
  *
  * @brief LPC32XX support package.
  *
@@ -148,6 +149,10 @@ void lpc32xx_select_nand_controller(lpc32xx_nand_controller nand_controller);
 
 void bsp_restart(void *addr);
 
+void *bsp_idle_thread(uintptr_t arg);
+
+#define BSP_IDLE_TASK_BODY bsp_idle_thread
+
 #define BSP_CONSOLE_UART_BASE LPC32XX_BASE_UART_5
 
 /**
@@ -242,15 +247,15 @@ extern uint32_t lpc32xx_magic_zero_size [];
 /**
  * @defgroup lpc LPC Support
  *
- * @ingroup lpc32xx
+ * @ingroup arm_lpc32xx
  *
  * @brief LPC support package.
  */
 
-#endif /* ASM */
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#endif /* ASM */
 
 #endif /* LIBBSP_ARM_LPC32XX_BSP_H */

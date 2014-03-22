@@ -1,14 +1,17 @@
+/**
+ * @file
+ *
+ * @brief Examine and Change Blocked Signals
+ * @ingroup POSIXAPI
+ */
+
 /*
- *  3.3.5 Examine and Change Blocked Signals, P1003.1b-1993, p. 73
- *
- *  NOTE: P1003.1c/D10, p. 37 adds pthread_sigmask().
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,10 +21,15 @@
 #include <pthread.h>
 #include <signal.h>
 
+/**
+ * 3.3.5 Examine and Change Blocked Signals, P1003.1b-1993, p. 73
+ *
+ * NOTE: P1003.1c/D10, p. 37 adds pthread_sigmask().
+ */
 int sigprocmask(
   int               how,
-  const sigset_t   *set,
-  sigset_t         *oset
+  const sigset_t   *__restrict set,
+  sigset_t         *__restrict oset
 )
 {
   /*

@@ -1,12 +1,18 @@
+/**
+ * @file
+ * @ingroup sparc_bsp
+ * @defgroup spw SpaceWire
+ * @ingroup spw
+ * @brief Macros used for Spacewire bus
+ */
+
 /*
- *  Macros used for Spacewire bus
- *
  *  COPYRIGHT (c) 2007.
  *  Gaisler Research
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __GRSPW_H__

@@ -7,7 +7,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 
@@ -21,6 +21,9 @@ rtems_task Init(
 );
 
 #include <timesys.h>
+
+rtems_name Task_name[ OPERATION_COUNT+1 ]; /* array of task names */
+rtems_id   Task_id[ OPERATION_COUNT+1 ];   /* array of task ids */
 
 /* configuration information */
 

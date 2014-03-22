@@ -36,7 +36,7 @@ include_HEADERS += include/leon.h
 include_HEADERS += ../../shared/include/coverhd.h
 
 noinst_LIBRARIES = libbspstart.a
-libbspstart_a_SOURCES = ../../sparc/shared/start.S
+libbspstart_a_SOURCES = ../../sparc/shared/start/start.S
 project_lib_DATA = start.$(OBJEXT)
 
 dist_project_lib_DATA += startup/linkcmds ../shared/startup/linkcmds.base
@@ -48,7 +48,7 @@ libbsp_a_SOURCES =
 libbsp_a_SOURCES += ../../shared/bspclean.c ../../shared/bsplibc.c \
     ../../shared/bsppost.c startup/bsppredriver.c \
     startup/bspstart.c ../../sparc/shared/bsppretaskinghook.c \
-    ../../sparc/shared/bspgetworkarea.c ../../shared/bootcard.c \
+    ../../sparc/shared/startup/bspgetworkarea.c ../../shared/bootcard.c \
     ../../shared/sbrk.c startup/setvec.c startup/spurious.c startup/bspidle.c \
     ../../shared/bspinit.c startup/bspdelay.c \
     ../../sparc/shared/startup/early_malloc.c
@@ -119,8 +119,7 @@ libbsp_a_SOURCES += ../../sparc/shared/i2c/i2cmst.c
 libbsp_a_SOURCES += timer/timer.c
 
 if HAS_SMP
-libbsp_a_SOURCES += ../../shared/smp/getcpuid.c ../../shared/smp/smp_stub.c \
-    ../../shared/smp/bspsmp_wait_for.c
+libbsp_a_SOURCES += ../../shared/smp/getcpuid.c ../../shared/smp/smp_stub.c
 endif
 
 if HAS_NETWORKING

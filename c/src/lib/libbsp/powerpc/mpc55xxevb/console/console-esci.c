@@ -15,12 +15,13 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp/console-esci.h>
 
 #include <bsp.h>
+#include <bsp/fatal.h>
 #include <bsp/irq.h>
 
 #ifdef MPC55XX_HAS_ESCI
@@ -266,14 +267,14 @@ static int mpc55xx_esci_first_open(int major, int minor, void *arg)
 
   self->tty = tty;
 
-  rv = rtems_termios_set_initial_baud(tty, 115200);
+  rv = rtems_termios_set_initial_baud(tty, BSP_DEFAULT_BAUD_RATE);
   if (rv != 0) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_ESCI_BAUD);
   }
 
   rv = mpc55xx_esci_set_attributes(minor, &tty->termios);
   if (rv != 0) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_ESCI_ATTRIBUTES);
   }
 
   sc = mpc55xx_interrupt_handler_install(
@@ -285,7 +286,7 @@ static int mpc55xx_esci_first_open(int major, int minor, void *arg)
     self
   );
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_ESCI_IRQ_INSTALL);
   }
 
   mpc55xx_esci_interrupts_clear_and_enable(self);
@@ -328,13 +329,12 @@ static int mpc55xx_esci_poll_read(int minor)
 
 static int mpc55xx_esci_write(int minor, const char *out, size_t n)
 {
-  mpc55xx_esci_context *self = console_generic_get_context(minor);
-  rtems_interrupt_level level;
+  if (n > 0) {
+    mpc55xx_esci_context *self = console_generic_get_context(minor);
 
-  rtems_interrupt_disable(level);
-  self->regs->DR.B.D = out [0];
-  self->transmit_in_progress = true;
-  rtems_interrupt_enable(level);
+    self->regs->DR.B.D = out [0];
+    self->transmit_in_progress = true;
+  }
 
   return 0;
 }

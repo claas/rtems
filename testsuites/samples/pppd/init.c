@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -24,11 +24,15 @@
 #include "netconfig.h"
 #endif
 
+const char rtems_test_name[] = "PPPD";
+
 rtems_task Init(rtems_task_argument argument)
 {
 #if BSP_SMALL_MEMORY
   printf("NO NETWORKING. MEMORY TOO SMALL");
 #else
+  rtems_test_begin();
+
   /* initialize network */
   rtems_bsdnet_initialize_network();
   rtems_pppd_initialize();

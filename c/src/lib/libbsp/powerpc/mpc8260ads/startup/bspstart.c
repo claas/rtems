@@ -30,7 +30,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
@@ -44,6 +44,7 @@
 #include <rtems/powerpc/powerpc.h>
 
 #include <rtems/bspIo.h>
+#include <rtems/counter.h>
 #include <bsp/irq.h>
 #include <libcpu/cpuIdent.h>
 #include <libcpu/spr.h>
@@ -148,7 +149,6 @@ void _BSP_Uart2_disable(void)
 
 void bsp_start(void)
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
   ppc_cpu_id_t myCpu;
   ppc_cpu_revision_t myCpuRevision;
 
@@ -173,21 +173,13 @@ void bsp_start(void)
 
   /* Initialize exception handler */
   /* FIXME: Interrupt stack begin and size */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
+  ppc_exc_initialize(
     (uintptr_t) IntrStack_start,
     (uintptr_t) intrStack - (uintptr_t) IntrStack_start
   );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot intitialize exceptions");
-  }
 
   /* Initalize interrupt support */
-  sc = bsp_interrupt_initialize();
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot intitialize interrupts");
-  }
-
+  bsp_interrupt_initialize();
 
 /*
   mmu_init();
@@ -216,6 +208,7 @@ void bsp_start(void)
   bsp_timer_average_overhead = 3;
   bsp_timer_least_valid    = 3;
   bsp_clock_speed 	   = 40000000;
+  rtems_counter_initialize_converter(bsp_clock_speed);
 
 #ifdef REV_0_2
   /* set up some board specific registers */

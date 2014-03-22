@@ -9,12 +9,17 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include "test-file-system.h"
 
+#include <bsp.h>
+
+#if !BSP_SMALL_MEMORY
+
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/stat.h>
 #include <assert.h>
 #include <stdio.h>
@@ -32,7 +37,7 @@
 
 #define ASSERT_SC(sc) assert((sc) == RTEMS_SUCCESSFUL)
 
-#define BUFFER_SIZE (32 * 1024)
+#define BUFFER_SIZE (32U * 1024U)
 
 #define HEADER_SIZE 8
 
@@ -143,8 +148,8 @@ static uint32_t simple_random(uint32_t v)
 
 static unsigned get_bucket_with_random(unsigned count, long random)
 {
-  long unsigned unit = (1U << 31) / count;
-  long unsigned bucket = (long unsigned) random / unit;
+  uint32_t unit = ((uint32_t) 1U << 31) / count;
+  uint32_t bucket = (uint32_t) random / unit;
 
   if (bucket != count) {
     return bucket;
@@ -830,3 +835,5 @@ void test_file_system_with_handler(
 
   free(fs);
 }
+
+#endif /* !BSP_SMALL_MEMORY */

@@ -1,3 +1,9 @@
+/**
+ * @file
+ * @ingroup arm_edb7312
+ * @brief Global BSP definitions.
+ */
+
 /*
  * Cirrus EP7312 BSP header file
  *
@@ -5,7 +11,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
 */
 #ifndef _BSP_H
 #define _BSP_H
@@ -15,6 +21,7 @@ extern "C" {
 #endif
 
 #include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/iosupp.h>
@@ -23,21 +30,34 @@ extern "C" {
 
 #define BSP_FEATURE_IRQ_EXTENSION
 
-/*
- *  Define the interrupt mechanism for Time Test 27
+/**
+ * @defgroup arm_edb7312 EDB7312 Support
+ * @ingroup bsp_arm
+ * @brief EDB7312 Support Package
+ * @{
+ */
+
+/**
+ * @brief Define the interrupt mechanism for Time Test 27
  *
- *  NOTE: Following are not defined and are board independent
+ * NOTE: Following are not defined and are board independent
  *
  */
 struct rtems_bsdnet_ifconfig;
 int cs8900_driver_attach (struct rtems_bsdnet_ifconfig *config,
                           int                          attaching);
 
-/*
- * Network driver configuration
+/**
+ * @name Network driver configuration
+ * @{
  */
+
 #define RTEMS_BSP_NETWORK_DRIVER_NAME	"eth0"
 #define RTEMS_BSP_NETWORK_DRIVER_ATTACH	cs8900_driver_attach
+
+/** @} */
+
+/** @} */
 
 #ifdef __cplusplus
 }

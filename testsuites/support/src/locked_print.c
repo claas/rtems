@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -36,7 +36,8 @@ void locked_print_initialize(void)
     rtems_build_name ('S', 'E', 'M', '1'),
     1,                                             
     RTEMS_LOCAL                   |
-    RTEMS_SIMPLE_BINARY_SEMAPHORE |
+    RTEMS_BINARY_SEMAPHORE |
+    RTEMS_PRIORITY_CEILING |
     RTEMS_PRIORITY,
     1,
     &locked_print_semaphore

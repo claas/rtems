@@ -1,5 +1,14 @@
 /**
  * @file rtems/score/mips.h
+ *
+ * @brief Information to build RTEMS for a "no cpu" while in protected mode.
+ *
+ *  This file contains the information required to build
+ *  RTEMS for a particular member of the "no cpu"
+ *  family when executing in protected mode.  It does
+ *  this by setting variables to indicate which implementation
+ *  dependent features are present in a particular member
+ *  of the family.
  */
 
 /*
@@ -8,11 +17,19 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_MIPS_H
 #define _RTEMS_SCORE_MIPS_H
+
+/**
+ *  @defgroup ScoreMips RTEMS no cpu Build Information
+ *
+ *  @ingroup Score
+ *
+ */
+/**@{*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -277,5 +294,6 @@ extern "C" {
 }
 #endif
 
+/**@}*/
 #endif /* _RTEMS_SCORE_MIPS_H */
 /* end of include file */

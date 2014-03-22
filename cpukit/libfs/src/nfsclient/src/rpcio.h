@@ -1,11 +1,14 @@
-#ifndef RPCIO_H
-#define RPCIO_H
-
-/* A multihreaded RPC/UDP multiplexor */
-
-/* Author: Till Straumann, <strauman@slac.stanford.edu>, 2002 */
+/**
+ * @file
+ *
+ * @brief A Multithreaded RPC/UDP Multiplexor
+ *
+ * @ingroup rtems-nfsclient
+ */
 
 /*
+ * Author: Till Straumann, <strauman@slac.stanford.edu>, 2002
+ *
  * Authorship
  * ----------
  * This software (NFS-2 client implementation for RTEMS) was created by
@@ -50,9 +53,15 @@
  * ------------------ SLAC Software Notices, Set 4 OTT.002a, 2004 FEB 03
  */
 
-#ifdef __rtems
-#include <rtems.h>
-#endif
+#ifndef RPCIO_H
+#define RPCIO_H
+
+/**
+ * @defgroup rtems-nfsclient RPC/UDP Multiplexor
+ *
+ * @ingroup nfsclient
+ * @{
+ */
 
 #include <rpc/rpc.h>
 #include <errno.h>
@@ -60,15 +69,14 @@
 #include <sys/param.h>
 #include <stdarg.h>
 
+#include "librtemsNfs.h"
+
 typedef struct RpcUdpServerRec_ 	*RpcUdpServer;
 typedef struct RpcUdpXactRec_		*RpcUdpXact;
 
 typedef RpcUdpXact					RpcUdpClnt;
 
 #define RPCIOD_DEFAULT_ID	0xdef10000
-
-int
-rpcUdpInit(void);
 
 enum clnt_stat
 rpcUdpServerCreate(
@@ -84,8 +92,9 @@ rpcUdpServerCreate(
 void
 rpcUdpServerDestroy(RpcUdpServer s);
 
-/* Dump statistics to a file (stdout if NULL);
- * returns 0 for convenience
+/**
+ * @brief Dump statistics to a file (stdout if NULL);
+ * @retval 0 for convenience
  */
 int
 rpcUdpStats(FILE *f);
@@ -103,7 +112,9 @@ rpcUdpClntCreate(
 void
 RpcUdpClntDestroy(RpcUdpClnt clnt);
 
-/* mute compiler warnings */
+/**
+ * @brief Mute compiler warnings.
+ */
 typedef void *XdrProcT;
 typedef void *CaddrT;
 
@@ -130,7 +141,9 @@ rpcUdpXactDestroy(
 	RpcUdpXact xact
 	);
 
-/* send a transaction */
+/**
+ * Send a transaction.
+ */
 enum clnt_stat
 rpcUdpSend(
 	RpcUdpXact		xact,
@@ -144,7 +157,9 @@ rpcUdpSend(
 	...				/* 0 terminated xdrproc/pobj additional argument list */
 	);
 
-/* wait for a transaction to complete */
+/**
+ * @brief Wait for a transaction to complete.
+ */
 enum clnt_stat
 rpcUdpRcv(RpcUdpXact xact);
 
@@ -165,9 +180,11 @@ rpcUdpCallRp(
 );
 
 
-/* manage pools of transactions */
 
-/* A pool of transactions. The idea is not to malloc/free them
+/*
+ * @brief Manage pools of transactions.
+ *
+ * A pool of transactions. The idea is not to malloc/free them
  * all the time but keep a limited number around in a 'pool'.
  * Users who need a XACT may get it from the pool and put it back
  * when done.
@@ -205,4 +222,5 @@ rpcUdpXactPoolGet(RpcUdpXactPool pool, XactPoolGetMode mode);
 void
 rpcUdpXactPoolPut(RpcUdpXact xact);
 
+/** @} */
 #endif

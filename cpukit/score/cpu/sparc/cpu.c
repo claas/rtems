@@ -1,12 +1,16 @@
-/*
- *  SPARC Dependent Source
+/**
+ *  @file
  *
+ *  @brief SPARC CPU Dependent Source
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15,7 +19,53 @@
 
 #include <rtems/system.h>
 #include <rtems/score/isr.h>
+#include <rtems/score/percpu.h>
+#include <rtems/score/tls.h>
 #include <rtems/rtems/cache.h>
+
+RTEMS_STATIC_ASSERT(
+  offsetof( Per_CPU_Control, cpu_per_cpu.isr_dispatch_disable)
+    == SPARC_PER_CPU_ISR_DISPATCH_DISABLE,
+  SPARC_PER_CPU_ISR_DISPATCH_DISABLE
+);
+
+#define SPARC_ASSERT_OFFSET(field, off) \
+  RTEMS_STATIC_ASSERT( \
+    offsetof(Context_Control, field) == off ## _OFFSET, \
+    Context_Control_offset_ ## field \
+  )
+
+SPARC_ASSERT_OFFSET(g2_g3, G2);
+SPARC_ASSERT_OFFSET(g4, G4);
+SPARC_ASSERT_OFFSET(g5, G5);
+SPARC_ASSERT_OFFSET(g6, G6);
+SPARC_ASSERT_OFFSET(g7, G7);
+SPARC_ASSERT_OFFSET(l0, L0);
+SPARC_ASSERT_OFFSET(l1, L1);
+SPARC_ASSERT_OFFSET(l2, L2);
+SPARC_ASSERT_OFFSET(l3, L3);
+SPARC_ASSERT_OFFSET(l4, L4);
+SPARC_ASSERT_OFFSET(l5, L5);
+SPARC_ASSERT_OFFSET(l6, L6);
+SPARC_ASSERT_OFFSET(l7, L7);
+SPARC_ASSERT_OFFSET(i0, I0);
+SPARC_ASSERT_OFFSET(i1, I1);
+SPARC_ASSERT_OFFSET(i2, I2);
+SPARC_ASSERT_OFFSET(i3, I3);
+SPARC_ASSERT_OFFSET(i4, I4);
+SPARC_ASSERT_OFFSET(i5, I5);
+SPARC_ASSERT_OFFSET(i6_fp, I6_FP);
+SPARC_ASSERT_OFFSET(i7, I7);
+SPARC_ASSERT_OFFSET(o6_sp, O6_SP);
+SPARC_ASSERT_OFFSET(o7, O7);
+SPARC_ASSERT_OFFSET(psr, PSR);
+SPARC_ASSERT_OFFSET(isr_dispatch_disable, ISR_DISPATCH_DISABLE_STACK);
+
+RTEMS_STATIC_ASSERT(
+  (offsetof(Context_Control, g2_g3)
+     + offsetof(Context_Control, g4)) / 2 == G3_OFFSET,
+  Context_Control_offset_G3
+);
 
 /*
  *  This initializes the set of opcodes placed in each trap
@@ -61,23 +111,7 @@ void _CPU_Initialize(void)
   pointer = &_CPU_Null_fp_context;
   _CPU_Context_save_fp( &pointer );
 #endif
-
-  /*
-   *  Since no tasks have been created yet and no interrupts have occurred,
-   *  there is no way that the currently executing thread can have an
-   *  _ISR_Dispatch stack frame on its stack.
-   */
-  _CPU_ISR_Dispatch_disable = 0;
 }
-
-/*
- *  _CPU_ISR_Get_level
- *
- *  Input Parameters: NONE
- *
- *  Output Parameters:
- *    returns the current interrupt level (PIL field of the PSR)
- */
 
 uint32_t   _CPU_ISR_Get_level( void )
 {
@@ -195,22 +229,6 @@ void _CPU_ISR_install_raw_handler(
 
 }
 
-/*
- *  _CPU_ISR_install_vector
- *
- *  This kernel routine installs the RTEMS handler for the
- *  specified vector.
- *
- *  Input parameters:
- *    vector       - interrupt vector number
- *    new_handler  - replacement ISR for this vector number
- *    old_handler  - pointer to former ISR for this vector number
- *
- *  Output parameters:
- *    *old_handler - former ISR for this vector number
- *
- */
-
 void _CPU_ISR_install_vector(
   uint32_t    vector,
   proc_ptr    new_handler,
@@ -247,30 +265,14 @@ void _CPU_ISR_install_vector(
     _ISR_Vector_table[ real_vector ] = new_handler;
 }
 
-/*
- *  _CPU_Context_Initialize
- *
- *  This kernel routine initializes the basic non-FP context area associated
- *  with each thread.
- *
- *  Input parameters:
- *    the_context  - pointer to the context area
- *    stack_base   - address of memory for the SPARC
- *    size         - size in bytes of the stack area
- *    new_level    - interrupt level for this context area
- *    entry_point  - the starting execution point for this this context
- *    is_fp        - TRUE if this context is associated with an FP thread
- *
- *  Output parameters: NONE
- */
-
 void _CPU_Context_Initialize(
   Context_Control  *the_context,
   uint32_t         *stack_base,
   uint32_t          size,
   uint32_t          new_level,
   void             *entry_point,
-  bool              is_fp
+  bool              is_fp,
+  void             *tls_area
 )
 {
     uint32_t     stack_high;  /* highest "stack aligned" address */
@@ -323,4 +325,10 @@ void _CPU_Context_Initialize(
    *  thread can have an _ISR_Dispatch stack frame on its stack.
    */
     the_context->isr_dispatch_disable = 0;
+
+  if ( tls_area != NULL ) {
+    void *tcb = _TLS_TCB_after_tls_block_initialize( tls_area );
+
+    the_context->g7 = (uintptr_t) tcb;
+  }
 }

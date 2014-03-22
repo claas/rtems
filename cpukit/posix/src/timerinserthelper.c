@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Helper Routine for POSIX TIMERS 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  Helper routine for POSIX timers
  *
@@ -6,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,8 +25,8 @@
 #include <rtems/system.h>
 #include <rtems/seterr.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/watchdog.h>
-#include <rtems/posix/timer.h>
+#include <rtems/score/watchdogimpl.h>
+#include <rtems/posix/timerimpl.h>
 #include <rtems/posix/ptimer.h>
 
 bool _POSIX_Timer_Insert_helper(

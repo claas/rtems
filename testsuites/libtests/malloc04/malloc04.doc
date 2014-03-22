@@ -3,7 +3,7 @@
 #
 #  The license and distribution terms for this file may be
 #  found in the file LICENSE in this distribution or at
-#  http://www.rtems.com/license/LICENSE.
+#  http://www.rtems.org/license/LICENSE.
 #
 
 This file describes the directives and concepts tested by this test set.
@@ -16,4 +16,5 @@ directives:
 
 concepts:
 
-+ Exercise all non-fatal paths in the sbrk() support in the malloc family.
++ Exercise all paths in rtems_heap_extend_via_sbrk() function of the sbrk()
+  support in the malloc family.

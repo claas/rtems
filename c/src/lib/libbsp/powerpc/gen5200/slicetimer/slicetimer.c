@@ -14,7 +14,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 | this file contains functions to implement a slice timer         |
@@ -72,7 +72,7 @@
 /*                                                                     */
 /*   The license and distribution terms for this file may be           */
 /*   found in the file LICENSE in this distribution or at              */
-/*   http://www.rtems.com/license/LICENSE.                        */
+/*   http://www.rtems.org/license/LICENSE.                        */
 /*                                                                     */
 /*   Modifications for PPC405GP by Dennis Ehlin                        */
 /*---------------------------------------------------------------------*/
@@ -99,6 +99,7 @@
 
 #include <bsp.h>
 #include <rtems/bspIo.h>
+#include <bsp/fatal.h>
 #include <bsp/irq.h>
 
 #include <rtems.h>
@@ -338,7 +339,7 @@ rtems_device_driver slt_initialize
       {
 
       printk("Unable to connect PSC Irq handler\n");
-      rtems_fatal_error_occurred(1);
+      bsp_fatal(MPC5200_FATAL_SLICETIMER_0_IRQ_INSTALL);
 
       }
 
@@ -353,7 +354,7 @@ rtems_device_driver slt_initialize
       {
 
       printk("Unable to connect PSC Irq handler\n");
-      rtems_fatal_error_occurred(1);
+      bsp_fatal(MPC5200_FATAL_SLICETIMER_1_IRQ_INSTALL);
 
       }
 

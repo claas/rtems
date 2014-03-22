@@ -1,10 +1,10 @@
 /*
- *  COPYRIGHT (c) 1989-2009.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -167,7 +167,7 @@ rtems_task test_task(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_task_mode: reschedule -- returns to caller",
+    "rtems_task_mode: reschedule returns to caller",
     end_time,
     1,
     0,
@@ -190,7 +190,7 @@ rtems_task test_task(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_task_set_note",
+    "rtems_task_set_note: only case",
     end_time,
     OPERATION_COUNT,
     overhead,
@@ -203,7 +203,7 @@ rtems_task test_task(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_task_get_note",
+    "rtems_task_get_note: only case",
     end_time,
     OPERATION_COUNT,
     overhead,
@@ -218,7 +218,7 @@ rtems_task test_task(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_clock_set",
+    "rtems_clock_set: only case",
     end_time,
     OPERATION_COUNT,
     overhead,
@@ -231,7 +231,7 @@ rtems_task test_task(
   end_time = benchmark_timer_read();
 
   put_time(
-    "rtems_clock_get_tod",
+    "rtems_clock_get_tod: only case",
     end_time,
     OPERATION_COUNT,
     overhead,

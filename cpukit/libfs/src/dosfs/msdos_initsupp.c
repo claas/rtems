@@ -1,12 +1,17 @@
-/*
- *  MSDOS Initialization support routine implementation
+/**
+ * @file
  *
+ * @brief MSDOS Filesystem Initialization
+ * @ingroup libfs_msdos MSDOS FileSystem
+ */
+
+/*
  *  Copyright (C) 2001 OKTET Ltd., St.-Petersburg, Russia
  *  Author: Eugeny S. Mints <Eugeny.Mints@oktet.ru>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -47,7 +52,8 @@ msdos_initialize_support(
     rtems_filesystem_mount_table_entry_t    *temp_mt_entry,
     const rtems_filesystem_operations_table *op_table,
     const rtems_filesystem_file_handlers_r  *file_handlers,
-    const rtems_filesystem_file_handlers_r  *directory_handlers
+    const rtems_filesystem_file_handlers_r  *directory_handlers,
+    rtems_dosfs_convert_control             *converter
     )
 {
     int                rc = RC_OK;
@@ -62,6 +68,8 @@ msdos_initialize_support(
         rtems_set_errno_and_return_minus_one(ENOMEM);
 
     temp_mt_entry->fs_info = fs_info;
+
+    fs_info->converter = converter;
 
     rc = fat_init_volume_info(&fs_info->fat, temp_mt_entry->dev);
     if (rc != RC_OK)

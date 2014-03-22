@@ -8,18 +8,20 @@
  */
 
 /*
- * Copyright (c) 2008, 2010, 2011
- * Embedded Brains GmbH
- * Obere Lagerstr. 30
- * D-82178 Puchheim
- * Germany
- * rtems@embedded-brains.de
+ * Copyright (c) 2008-2013 embedded brains GmbH.
+ *
+ *  embedded brains GmbH
+ *  Dornierstr. 4
+ *  82178 Puchheim
+ *  Germany
+ *  <rtems@embedded-brains.de>
  *
  * access function for Device Control Registers inspired by "ppc405common.h"
  * from Michael Hamel ADInstruments May 2008
  *
- * The license and distribution terms for this file may be found in the file
- * LICENSE in this distribution or at http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 /**
@@ -404,6 +406,19 @@ static inline void ppc_external_exceptions_disable(uint32_t msr)
   ppc_set_machine_state_register(msr);
 
   RTEMS_COMPILER_MEMORY_BARRIER();
+}
+
+static inline uint32_t ppc_count_leading_zeros(uint32_t value)
+{
+  uint32_t count;
+
+  __asm__ (
+    "cntlzw %0, %1;"
+    : "=r" (count)
+    : "r" (value)
+  );
+
+  return count;
 }
 
 /*
@@ -858,7 +873,8 @@ void ppc_code_copy(void *dest, const void *src, size_t n);
  * Obtain interrupt mask
  */
 .macro GET_INTERRUPT_MASK mask
-	mfspr	\mask, sprg0
+	lis	\mask, _PPC_INTERRUPT_DISABLE_MASK@h
+	ori	\mask, \mask, _PPC_INTERRUPT_DISABLE_MASK@l
 .endm
 
 /*
@@ -877,6 +893,19 @@ void ppc_code_copy(void *dest, const void *src, size_t n);
  */
 .macro INTERRUPT_ENABLE level
 	mtmsr	\level
+.endm
+
+.macro GET_SELF_CPU_CONTROL reg
+#if defined(RTEMS_SMP)
+	/* Use Book E Processor ID Register (PIR) */
+	mfspr	\reg, 286
+	slwi	\reg, \reg, PER_CPU_CONTROL_SIZE_LOG2
+	addis	\reg, \reg, _Per_CPU_Information@ha
+	addi	\reg, \reg, _Per_CPU_Information@l
+#else
+	lis	\reg, _Per_CPU_Information@h
+	ori	\reg, \reg, _Per_CPU_Information@l
+#endif
 .endm
 
 #define LINKER_SYMBOL(sym) .extern sym

@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/score/schedulercbs.h
  *
+ *  @brief Thread manipulation for the CBS scheduler
+ *
  *  This include file contains all the constants and structures associated
  *  with the manipulation of threads for the CBS scheduler.
  */
@@ -11,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_SCHEDULERCBS_H
@@ -31,8 +33,9 @@ extern "C" {
 #endif
 
 /**
- *  @addtogroup ScoreScheduler
+ *  @defgroup ScoreSchedulerCBS CBS Scheduler
  *
+ *  @ingroup ScoreScheduler
  */
 /**@{*/
 
@@ -57,7 +60,8 @@ extern "C" {
     _Scheduler_EDF_Extract,          /* extract entry point */ \
     _Scheduler_EDF_Priority_compare, /* compares two priorities */ \
     _Scheduler_CBS_Release_job,      /* new period of task */ \
-    _Scheduler_priority_Tick         /* tick entry point */ \
+    _Scheduler_default_Tick,         /* tick entry point */ \
+    _Scheduler_default_Start_idle    /* start idle entry point */ \
   }
 
 /* Return values for CBS server. */
@@ -131,25 +135,24 @@ typedef struct {
 extern Scheduler_CBS_Server **_Scheduler_CBS_Server_list;
 
 /**
- *  @brief Scheduler CBS Unblock
+ *  @brief Unblocks a thread from the queue.
  *
  *  This routine adds @a the_thread to the scheduling decision, that is,
  *  adds it to the ready queue and updates any appropriate scheduling
- *  variables, for example the heir thread.
- *
- *  It is checked whether the remaining budget is sufficient. If not, the
- *  thread continues as a new job in order to protect concurrent threads.
- *
- *  @note This has to be asessed as missed deadline of the current job.
+ *  variables, for example the heir thread. It is checked whether the
+ *  remaining budget is sufficient. If not, the thread continues as a
+ *  new job in order to protect concurrent threads.
  *
  *  @param[in] the_thread will be unblocked.
+ *
+ *  @note This has to be asessed as missed deadline of the current job.
  */
 void _Scheduler_CBS_Unblock(
   Thread_Control    *the_thread
 );
 
 /**
- *  @brief Scheduler CBS Release job
+ *  @brief Called when a new job of task is released.
  *
  *  This routine is called when a new job of task is released.
  *  It is called only from Rate Monotonic manager in the beginning
@@ -170,16 +173,16 @@ void _Scheduler_CBS_Release_job (
  *
  *  Initializes the CBS library.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Initialize(void);
 
 /**
- *  @brief _Scheduler_CBS_Attach_thread
+ *  @brief Attach a task to an already existing server.
  *
  *  Attach a task to an already existing server.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Attach_thread (
   Scheduler_CBS_Server_id server_id,
@@ -187,11 +190,11 @@ int _Scheduler_CBS_Attach_thread (
 );
 
 /**
- *  @brief _Scheduler_CBS_Detach_thread
+ *  @brief Detach from the CBS Server.
  *
  *  Detach from the CBS Server.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Detach_thread (
   Scheduler_CBS_Server_id server_id,
@@ -199,20 +202,20 @@ int _Scheduler_CBS_Detach_thread (
 );
 
 /**
- *  @brief _Scheduler_CBS_Cleanup
+ *  @brief Cleanup resources associated to the CBS Library.
  *
  *  Cleanup resources associated to the CBS Library.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Cleanup (void);
 
 /**
- *  @brief _Scheduler_CBS_Create_server
+ *  @brief Create a new server with specified parameters.
  *
  *  Create a new server with specified parameters.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Create_server (
   Scheduler_CBS_Parameters     *params,
@@ -221,23 +224,25 @@ int _Scheduler_CBS_Create_server (
 );
 
 /**
- *  @brief _Scheduler_CBS_Destroy_server
+ *  @brief Detach all tasks from a server and destroy it.
  *
  *  Detach all tasks from a server and destroy it.
  *
- *  @return status code.
+ *  @param[in] server_id is the ID of the server
+ *
+ *  @retval status code.
  */
 int _Scheduler_CBS_Destroy_server (
   Scheduler_CBS_Server_id server_id
 );
 
 /**
- *  @brief _Scheduler_CBS_Get_approved_budget
+ *  @brief Retrieve the approved budget.
  *
  *  Retrieve the budget that has been approved for the subsequent
  *  server instances.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Get_approved_budget (
   Scheduler_CBS_Server_id  server_id,
@@ -245,11 +250,11 @@ int _Scheduler_CBS_Get_approved_budget (
 );
 
 /**
- *  @brief _Scheduler_CBS_Get_remaining_budget
+ *  @brief Retrieve remaining budget for the current server instance.
  *
  *  Retrieve remaining budget for the current server instance.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Get_remaining_budget (
   Scheduler_CBS_Server_id  server_id,
@@ -257,11 +262,15 @@ int _Scheduler_CBS_Get_remaining_budget (
 );
 
 /**
- *  @brief _Scheduler_CBS_Get_execution_time
+ *  @brief Get relative time info.
  *
- *  Retrieve time info relative to the current server.
+ *  Retrieve time info relative to @a server_id. The server status code is returned.
  *
- *  @return status code.
+ *  @param[in] server_id is the server to get the status code from.
+ *  @param[in] exec_time is the execution time.
+ *  @param[in] abs_time is not apparently used.
+ *
+ *  @retval status code.
  */
 int _Scheduler_CBS_Get_execution_time (
   Scheduler_CBS_Server_id   server_id,
@@ -270,11 +279,11 @@ int _Scheduler_CBS_Get_execution_time (
 );
 
 /**
- *  @brief _Scheduler_CBS_Get_parameters
+ *  @brief Retrieve CBS scheduling parameters.
  *
  *  Retrieve CBS scheduling parameters.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Get_parameters (
   Scheduler_CBS_Server_id   server_id,
@@ -282,12 +291,12 @@ int _Scheduler_CBS_Get_parameters (
 );
 
 /**
- *  @brief _Scheduler_CBS_Get_server_id
+ *  @brief Get a thread server id.
  *
  *  Get a thread server id, or SCHEDULER_CBS_ERROR_NOT_FOUND if it is not
  *  attached to any server.
  *
- *  @return status code.
+ *  @retval status code.
  */
 int _Scheduler_CBS_Get_server_id (
   rtems_id                 task_id,
@@ -295,11 +304,14 @@ int _Scheduler_CBS_Get_server_id (
 );
 
 /**
- *  @brief _Scheduler_CBS_Set_parameters
+ *  @brief Set parameters for CBS scheduling.
  *
  *  Change CBS scheduling parameters.
  *
- *  @return status code.
+ *  @param[in] server_id is the ID of the server.
+ *  @param[in] parameters are the parameters to set.
+ *
+ *  @retval status code.
  */
 int _Scheduler_CBS_Set_parameters (
   Scheduler_CBS_Server_id   server_id,
@@ -307,7 +319,7 @@ int _Scheduler_CBS_Set_parameters (
 );
 
 /**
- *  @brief Scheduler CBS Budget overrun
+ *  @brief Invoked when a limited time quantum is exceeded.
  *
  *  This routine is invoked when a limited time quantum is exceeded.
  */
@@ -316,7 +328,7 @@ void _Scheduler_CBS_Budget_callout(
 );
 
 /**
- *  @brief Scheduler CBS Allocate
+ *  @brief Allocates CBS specific information of @a the_thread.
  *
  *  This routine allocates CBS specific information of @a the_thread.
  *

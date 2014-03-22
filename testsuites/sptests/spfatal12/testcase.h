@@ -5,8 +5,10 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
+
+#include <rtems/score/wkspace.h>
 
 #define FATAL_ERROR_TEST_NAME            "12"
 #define FATAL_ERROR_DESCRIPTION  \
@@ -17,9 +19,8 @@
 
 void force_error()
 {
-  rtems_configuration_set_work_space_size( sizeof(void *) );
-  rtems_configuration_set_stack_space_size( 0 );
-  rtems_initialize_data_structures();
+  Heap_Area area = { .begin = NULL, .size = 0 };
 
+  _Workspace_Handler_initialization( &area, 1, NULL );
   /* we will not run this far */
 }

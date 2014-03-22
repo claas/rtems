@@ -1,5 +1,7 @@
 /**
- * @file rtems/zilog/z8536.h
+ * @file
+ *
+ * @brief Information Related to a Zilog Z8536 Counter/Timer/IO Chip
  *
  * This include file defines information related to a Zilog Z8536
  * Counter/Timer/IO Chip.  It is a IO mapped part.
@@ -14,7 +16,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_ZILOG_Z8536_H

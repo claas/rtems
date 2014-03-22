@@ -318,7 +318,7 @@ variable's value each time a task switch occurs to or from the calling task.
 
 The value seen by other tasks, including those which have not added the
 variable to their set and are thus accessing the variable as a common
-location shared among tasks, can not be affected by a task once it has
+location shared among tasks, cannot be affected by a task once it has
 added a variable to its local set.  Changes made to the variable by
 other tasks will not affect the value seen by a task which has added the
 variable to its private set.
@@ -1054,7 +1054,7 @@ procedure Task_Delete (
 @end ifset
 
 @subheading DIRECTIVE STATUS CODES:
-@code{@value{RPREFIX}SUCCESSFUL} - task restarted successfully@*
+@code{@value{RPREFIX}SUCCESSFUL} - task deleted successfully@*
 @code{@value{RPREFIX}INVALID_ID} - task id invalid@*
 @code{@value{RPREFIX}ILLEGAL_ON_REMOTE_OBJECT} - cannot restart remote task
 
@@ -1114,7 +1114,7 @@ procedure Task_Suspend (
 @end ifset
 
 @subheading DIRECTIVE STATUS CODES:
-@code{@value{RPREFIX}SUCCESSFUL} - task restarted successfully@*
+@code{@value{RPREFIX}SUCCESSFUL} - task suspended successfully@*
 @code{@value{RPREFIX}INVALID_ID} - task id invalid@*
 @code{@value{RPREFIX}ALREADY_SUSPENDED} - task already suspended
 
@@ -1166,7 +1166,7 @@ procedure Task_Resume (
 @end ifset
 
 @subheading DIRECTIVE STATUS CODES:
-@code{@value{RPREFIX}SUCCESSFUL} - task restarted successfully@*
+@code{@value{RPREFIX}SUCCESSFUL} - task resumed successfully@*
 @code{@value{RPREFIX}INVALID_ID} - task id invalid@*
 @code{@value{RPREFIX}INCORRECT_STATE} - task not suspended
 
@@ -1811,7 +1811,7 @@ procedure Task_Variable_Get (
 @end ifset
 
 @subheading DIRECTIVE STATUS CODES:
-@code{@value{RPREFIX}SUCCESSFUL} - per task variable added successfully@*
+@code{@value{RPREFIX}SUCCESSFUL} - per task variable obtained successfully@*
 @code{@value{RPREFIX}INVALID_ADDRESS} - @code{task_variable} is NULL@*
 @code{@value{RPREFIX}INVALID_ADDRESS} - @code{task_variable_value} is NULL@*
 @code{@value{RPREFIX}INVALID_ADDRESS} - @code{task_variable} is not found@*
@@ -1863,7 +1863,7 @@ procedure Task_Variable_Delete (
 @end ifset
 
 @subheading DIRECTIVE STATUS CODES:
-@code{@value{RPREFIX}SUCCESSFUL} - per task variable added successfully@*
+@code{@value{RPREFIX}SUCCESSFUL} - per task variable deleted successfully@*
 @code{@value{RPREFIX}INVALID_ID} - invalid task id@*
 @code{@value{RPREFIX}NO_MEMORY} - invalid task id@*
 @code{@value{RPREFIX}INVALID_ADDRESS} - @code{task_variable} is NULL@*

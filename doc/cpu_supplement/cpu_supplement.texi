@@ -8,7 +8,7 @@
 @c %**end of header
 
 @c
-@c  COPYRIGHT (c) 1989-2011.
+@c  COPYRIGHT (c) 1989-2013.
 @c  On-Line Applications Research Corporation (OAR).
 @c  All rights reserved.
 
@@ -55,19 +55,7 @@
 
 @contents
 
-@include preface.texi
-@include general.texi
-@include arm.texi
-@include avr.texi
-@include bfin.texi
-@include i386.texi
-@include lm32.texi
-@include m68k.texi
-@include mips.texi
-@include powerpc.texi
-@include sh.texi
-@include sparc.texi
-@include sparc64.texi
+@ifnottex
 @node Top, Preface, (dir), (dir)
 @top RTEMS CPU Architecture Supplement
 
@@ -77,10 +65,15 @@
 * ARM Specific Information::
 * Atmel AVR Specific Information::
 * Blackfin Specific Information::
+* Renesas H8/300 Specific Information::
 * Intel/AMD x86 Specific Information::
 * Lattice Mico32 Specific Information::
+* Renesas M32C Specific Information::
+* Renesas M32R Specific Information::
 * M68xxx and Coldfire Specific Information::
+* Xilinx MicroBlaze Specific Information::
 * MIPS Specific Information::
+* Altera Nios II Specific Information::
 * PowerPC Specific Information::
 * SuperH Specific Information::
 * SPARC Specific Information::
@@ -88,6 +81,26 @@
 * Command and Variable Index::
 * Concept Index::
 @end menu
+@end ifnottex
+
+@include preface.texi
+@include general.texi
+@include arm.texi
+@include avr.texi
+@include bfin.texi
+@include h8300.texi
+@include i386.texi
+@include lm32.texi
+@include m32c.texi
+@include m32r.texi
+@include m68k.texi
+@include microblaze.texi
+@include mips.texi
+@include nios2.texi
+@include powerpc.texi
+@include sh.texi
+@include sparc.texi
+@include sparc64.texi
 
 @node Command and Variable Index, Concept Index, , Top
 @unnumbered Command and Variable Index

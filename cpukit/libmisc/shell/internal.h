@@ -3,7 +3,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SHELL_INTERNAL_H
@@ -34,8 +34,6 @@ extern void rtems_shell_print_heap_info(
   Heap_Information *h
 );
 
-
-extern int rtems_shell_main_mdump(int argc, char *argv[]);
 
 extern void rtems_shell_print_unified_work_area_message(void);
 

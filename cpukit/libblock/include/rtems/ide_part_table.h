@@ -1,7 +1,7 @@
 /**
- * @file rtems/ide_part_table.h
- *
- * Support for "MS-DOS-style" partition tables
+ * @file
+ * 
+ * @brief "MS-DOS-style" Partition Tables Support
  */
 
 /*
@@ -12,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *****************************************************************************/
 

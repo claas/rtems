@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  MVME147 port for TNI - Telecom Bretagne
  *  by Dominique LE CAMPION (Dominique.LECAMPION@enst-bretagne.fr)
@@ -63,7 +63,7 @@ void bsp_start( void )
 
 #if defined(RTEMS_MULTIPROCESSING)
   node_number = (uint8_t)
-    (Configuration.User_multiprocessing_table->node - 1) & 0xF;
+    (rtems_configuration_get_user_multiprocessing_table()->node - 1) & 0xF;
 #else
    node_number = 1;
 #endif

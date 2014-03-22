@@ -1,12 +1,17 @@
-/*
- *  16.1.1 Thread Creation Attributes
+/**
+ * @file
  *
+ * @brief Thread Creation Attributes
+ * @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,7 +23,7 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/pthread.h>
+#include <rtems/posix/pthreadimpl.h>
 
 int pthread_attr_setguardsize(
   pthread_attr_t  *attr,

@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -14,15 +14,23 @@
 #include <tmacros.h>
 #include "test_support.h"
 
+const char rtems_test_name[] = "SMP 7";
+
 volatile bool TaskRan = false;
 volatile bool TSRFired = false;
 rtems_id      Semaphore; 
+
+static void success(void)
+{
+  TEST_END();
+  rtems_test_exit( 0 );
+}
 
 rtems_task Test_task(
   rtems_task_argument argument
 )
 {
-  int               cpu_num;
+  uint32_t          cpu_num;
   rtems_status_code sc;
   char              name[5];
   char             *p;
@@ -32,10 +40,10 @@ rtems_task Test_task(
   rtems_test_assert( p != NULL );
 
    /* Get the CPU Number */
-  cpu_num = bsp_smp_processor_id();
+  cpu_num = rtems_smp_get_current_processor();
 
   /* Print that the task is up and running. */
-  locked_printf(" CPU %d runnng Task %s and blocking\n", cpu_num, name);
+  locked_printf(" CPU %" PRIu32 " runnng Task %s and blocking\n", cpu_num, name);
 
   sc = rtems_semaphore_obtain( Semaphore, RTEMS_WAIT, RTEMS_NO_TIMEOUT );
   directive_failed( sc,"obtain in test task");
@@ -47,12 +55,13 @@ rtems_task Test_task(
 
   /* Print that the task is up and running. */
   locked_printf(
-    " CPU %d running Task %s after semaphore release\n", 
+    " CPU %" PRIu32 " running Task %s after semaphore release\n", 
     cpu_num, 
     name
   );
 
-  (void) rtems_task_delete( RTEMS_SELF );
+  /* FIXME: Task deletion currently not supported */
+  (void) rtems_task_suspend( RTEMS_SELF );
 }
 
 
@@ -80,8 +89,13 @@ rtems_task Init(
   rtems_interval     then;
   rtems_id           Timer;
 
+  TEST_BEGIN();
+
   locked_print_initialize();
-  locked_printf( "\n\n*** TEST SMP07 ***\n" );
+
+  if ( rtems_smp_get_processor_count() == 1 ) {
+    success();
+  }
 
   /* Create/verify semaphore */
   status = rtems_semaphore_create(
@@ -110,7 +124,7 @@ rtems_task Init(
   );
   directive_failed( status, "task create" );
 
-  cpu_num = bsp_smp_processor_id();
+  cpu_num = rtems_smp_get_current_processor();
   locked_printf(" CPU %d start task TA1\n", cpu_num );
   status = rtems_task_start( id, Test_task, 1 );
   directive_failed( status, "task start" );
@@ -147,8 +161,7 @@ rtems_task Init(
   }
 
   /* End the program */
-  locked_printf( "*** END OF TEST SMP07 ***\n" );
-  rtems_test_exit(0);
+  success();
 }
 
 /* configuration information */
@@ -161,8 +174,10 @@ rtems_task Init(
 #define CONFIGURE_MAXIMUM_TIMERS           1
 
 #define CONFIGURE_MAXIMUM_TASKS            2
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
+
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-#define CONFIGURE_MAXIMUM_SEMAPHORES       1
+#define CONFIGURE_MAXIMUM_SEMAPHORES       2
 
 #define CONFIGURE_INIT
 

@@ -14,13 +14,15 @@
  * Germany
  * rtems@embedded-brains.de
  *
- * The license and distribution terms for this file may be found in the file
- * LICENSE in this distribution or at http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <stdlib.h>
 
 #include <rtems.h>
+#include <rtems/counter.h>
 
 #include <libcpu/powerpc-utility.h>
 
@@ -128,7 +130,6 @@ rtems_status_code  bsp_tqm_get_cib_uint32( const char *cib_id,
 
 void bsp_start( void)
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
   ppc_cpu_id_t myCpu;
   ppc_cpu_revision_t myCpuRevision;
 
@@ -179,22 +180,13 @@ void bsp_start( void)
   bsp_clicks_per_usec = bsp_time_base_frequency / 1000000;
   bsp_timer_least_valid = 3;
   bsp_timer_average_overhead = 3;
+  rtems_counter_initialize_converter(bsp_time_base_frequency);
 
   /* Initialize exception handler */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-    interrupt_stack_start,
-    interrupt_stack_size
-  );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
+  ppc_exc_initialize(interrupt_stack_start, interrupt_stack_size);
 
   /* Initalize interrupt support */
-  sc = bsp_interrupt_initialize();
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot intitialize interrupts");
-  }
+  bsp_interrupt_initialize();
 
 #ifdef SHOW_MORE_INIT_SETTINGS
   printk("Exit from bspstart\n");

@@ -1,20 +1,26 @@
+/**
+ * @file
+ *
+ * @brief Scheduler CBS Destroy Server
+ *
+ * @ingroup ScoreScheduler
+ */
+
 /*
  *  Copyright (C) 2011 Petr Benes.
  *  Copyright (C) 2011 On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/config.h>
-#include <rtems/score/scheduler.h>
 #include <rtems/score/schedulercbs.h>
+#include <rtems/score/wkspace.h>
 
 int _Scheduler_CBS_Destroy_server (
   Scheduler_CBS_Server_id server_id

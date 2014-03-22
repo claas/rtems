@@ -1,17 +1,22 @@
-/*
- *  Stack Overflow Check User Extension Set
+/**
+ * @file
  *
- *  NOTE:  This extension set automatically determines at
+ * @brief Stack Overflow Check User Extension Set
+ * @ingroup libmisc_stackchk Stack Checker Mechanism
+ *
+ * NOTE:  This extension set automatically determines at
  *         initialization time whether the stack for this
  *         CPU grows up or down and installs the correct
  *         extension routines for that direction.
- *
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2010.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 
@@ -260,7 +265,10 @@ void Stack_check_report_blown_task(Thread_Control *running, bool pattern_ok)
     }
   #endif
 
-  rtems_fatal_error_occurred(0x81);
+  rtems_fatal(
+    RTEMS_FATAL_SOURCE_STACK_CHECKER,
+    running->Object.name.name_u32
+  );
 }
 
 /*
@@ -296,9 +304,10 @@ void rtems_stack_checker_switch_extension(
  */
 bool rtems_stack_checker_is_blown( void )
 {
-  Stack_Control *the_stack = &_Thread_Executing->Start.Initial_stack;
-  bool           sp_ok;
-  bool           pattern_ok = true;
+  Thread_Control *executing = _Thread_Get_executing();
+  Stack_Control  *the_stack = &executing->Start.Initial_stack;
+  bool            sp_ok;
+  bool            pattern_ok = true;
 
   /*
    *  Check for an out of bounds stack pointer
@@ -323,7 +332,7 @@ bool rtems_stack_checker_is_blown( void )
    * Let's report as much as we can.
    */
   if ( !sp_ok || !pattern_ok ) {
-    Stack_check_report_blown_task( _Thread_Executing, pattern_ok );
+    Stack_check_report_blown_task( executing, pattern_ok );
     /* DOES NOT RETURN */
   }
 
@@ -406,7 +415,7 @@ static void Stack_check_Dump_threads_usage(
       stack = &Stack_check_Interrupt_stack;
       the_thread = 0;
       current = 0;
-    } else 
+    } else
   #endif
     {
       stack  = &the_thread->Start.Initial_stack;

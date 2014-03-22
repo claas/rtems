@@ -1,39 +1,26 @@
-/*
- *  Rate Monotonic Manager -- Period End Timeout Handler
+/**
+ *  @file
  *
+ *  @brief Rate Monotonic Timeout
+ *  @ingroup ClassicRateMon
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/support.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/ratemon.h>
-#include <rtems/score/thread.h>
-
-/*
- *  _Rate_monotonic_Timeout
- *
- *  This routine processes a period ending.  If the owning thread
- *  is waiting for the period, that thread is unblocked and the
- *  period reinitiated.  Otherwise, the period is expired.
- *  This routine is called by the watchdog handler.
- *
- *  Input parameters:
- *    id - period id
- *
- *  Output parameters: NONE
- */
+#include <rtems/rtems/ratemonimpl.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/watchdogimpl.h>
 
 void _Rate_monotonic_Timeout(
   Objects_Id  id,
@@ -68,7 +55,7 @@ void _Rate_monotonic_Timeout(
         _Watchdog_Insert_ticks( &the_period->Timer, the_period->next_length );
       } else
         the_period->state = RATE_MONOTONIC_EXPIRED;
-      _Thread_Unnest_dispatch();
+      _Objects_Put_without_thread_dispatch( &the_period->Object );
       break;
 
 #if defined(RTEMS_MULTIPROCESSING)

@@ -1,10 +1,11 @@
 /**
- * @file arm_mode_bits.h
+ * @file
  *
- *  ARM statusregister mode bits.
+ * @ingroup arm_gba
  *
- *  This include file contains definitions related to the ARM BSP.
+ * @brief ARM status register mode bits.
  */
+
 /*
  *  RTEMS GBA BSP
  *
@@ -12,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef __ARMMODEBITS_H

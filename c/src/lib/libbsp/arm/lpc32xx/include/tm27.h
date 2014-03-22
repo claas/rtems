@@ -1,3 +1,10 @@
+/* @file 
+ *
+ * @ingroup arm_lpc32xx
+ *
+ * @brief Implementations of interrupt mechanisms for Time Test 27
+ */
+
 /*
  * Copyright (c) 2010 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_TMTEST27

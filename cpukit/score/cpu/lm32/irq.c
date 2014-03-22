@@ -1,31 +1,25 @@
+/**
+ *  @file
+ *
+ *  @brief LM32 Initialize the ISR Handler
+ */
+
 /*
- *  lm32 interrupt handler
- *
- *  Derived from c4x/irq.c and nios2/irq.c
- *
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/cpu.h>
-#include <rtems/score/thread.h>
 #include <rtems/score/isr.h>
 #include <rtems/score/percpu.h>
-
-/*
- *  This routine provides the RTEMS interrupt management.
- *
- *  Upon entry, interrupts are disabled
- */
+#include <rtems/score/threaddispatch.h>
 
 #if( CPU_HAS_SOFTWARE_INTERRUPT_STACK == TRUE)
   unsigned long    *_old_stack_ptr;
@@ -76,7 +70,7 @@ void __ISR_Handler(uint32_t vector, CPU_Interrupt_frame *ifr)
   if ( _ISR_Nest_level )
     return;
 
-  if ( _Thread_Dispatch_necessary && !_Thread_Dispatch_in_critical_section() ) {
+  if ( _Thread_Dispatch_necessary && _Thread_Dispatch_is_enabled() ) {
     /* save off our stack frame so the context switcher can get to it */
     _exception_stack_frame = ifr;
 

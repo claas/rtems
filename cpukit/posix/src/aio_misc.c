@@ -1,9 +1,16 @@
+/**
+ * @file
+ *
+ * @brief Actual request being processed
+ * @ingroup POSIXAPI
+ */
+
 /*
  * Copyright 2010-2011, Alin Rus <alin.codejunkie@gmail.com> 
  * 
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <pthread.h>
@@ -137,18 +144,19 @@ rtems_aio_search_fd (rtems_chain_control *chain, int fildes, int create)
 static void
 rtems_aio_move_to_work (rtems_aio_request_chain *r_chain)
 {
+  rtems_chain_control *work_req_chain = &aio_request_queue.work_req;
   rtems_aio_request_chain *temp;
   rtems_chain_node *node;
-  
-  node = rtems_chain_first (&aio_request_queue.work_req);
+
+  node = rtems_chain_first (work_req_chain);
   temp = (rtems_aio_request_chain *) node;
 
-  while (temp->fildes < r_chain->fildes && 
-	 !rtems_chain_is_tail (&aio_request_queue.work_req, node)) {
+  while (temp->fildes < r_chain->fildes &&
+	 !rtems_chain_is_tail (work_req_chain, node)) {
     node = rtems_chain_next (node);
     temp = (rtems_aio_request_chain *) node;
   }
-  
+
   rtems_chain_insert (rtems_chain_previous (node), &r_chain->next_fd);
 }
  

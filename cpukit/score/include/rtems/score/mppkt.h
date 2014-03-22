@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/score/mppkt.h
  *
+ *  @brief Specification for the Packet Handler
+ *
  *  This package is the specification for the Packet Handler.
  *  This handler defines the basic packet and provides
  *  mechanisms to utilize packets based on this prefix.
@@ -14,11 +16,19 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_MPPKT_H
 #define _RTEMS_SCORE_MPPKT_H
+
+#include <rtems/score/object.h>
+#include <rtems/score/priority.h>
+#include <rtems/score/watchdog.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  @defgroup ScoreMPPacket MP Packet Handler
@@ -30,14 +40,6 @@
  *  operations.
  */
 /**@{*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/watchdog.h>
 
 /**
  *  The following enumerated type defines the packet classes.
@@ -109,15 +111,11 @@ typedef struct {
 #define MP_PACKET_MINIMUN_HETERO_CONVERSION  \
   ( sizeof( MP_packet_Prefix ) / sizeof( uint32_t   ) )
 
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/score/mppkt.inl>
-#endif
+/**@}*/
 
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of include file */

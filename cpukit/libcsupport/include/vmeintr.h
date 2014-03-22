@@ -1,9 +1,11 @@
 /**
- * @file rtems/vmeintr.h
+ * @file
+ * 
+ * @brief VMEbus Interface Library
  *
- *  This file is the specification for the VMEbus interface library
- *  which should be provided by all BSPs for VMEbus Single Board
- *  Computers but currently only a few do so.
+ * This file is the specification for the VMEbus interface library
+ * which should be provided by all BSPs for VMEbus Single Board
+ * Computers but currently only a few do so.
  */
 
 /*
@@ -12,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_VMEINTR_H

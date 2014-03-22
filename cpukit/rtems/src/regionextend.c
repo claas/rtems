@@ -1,12 +1,17 @@
-/*
- *  Region Manager - Extend (add memory to) a Region
+/**
+ *  @file
  *
+ *  @brief RTEMS Extend Region
+ *  @ingroup ClassicRegion
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,28 +21,10 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/options.h>
-#include <rtems/rtems/region.h>
-#include <rtems/score/states.h>
+#include <rtems/rtems/regionimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/apimutex.h>
-
-/*
- *  rtems_region_extend
- *
- *  This directive attempts to grow a region of physical contiguous memory area
- *  from which variable sized segments can be allocated.
- *
- *  Input parameters:
- *    id         - id of region to grow
- *    start      - starting address of memory area for extension
- *    length     - physical length in bytes to grow the region
- *
- *  Output parameters:
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
 
 rtems_status_code rtems_region_extend(
   rtems_id   id,
@@ -46,7 +33,6 @@ rtems_status_code rtems_region_extend(
 )
 {
   uintptr_t           amount_extended;
-  bool                extend_ok;
   Objects_Locations   location;
   rtems_status_code   return_status;
   Region_Control     *the_region;
@@ -61,14 +47,14 @@ rtems_status_code rtems_region_extend(
 
       case OBJECTS_LOCAL:
 
-        extend_ok = _Heap_Extend(
+        amount_extended = _Heap_Extend(
           &the_region->Memory,
           starting_address,
           length,
-          &amount_extended
+          0
         );
 
-        if ( extend_ok ) {
+        if ( amount_extended > 0 ) {
           the_region->length                += amount_extended;
           the_region->maximum_segment_size  += amount_extended;
           return_status = RTEMS_SUCCESSFUL;

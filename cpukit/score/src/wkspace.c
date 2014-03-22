@@ -1,22 +1,29 @@
-/*
- *  Workspace Handler
+/**
+ *  @file
  *
+ *  @brief Workspace Handler Support
+ *  @ingroup ScoreWorkspace
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/config.h>
 #include <rtems/score/wkspace.h>
+#include <rtems/score/heapimpl.h>
 #include <rtems/score/interr.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/tls.h>
+#include <rtems/config.h>
 
 #include <string.h>  /* for memset */
 
@@ -25,36 +32,99 @@
   #include <rtems/bspIo.h>
 #endif
 
-/*
- *  _Workspace_Handler_initialization
- */
-void _Workspace_Handler_initialization(void)
+static uint32_t _Get_maximum_thread_count(void)
 {
-  uintptr_t memory_available = 0;
-  void *starting_address = rtems_configuration_get_work_space_start();
-  uintptr_t size = rtems_configuration_get_work_space_size();
+  uint32_t thread_count = 0;
 
-  if ( rtems_configuration_get_do_zero_of_workspace() )
-    memset( starting_address, 0, size );
+  thread_count += _Thread_Get_maximum_internal_threads();
 
-  memory_available = _Heap_Initialize(
-    &_Workspace_Area,
-    starting_address,
-    size,
-    CPU_HEAP_ALIGNMENT
+  thread_count += rtems_resource_maximum_per_allocation(
+    Configuration_RTEMS_API.maximum_tasks
   );
 
-  if ( memory_available == 0 )
-    _Internal_error_Occurred(
+#if defined(RTEMS_POSIX_API)
+  thread_count += rtems_resource_maximum_per_allocation(
+    Configuration_POSIX_API.maximum_threads
+  );
+#endif
+
+  return thread_count;
+}
+
+void _Workspace_Handler_initialization(
+  Heap_Area *areas,
+  size_t area_count,
+  Heap_Initialization_or_extend_handler extend
+)
+{
+  Heap_Initialization_or_extend_handler init_or_extend = _Heap_Initialize;
+  uintptr_t remaining = rtems_configuration_get_work_space_size();
+  bool do_zero = rtems_configuration_get_do_zero_of_workspace();
+  bool unified = rtems_configuration_get_unified_work_area();
+  uintptr_t page_size = CPU_HEAP_ALIGNMENT;
+  uintptr_t overhead = _Heap_Area_overhead( page_size );
+  uintptr_t tls_size = (uintptr_t) _TLS_Size;
+  size_t i;
+
+  if ( tls_size > 0 ) {
+    uintptr_t tls_alignment = (uintptr_t) _TLS_Alignment;
+    uintptr_t tls_alloc = _TLS_Get_allocation_size( tls_size, tls_alignment );
+
+    remaining += _Get_maximum_thread_count()
+      * _Heap_Size_with_overhead( page_size, tls_alloc, tls_alignment );
+  }
+
+  for (i = 0; i < area_count; ++i) {
+    Heap_Area *area = &areas [i];
+
+    if ( do_zero ) {
+      memset( area->begin, 0, area->size );
+    }
+
+    if ( area->size > overhead ) {
+      uintptr_t space_available;
+      uintptr_t size;
+
+      if ( unified ) {
+        size = area->size;
+      } else {
+        if ( remaining > 0 ) {
+          size = remaining < area->size - overhead ?
+            remaining + overhead : area->size;
+        } else {
+          size = 0;
+        }
+      }
+
+      space_available = (*init_or_extend)(
+        &_Workspace_Area,
+        area->begin,
+        size,
+        page_size
+      );
+
+      area->begin = (char *) area->begin + size;
+      area->size -= size;
+
+      if ( space_available < remaining ) {
+        remaining -= space_available;
+      } else {
+        remaining = 0;
+      }
+
+      init_or_extend = extend;
+    }
+  }
+
+  if ( remaining > 0 ) {
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_TOO_LITTLE_WORKSPACE
     );
+  }
 }
 
-/*
- *  _Workspace_Allocate
- */
 void *_Workspace_Allocate(
   size_t   size
 )
@@ -72,6 +142,11 @@ void *_Workspace_Allocate(
     );
   #endif
   return memory;
+}
+
+void *_Workspace_Allocate_aligned( size_t size, size_t alignment )
+{
+  return _Heap_Allocate_aligned( &_Workspace_Area, size, alignment );
 }
 
 /*
@@ -92,9 +167,6 @@ void _Workspace_Free(
   _Heap_Free( &_Workspace_Area, block );
 }
 
-/*
- *  _Workspace_Allocate_or_fatal_error
- */
 void *_Workspace_Allocate_or_fatal_error(
   size_t      size
 )
@@ -113,7 +185,7 @@ void *_Workspace_Allocate_or_fatal_error(
   #endif
 
   if ( memory == NULL )
-    _Internal_error_Occurred(
+    _Terminate(
       INTERNAL_ERROR_CORE,
       true,
       INTERNAL_ERROR_WORKSPACE_ALLOCATION

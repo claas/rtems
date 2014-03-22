@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Block Device Disk Management Initialize
+ * @ingroup rtems_disk Block Device Disk Management
+ */
+
 /*
  * Copyright (c) 2012 embedded brains GmbH.  All rights reserved.
  *
@@ -9,7 +16,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,6 +25,8 @@
 
 #include <rtems/blkdev.h>
 #include <rtems/bdbuf.h>
+
+#include <string.h>
 
 rtems_status_code rtems_disk_init_phys(
   rtems_disk_device *dd,
@@ -43,7 +52,7 @@ rtems_status_code rtems_disk_init_phys(
       dd->capabilities = 0;
     }
 
-    sc = rtems_bdbuf_set_block_size(dd, block_size);
+    sc = rtems_bdbuf_set_block_size(dd, block_size, false);
   } else {
     sc = RTEMS_INVALID_NUMBER;
   }
@@ -78,7 +87,7 @@ rtems_status_code rtems_disk_init_log(
         && block_count > 0
         && block_count <= phys_block_count - block_begin
     ) {
-      sc = rtems_bdbuf_set_block_size(dd, phys_dd->media_block_size);
+      sc = rtems_bdbuf_set_block_size(dd, phys_dd->media_block_size, false);
     } else {
       sc = RTEMS_INVALID_NUMBER;
     }

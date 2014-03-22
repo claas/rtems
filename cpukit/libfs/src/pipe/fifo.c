@@ -1,11 +1,16 @@
-/*
- * fifo.c: POSIX FIFO/pipe for RTEMS
+/**
+ * @file
  *
+ * @brief FIFO/Pipe Support
+ * @ingroup FIFO_PIPE
+ */
+
+/*
  * Author: Wei Shen <cquark@gmail.com>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 
@@ -13,15 +18,14 @@
 #include "config.h"
 #endif
 
-#ifdef RTEMS_POSIX_API
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
-#endif
-
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <rtems.h>
 #include <rtems/libio_.h>
+#include <rtems/rtems/barrierimpl.h>
+#include <rtems/score/statesimpl.h>
 
 #include "pipe.h"
 
@@ -61,22 +65,22 @@ static rtems_id pipe_semaphore = RTEMS_ID_NONE;
 
 
 #ifdef RTEMS_POSIX_API
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
-
 #include <rtems/rtems/barrier.h>
 #include <rtems/score/thread.h>
 
 /* Set barriers to be interruptible by signals. */
 static void pipe_interruptible(pipe_control_t *pipe)
 {
-  Objects_Locations location;
+  Objects_Locations  location;
+  Barrier_Control   *the_barrier;
 
-  _Barrier_Get(pipe->readBarrier, &location)->Barrier.Wait_queue.state
-    |= STATES_INTERRUPTIBLE_BY_SIGNAL;
-  _Thread_Enable_dispatch();
-  _Barrier_Get(pipe->writeBarrier, &location)->Barrier.Wait_queue.state
-    |= STATES_INTERRUPTIBLE_BY_SIGNAL;
-  _Thread_Enable_dispatch();
+  the_barrier = _Barrier_Get(pipe->readBarrier, &location);
+  the_barrier->Barrier.Wait_queue.state |= STATES_INTERRUPTIBLE_BY_SIGNAL;
+  _Objects_Put( &the_barrier->Object );
+
+  the_barrier = _Barrier_Get(pipe->writeBarrier, &location);
+  the_barrier->Barrier.Wait_queue.state |= STATES_INTERRUPTIBLE_BY_SIGNAL;
+  _Objects_Put( &the_barrier->Object );
 }
 #endif
 
@@ -236,12 +240,6 @@ out:
   return err;
 }
 
-/*
- * Interface to file system close.
- *
- * *pipep points to pipe control structure. When the last user releases pipe,
- * it will be set to NULL.
- */
 void pipe_release(
   pipe_control_t **pipep,
   rtems_libio_t *iop
@@ -299,13 +297,6 @@ void pipe_release(
 
 }
 
-/*
- * Interface to file system open.
- *
- * *pipep points to pipe control structure. If called with *pipep = NULL,
- * fifo_open will try allocating and initializing a control structure. If the
- * call succeeds, *pipep will be set to address of new control structure.
- */
 int fifo_open(
   pipe_control_t **pipep,
   rtems_libio_t *iop
@@ -387,9 +378,6 @@ out_error:
   return err;
 }
 
-/*
- * Interface to file system read.
- */
 ssize_t pipe_read(
   pipe_control_t *pipe,
   void           *buffer,
@@ -402,53 +390,51 @@ ssize_t pipe_read(
   if (! PIPE_LOCK(pipe))
     return -EINTR;
 
-  while (read < count) {
-    while (PIPE_EMPTY(pipe)) {
-      /* Not an error */
-      if (pipe->Writers == 0)
-        goto out_locked;
+  while (PIPE_EMPTY(pipe)) {
+    /* Not an error */
+    if (pipe->Writers == 0)
+      goto out_locked;
 
-      if (LIBIO_NODELAY(iop)) {
-        ret = -EAGAIN;
-        goto out_locked;
-      }
-
-      /* Wait until pipe is no more empty or no writer exists */
-      pipe->waitingReaders ++;
-      PIPE_UNLOCK(pipe);
-      if (! PIPE_READWAIT(pipe))
-        ret = -EINTR;
-      if (! PIPE_LOCK(pipe)) {
-        /* WARN waitingReaders not restored! */
-        ret = -EINTR;
-        goto out_nolock;
-      }
-      pipe->waitingReaders --;
-      if (ret != 0)
-        goto out_locked;
+    if (LIBIO_NODELAY(iop)) {
+      ret = -EAGAIN;
+      goto out_locked;
     }
 
-    /* Read chunk bytes */
-    chunk = MIN(count - read,  pipe->Length);
-    chunk1 = pipe->Size - pipe->Start;
-    if (chunk > chunk1) {
-      memcpy(buffer + read, pipe->Buffer + pipe->Start, chunk1);
-      memcpy(buffer + read + chunk1, pipe->Buffer, chunk - chunk1);
+    /* Wait until pipe is no more empty or no writer exists */
+    pipe->waitingReaders ++;
+    PIPE_UNLOCK(pipe);
+    if (! PIPE_READWAIT(pipe))
+      ret = -EINTR;
+    if (! PIPE_LOCK(pipe)) {
+      /* WARN waitingReaders not restored! */
+      ret = -EINTR;
+      goto out_nolock;
     }
-    else
-      memcpy(buffer + read, pipe->Buffer + pipe->Start, chunk);
-
-    pipe->Start += chunk;
-    pipe->Start %= pipe->Size;
-    pipe->Length -= chunk;
-    /* For buffering optimization */
-    if (PIPE_EMPTY(pipe))
-      pipe->Start = 0;
-
-    if (pipe->waitingWriters > 0)
-      PIPE_WAKEUPWRITERS(pipe);
-    read += chunk;
+    pipe->waitingReaders --;
+    if (ret != 0)
+      goto out_locked;
   }
+
+  /* Read chunk bytes */
+  chunk = MIN(count - read,  pipe->Length);
+  chunk1 = pipe->Size - pipe->Start;
+  if (chunk > chunk1) {
+    memcpy(buffer + read, pipe->Buffer + pipe->Start, chunk1);
+    memcpy(buffer + read + chunk1, pipe->Buffer, chunk - chunk1);
+  }
+  else
+    memcpy(buffer + read, pipe->Buffer + pipe->Start, chunk);
+
+  pipe->Start += chunk;
+  pipe->Start %= pipe->Size;
+  pipe->Length -= chunk;
+  /* For buffering optimization */
+  if (PIPE_EMPTY(pipe))
+    pipe->Start = 0;
+
+  if (pipe->waitingWriters > 0)
+    PIPE_WAKEUPWRITERS(pipe);
+  read += chunk;
 
 out_locked:
   PIPE_UNLOCK(pipe);
@@ -459,9 +445,6 @@ out_nolock:
   return ret;
 }
 
-/*
- * Interface to file system write.
- */
 ssize_t pipe_write(
   pipe_control_t *pipe,
   const void     *buffer,
@@ -545,9 +528,6 @@ out_nolock:
   return ret;
 }
 
-/*
- * Interface to file system ioctl.
- */
 int pipe_ioctl(
   pipe_control_t  *pipe,
   ioctl_command_t  cmd,

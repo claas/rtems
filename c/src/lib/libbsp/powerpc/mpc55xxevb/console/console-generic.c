@@ -15,15 +15,19 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
+#include <sys/cdefs.h>
+
+#include <bsp.h>
 #include <bsp/console-generic.h>
+#include <bsp/fatal.h>
 
 #include <rtems/console.h>
 
 static const struct termios console_generic_termios = {
-  .c_cflag = CS8 | CREAD | CLOCAL | B115200
+  .c_cflag = CS8 | CREAD | CLOCAL | __CONCAT(B, BSP_DEFAULT_BAUD_RATE)
 };
 
 static void console_generic_char_out(char c)
@@ -77,7 +81,7 @@ rtems_device_driver console_initialize(
   rtems_device_minor_number console = console_generic_minor;
 
   if (count <= 0) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_GENERIC_COUNT);
   }
 
   rtems_termios_initialize();
@@ -87,13 +91,13 @@ rtems_device_driver console_initialize(
 
     sc = rtems_io_register_name(info->device_path, major, minor);
     if (sc != RTEMS_SUCCESSFUL) {
-      rtems_fatal_error_occurred(0xdeadbeef);
+      bsp_fatal(MPC55XX_FATAL_CONSOLE_GENERIC_REGISTER);
     }
   }
 
   sc = rtems_io_register_name(CONSOLE_DEVICE_NAME, major, console);
   if (sc != RTEMS_SUCCESSFUL) {
-    rtems_fatal_error_occurred(0xdeadbeef);
+    bsp_fatal(MPC55XX_FATAL_CONSOLE_GENERIC_REGISTER_CONSOLE);
   }
 
   console_generic_char_out_do_init();

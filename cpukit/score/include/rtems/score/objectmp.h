@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/score/objectmp.h
  *
+ *  @brief Data Associated with the Manipulation of Global RTEMS Objects
+ *
  *  This include file contains all the constants and structures associated
  *  with the manipulation of Global RTEMS Objects.
  */
@@ -11,11 +13,21 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_OBJECTMP_H
 #define _RTEMS_SCORE_OBJECTMP_H
+
+#ifndef _RTEMS_SCORE_OBJECTIMPL_H
+# error "Never use <rtems/rtems/objectmp.h> directly; include <rtems/rtems/objectimpl.h> instead."
+#endif
+
+#include <rtems/score/chainimpl.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  @defgroup ScoreObjectMP Object Handler Multiprocessing Support
@@ -28,26 +40,9 @@
  */
 /**@{*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
- *  This defines the Global Object Control Block used to manage
- *  objects resident on other nodes.  It is derived from Object.
- */
-typedef struct {
-  /** This is an object control structure. */
-  Objects_Control Object;
-  /** This is the name of the object.  Using an unsigned thirty two
-   *  bit value is broken but works.  If any API is MP with variable
-   *  length names .. BOOM!!!!
-   */
-  uint32_t        name;
-}   Objects_MP_Control;
-
-/**
- *  @brief  Objects MP Handler initialization
+ *  @brief Intializes the inactive global object chain
+ *  based on the maximum number of global objects configured.
  *
  *  This routine intializes the inactive global object chain
  *  based on the maximum number of global objects configured.
@@ -55,7 +50,8 @@ typedef struct {
 void _Objects_MP_Handler_initialization(void);
 
 /**
- *  @brief  Objects MP Handler Early initialization
+ *  @brief Intializes the global object node number
+ *  used in the ID field of all objects.
  *
  *  This routine intializes the global object node number
  *  used in the ID field of all objects.
@@ -63,7 +59,8 @@ void _Objects_MP_Handler_initialization(void);
 void _Objects_MP_Handler_early_initialization(void);
 
 /**
- *  @brief Objects MP Open
+ *  @brief Place the specified global object in the
+ *  specified information table.
  *
  *  This routine place the specified global object in the
  *  specified information table.
@@ -85,7 +82,8 @@ void _Objects_MP_Open (
 );
 
 /**
- *  @brief  Objects MP Allocate and open
+ *  @brief  Allocates a global object control block
+ *  and places it in the specified information table.
  *
  *  This routine allocates a global object control block
  *  and places it in the specified information table.  If the
@@ -110,7 +108,7 @@ bool _Objects_MP_Allocate_and_open (
 );
 
 /**
- *  @brief  Objects MP Close
+ *  @brief Removes a global object from the specified information table.
  *
  *  This routine removes a global object from the specified
  *  information table and deallocates the global object control block.
@@ -121,7 +119,8 @@ void _Objects_MP_Close (
 );
 
 /**
- *  @brief  Objects MP Global name search
+ *  @brief Look for the object with the_name in the global
+ *  object tables indicated by information.
  *
  *  This routine looks for the object with the_name in the global
  *  object tables indicated by information.  It returns the ID of the
@@ -133,7 +132,7 @@ void _Objects_MP_Close (
  *  @param[in] nodes_to_search indicates the set of nodes to search.
  *  @param[in] the_id will contain the Id of the object if found.
  *
- *  @return This method returns one of the
+ *  @retval This method returns one of the
  *          @ref Objects_Name_or_id_lookup_errors.  If successful, @a the_id
  *          will contain the Id of the object.
  */
@@ -145,7 +144,8 @@ Objects_Name_or_id_lookup_errors _Objects_MP_Global_name_search (
 );
 
 /**
- *  @brief  Objects MP Is remote
+ *  @brief Searches the Global Object Table managed
+ *  by information for the object indicated by ID.
  *
  *  This function searches the Global Object Table managed
  *  by information for the object indicated by ID.  If the object
@@ -159,7 +159,7 @@ Objects_Name_or_id_lookup_errors _Objects_MP_Global_name_search (
  *  @param[in] location will contain the location of the object.
  *  @param[in] the_object will contain a pointer to the object.
  *
- *  @return This method fills in @a location to indicate successful location
+ *  @retval This method fills in @a location to indicate successful location
  *          of the object or error.  On success, @a the_object will be
  *          filled in.
  */
@@ -181,15 +181,48 @@ SCORE_EXTERN uint32_t       _Objects_MP_Maximum_global_objects;
  */
 SCORE_EXTERN Chain_Control  _Objects_MP_Inactive_global_objects;
 
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/score/objectmp.inl>
-#endif
+/**
+ * This function allocates a Global Object control block.
+ */
+
+RTEMS_INLINE_ROUTINE Objects_MP_Control *_Objects_MP_Allocate_global_object (
+  void
+)
+{
+  return (Objects_MP_Control *)
+           _Chain_Get( &_Objects_MP_Inactive_global_objects );
+}
+
+/**
+ * This routine deallocates a Global Object control block.
+ */
+
+RTEMS_INLINE_ROUTINE void _Objects_MP_Free_global_object (
+  Objects_MP_Control *the_object
+)
+{
+  _Chain_Append(
+    &_Objects_MP_Inactive_global_objects,
+    &the_object->Object.Node
+  );
+}
+
+/**
+ * This function returns whether the global object is NULL or not.
+ */
+
+RTEMS_INLINE_ROUTINE bool _Objects_MP_Is_null_global_object (
+  Objects_MP_Control *the_object
+)
+{
+  return( the_object == NULL );
+}
+
+/**@}*/
 
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of include file */

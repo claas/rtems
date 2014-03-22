@@ -1,40 +1,42 @@
 /**
  * @file rtems/rtems/msgmp.h
  *
- *  This include file contains all the constants and structures associated
- *  with the Multiprocessing Support in the Message Manager.
+ * @brief Message Manager MP Support
+ *
+ * This include file contains all the constants and structures associated
+ * with the Multiprocessing Support in the Message Manager.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_MSGMP_H
 #define _RTEMS_RTEMS_MSGMP_H
 
+#ifndef _RTEMS_RTEMS_MESSAGEIMPL_H
+# error "Never use <rtems/rtems/msgmp.h> directly; include <rtems/rtems/messageimpl.h> instead."
+#endif
+
+#include <rtems/score/mpciimpl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <rtems/rtems/message.h>
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
 
 /**
  *  @defgroup ClassicMsgMP Message Queue MP Support
  *
  *  @ingroup ClassicMP
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the transparent multiprocessing
+ *  support within the Classic API Message Queue Manager.
  */
-/**{*/
+/*{*/
 
 /**
  *  The following enumerated type defines the list of
@@ -78,6 +80,20 @@ typedef struct {
   offsetof(Message_queue_MP_Packet, Buffer.buffer)
 
 /**
+ *  @brief Message_queue_Core_message_queue_mp_support
+ *
+ *  Input parameters:
+ *    the_thread - the remote thread the message was submitted to
+ *    id         - id of the message queue
+ *
+ *  Output parameters: NONE
+ */
+void  _Message_queue_Core_message_queue_mp_support (
+  Thread_Control *the_thread,
+  rtems_id        id
+);
+
+/**
  *  @brief _Message_queue_MP_Send_process_packet
  *
  *  This routine performs a remote procedure call so that a
@@ -119,10 +135,10 @@ void _Message_queue_MP_Send_response_packet (
 
 /**
  *
- @brief *  _Message_queue_MP_Process_packet
+ * @brief _Message_queue_MP_Process_packet
  *
- *  This routine performs the actions specific to this package for
- *  the request from another node.
+ * This routine performs the actions specific to this package for
+ * the request from another node.
  */
 void _Message_queue_MP_Process_packet (
   rtems_packet_prefix *the_packet_prefix
@@ -157,11 +173,11 @@ void _Message_queue_MP_Send_extract_proxy (
  */
 Message_queue_MP_Packet *_Message_queue_MP_Get_packet ( void );
 
+/**@}*/
+
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of file */

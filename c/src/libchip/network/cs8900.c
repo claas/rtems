@@ -13,7 +13,7 @@
 
   The license and distribution terms for this file may be
   found in the file LICENSE in this distribution or at
-  http://www.rtems.com/license/LICENSE.
+  http://www.rtems.org/license/LICENSE.
 
   ------------------------------------------------------------------------
 
@@ -258,7 +258,7 @@ cs8900_hardware_init (cs8900_device *cs)
 
   io_pp_bit_set_reg_16 (cs, CS8900_PP_SelfCTL, CS8900_SELF_CTRL_RESET);
 
-  rtems_task_wake_after (TOD_MILLISECONDS_TO_TICKS (20));
+  rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS (20));
 
   status = io_pp_get_reg_16 (cs, CS8900_PP_SelfST);
   if (status == 0) {
@@ -470,7 +470,7 @@ cs8900_interrupt (rtems_vector_number v, void *csp)
             if (cs->rx_loaded_len == 1)
             {
               cs8900_trace (cs, CS8900_T_RX_OK, cs->rx_loaded_len);
-              rtems_event_send (cs->rx_task, CS8900_RX_OK_EVENT);
+              rtems_bsdnet_event_send (cs->rx_task, CS8900_RX_OK_EVENT);
             }
           }
           else
@@ -480,7 +480,7 @@ cs8900_interrupt (rtems_vector_number v, void *csp)
             cs8900_trace (cs, CS8900_T_RX_DROPPED, cs->rx_loaded_len);
 
             if (cs->rx_loaded_len == 0)
-              rtems_event_send (cs->rx_task, CS8900_RX_OK_EVENT);
+              rtems_bsdnet_event_send (cs->rx_task, CS8900_RX_OK_EVENT);
           }
         }
         else
@@ -511,7 +511,7 @@ cs8900_interrupt (rtems_vector_number v, void *csp)
 
           cs->tx_active = 0;
 
-          rtems_event_send (cs->tx_task, CS8900_TX_OK_EVENT);
+          rtems_bsdnet_event_send (cs->tx_task, CS8900_TX_OK_EVENT);
         }
         break;
 
@@ -526,14 +526,14 @@ cs8900_interrupt (rtems_vector_number v, void *csp)
           if (cs->tx_active)
           {
             ++cs->eth_stats.tx_rdy4tx;
-            rtems_event_send (cs->tx_task, CS8900_TX_WAIT_EVENT);
+            rtems_bsdnet_event_send (cs->tx_task, CS8900_TX_WAIT_EVENT);
           }
         }
         else if (isq & CS8900_BUFFER_EVENT_TX_UNDERRUN)
         {
           ++cs->eth_stats.tx_underrun_errors;
           if (cs->tx_active)
-            rtems_event_send (cs->tx_task, CS8900_TX_OK_EVENT);
+            rtems_bsdnet_event_send (cs->tx_task, CS8900_TX_OK_EVENT);
         }
         else if (isq & CS8900_BUFFER_EVENT_SW_INT)
         {
@@ -660,7 +660,7 @@ cs8900_rx_task (void *arg)
 
     sc = rtems_bsdnet_event_receive (CS8900_RX_OK_EVENT,
                                      RTEMS_WAIT | RTEMS_EVENT_ANY,
-                                     TOD_MILLISECONDS_TO_TICKS (250),
+                                     RTEMS_MILLISECONDS_TO_TICKS (250),
                                      &events);
 
     cs8900_rx_refill_queue (cs);
@@ -749,7 +749,7 @@ cs8900_tx_task (void *arg)
    * Wait for the link to come up.
    */
 
-  rtems_task_wake_after (TOD_MILLISECONDS_TO_TICKS (750));
+  rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS (750));
 
   /*
    * Loop processing the tx queue.
@@ -815,7 +815,7 @@ cs8900_tx_task (void *arg)
               cs->eth_stats.tx_wait_for_rdy4tx++;
               sc = rtems_bsdnet_event_receive (CS8900_TX_WAIT_EVENT,
                                                RTEMS_WAIT | RTEMS_EVENT_ANY,
-                                               TOD_MILLISECONDS_TO_TICKS (750),
+                                               RTEMS_MILLISECONDS_TO_TICKS (750),
                                                &events);
               if (sc == RTEMS_TIMEOUT)
               {
@@ -871,7 +871,7 @@ cs8900_start (struct ifnet *ifp)
 
   ifp->if_flags |= IFF_OACTIVE;
 
-  rtems_event_send (cs->tx_task, CS8900_TX_START_EVENT);
+  rtems_bsdnet_event_send (cs->tx_task, CS8900_TX_START_EVENT);
 }
 
 static void

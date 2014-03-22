@@ -34,7 +34,7 @@
 | The license and distribution terms for this file may be         |
 | found in the file LICENSE in this distribution or at            |
 |                                                                 |
-| http://www.rtems.com/license/LICENSE.                           |
+| http://www.rtems.org/license/LICENSE.                           |
 |                                                                 |
 +-----------------------------------------------------------------+
 |                                                                 |
@@ -56,6 +56,7 @@
 #include <rtems/termiostypes.h>
 #include <termios.h>
 #include <bsp.h>
+#include <bsp/irq-generic.h>
 #include <malloc.h>
 #include <rtems/mw_uid.h>
 
@@ -483,35 +484,8 @@ IntUartInitialize(void)
 		/* set uart default values */
 		IntUartSetAttributes(chan, NULL);
 
-        /* unmask interrupt */
-		rtems_interrupt_disable(level);
-        switch(chan) {
-        case 0:
-            MCF548X_INTC_ICR35 =   MCF548X_INTC_ICRn_IL(PSC0_IRQ_LEVEL) |
-                               MCF548X_INTC_ICRn_IP(PSC0_IRQ_PRIORITY);
-            MCF548X_INTC_IMRH &= ~(MCF548X_INTC_IMRH_INT_MASK35);
-            break;
-
-        case 1:
-            MCF548X_INTC_ICR34 =   MCF548X_INTC_ICRn_IL(PSC1_IRQ_LEVEL) |
-                               MCF548X_INTC_ICRn_IP(PSC1_IRQ_PRIORITY);
-            MCF548X_INTC_IMRH &= ~(MCF548X_INTC_IMRH_INT_MASK34);
-            break;
-
-        case 2:
-            MCF548X_INTC_ICR33 =   MCF548X_INTC_ICRn_IL(PSC2_IRQ_LEVEL) |
-                               MCF548X_INTC_ICRn_IP(PSC2_IRQ_PRIORITY);
-            MCF548X_INTC_IMRH &= ~(MCF548X_INTC_IMRH_INT_MASK33);
-            break;
-
-        case 3:
-            MCF548X_INTC_ICR32 =   MCF548X_INTC_ICRn_IL(PSC3_IRQ_LEVEL) |
-                               MCF548X_INTC_ICRn_IP(PSC3_IRQ_PRIORITY);
-            MCF548X_INTC_IMRH &= ~(MCF548X_INTC_IMRH_INT_MASK32);
-            break;
-        }
-		rtems_interrupt_enable(level);
-
+		/* unmask interrupt */
+		bsp_interrupt_vector_enable(MCF548X_IRQ_PSC(chan));
 	} /* of chan loop */
 
 
@@ -528,18 +502,15 @@ IntUartInitialize(void)
 static ssize_t
 IntUartInterruptWrite (int minor, const char *buf, size_t len)
 {
-	int level;
+	if (len > 0) {
+		/* write out character */
+		*(volatile uint8_t *)(&MCF548X_PSC_TB(minor)) = *buf;
 
-	rtems_interrupt_disable(level);
+		/* enable tx interrupt */
+		IntUartInfo[minor].imr |= MCF548X_PSC_IMR_TXRDY;
+		MCF548X_PSC_IMR(minor) = IntUartInfo[minor].imr;
+	}
 
-	/* write out character */
-	*(volatile uint8_t *)(&MCF548X_PSC_TB(minor)) = *buf;
-
-	/* enable tx interrupt */
-	IntUartInfo[minor].imr |= MCF548X_PSC_IMR_TXRDY;
-	MCF548X_PSC_IMR(minor) = IntUartInfo[minor].imr;
-
-	rtems_interrupt_enable(level);
 	return 0;
 }
 

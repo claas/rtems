@@ -1,45 +1,31 @@
+/**
+ *  @file
+ *
+ *  @brief Allocate Object
+ *  @ingroup ScoreObject
+ */
+
 /*
- *  Object Handler
- *
- *
  *  COPYRIGHT (c) 1989-1999.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/address.h>
-#include <rtems/score/chain.h>
-#include <rtems/score/object.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/objectmp.h>
-#endif
-#include <rtems/score/thread.h>
-#include <rtems/score/wkspace.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/isr.h>
+#include <rtems/score/objectimpl.h>
+#include <rtems/score/chainimpl.h>
 
 /* #define RTEMS_DEBUG_OBJECT_ALLOCATION */
 
 #if defined(RTEMS_DEBUG_OBJECT_ALLOCATION)
 #include <rtems/bspIo.h>
 #endif
-
-/*
- *  _Objects_Allocate
- *
- *  DESCRIPTION:
- *
- *  This function allocates a object control block from
- *  the inactive chain of free object control blocks.
- */
 
 Objects_Control *_Objects_Allocate(
   Objects_Information *information

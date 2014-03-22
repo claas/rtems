@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #warning The interrupt disable mask is now stored in SPRG0, please verify that this is compatible to this BSP (see also bootcard.c).
@@ -27,6 +27,7 @@
 #include <libcpu/cpuIdent.h>
 #include <bsp/vectors.h>
 #include <rtems/powerpc/powerpc.h>
+#include <rtems/counter.h>
 
 extern unsigned long __bss_start[], __SBSS_START__[], __SBSS_END__[];
 extern unsigned long __SBSS2_START__[], __SBSS2_END__[];
@@ -275,7 +276,6 @@ void Read_ep1a_config_registers( ppc_cpu_id_t myCpu ) {
 
 void bsp_start( void )
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
   uintptr_t intrStackStart;
   uintptr_t intrStackSize;
   ppc_cpu_id_t myCpu;
@@ -301,6 +301,9 @@ void bsp_start( void )
   Read_ep1a_config_registers( myCpu );
 
   bsp_clicks_per_usec = BSP_processor_frequency/(BSP_time_base_divisor * 1000);
+  rtems_counter_initialize_converter(
+    BSP_processor_frequency / (BSP_time_base_divisor / 1000)
+  );
 
 ShowBATS();
 #if 0   /* XXX - Add back in cache enable when we get this up and running!! */
@@ -320,14 +323,7 @@ ShowBATS();
   /*
    * Initialize default raw exception hanlders.
    */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-    intrStackStart,
-    intrStackSize
-  );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
+  ppc_exc_initialize(intrStackStart, intrStackSize);
 
   /*
    * Init MMU block address translation to enable hardware

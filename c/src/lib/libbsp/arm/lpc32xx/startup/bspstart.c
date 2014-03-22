@@ -1,13 +1,13 @@
 /**
  * @file
  *
- * @ingroup lpc32xx
+ * @ingroup arm_lpc32xx
  *
  * @brief Startup code.
  */
 
 /*
- * Copyright (c) 2009-2012 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2009-2014 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
  *  Obere Lagerstr. 30
@@ -17,19 +17,22 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
+
+#include <rtems/counter.h>
 
 #include <bsp.h>
 #include <bsp/bootcard.h>
 #include <bsp/irq-generic.h>
-#include <bsp/irq.h>
-#include <bsp/linker-symbols.h>
-#include <bsp/lpc32xx.h>
+
+CPU_Counter_ticks _CPU_Counter_read(void)
+{
+  return lpc32xx_timer();
+}
 
 void bsp_start(void)
 {
-  if (bsp_interrupt_initialize() != RTEMS_SUCCESSFUL) {
-    _CPU_Fatal_halt(0xe);
-  }
+  rtems_counter_initialize_converter(LPC32XX_PERIPH_CLK);
+  bsp_interrupt_initialize();
 }

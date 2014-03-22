@@ -1,11 +1,13 @@
 /**
- * @file rtems/score/sh_io.h
+ * @file
+ *
+ * @brief Macros to Access Memory Mapped Devices on the SH7000-Architecture
+ *
+ * These are some macros to access memory mapped devices
+ * on the SH7000-architecture.
  */
 
 /*
- * These are some macros to access memory mapped devices
- * on the SH7000-architecture.
- *
  * Inspired from the linux kernel's include/asm/io.h
  *
  *  Authors: Ralf Corsepius (corsepiu@faw.uni-ulm.de) and
@@ -23,7 +25,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_SH_IO_H

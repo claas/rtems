@@ -3,8 +3,6 @@ include $(top_srcdir)/automake/compile.am
 
 EXTRA_DIST =
 
-AM_CPPFLAGS += -D__RTEMS_INSIDE__
-
 noinst_LIBRARIES = libposix.a
 libposix_a_CPPFLAGS = $(AM_CPPFLAGS)
 libposix_a_SOURCES =
@@ -17,6 +15,12 @@ include_rtems_posixdir = $(includedir)/rtems/posix
 
 include_rtems_posix_HEADERS = include/rtems/posix/sigset.h
 
+## Some POSIX threads features are needed all the time
+include_rtems_posix_HEADERS += include/rtems/posix/key.h
+include_rtems_posix_HEADERS += include/rtems/posix/keyimpl.h
+include_rtems_posix_HEADERS += include/rtems/posix/config.h
+include_rtems_posix_HEADERS += include/rtems/posix/posixapi.h
+
 if HAS_PTHREADS
 # include
 include_HEADERS = include/aio.h
@@ -27,34 +31,29 @@ include_HEADERS += include/semaphore.h
 include_rtems_posix_HEADERS += include/rtems/posix/aio_misc.h
 include_rtems_posix_HEADERS += include/rtems/posix/cancel.h
 include_rtems_posix_HEADERS += include/rtems/posix/cond.h
-include_rtems_posix_HEADERS += include/rtems/posix/config.h
-include_rtems_posix_HEADERS += include/rtems/posix/key.h
+include_rtems_posix_HEADERS += include/rtems/posix/condimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/mqueue.h
+include_rtems_posix_HEADERS += include/rtems/posix/mqueueimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/mutex.h
-include_rtems_posix_HEADERS += include/rtems/posix/posixapi.h
-include_rtems_posix_HEADERS += include/rtems/posix/priority.h
+include_rtems_posix_HEADERS += include/rtems/posix/muteximpl.h
+include_rtems_posix_HEADERS += include/rtems/posix/priorityimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/psignal.h
+include_rtems_posix_HEADERS += include/rtems/posix/psignalimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/pthread.h
+include_rtems_posix_HEADERS += include/rtems/posix/pthreadimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/ptimer.h
 include_rtems_posix_HEADERS += include/rtems/posix/semaphore.h
+include_rtems_posix_HEADERS += include/rtems/posix/semaphoreimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/threadsup.h
 include_rtems_posix_HEADERS += include/rtems/posix/time.h
 include_rtems_posix_HEADERS += include/rtems/posix/timer.h
+include_rtems_posix_HEADERS += include/rtems/posix/timerimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/barrier.h
+include_rtems_posix_HEADERS += include/rtems/posix/barrierimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/rwlock.h
+include_rtems_posix_HEADERS += include/rtems/posix/rwlockimpl.h
 include_rtems_posix_HEADERS += include/rtems/posix/spinlock.h
-
-include_rtems_posix_HEADERS += inline/rtems/posix/cond.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/key.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/mqueue.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/mutex.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/pthread.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/priority.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/semaphore.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/timer.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/barrier.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/rwlock.inl
-include_rtems_posix_HEADERS += inline/rtems/posix/spinlock.inl
+include_rtems_posix_HEADERS += include/rtems/posix/spinlockimpl.h
 
 ## src
 libposix_a_SOURCES += src/aio_cancel.c src/aio_error.c src/aio_fsync.c \
@@ -91,11 +90,6 @@ libposix_a_SOURCES += src/cond.c src/condattrdestroy.c \
     src/condinit.c src/condsignal.c src/condsignalsupp.c \
     src/condtimedwait.c src/condwait.c src/condwaitsupp.c src/condget.c
 
-## KEY_C_FILES
-libposix_a_SOURCES += src/key.c src/keycreate.c src/keydelete.c \
-    src/keygetspecific.c src/keyfreememory.c src/keyrundestructors.c \
-    src/keysetspecific.c
-
 ## MEMORY_C_FILES
 libposix_a_SOURCES += src/mprotect.c
 
@@ -129,14 +123,25 @@ libposix_a_SOURCES += src/pthreadatfork.c src/pthreadattrdestroy.c \
     src/pthreadattrsetschedparam.c src/pthreadattrsetschedpolicy.c \
     src/pthreadattrsetscope.c src/pthreadattrsetstackaddr.c \
     src/pthreadattrsetstack.c src/pthreadattrsetstacksize.c \
+    src/pthreadgetattrnp.c \
     src/pthreadattrgetguardsize.c src/pthread.c \
     src/pthreadcreate.c src/pthreaddetach.c src/pthreadequal.c \
     src/pthreadexit.c src/pthreadgetcpuclockid.c \
     src/pthreadgetschedparam.c \
     src/pthreadinitthreads.c src/pthreadjoin.c src/pthreadkill.c \
-    src/pthreadonce.c src/pthreadself.c \
+    src/pthreadself.c \
     src/pthreadsetschedparam.c src/pthreadsigmask.c \
     src/psxpriorityisvalid.c src/psxtransschedparam.c
+
+## RTEMS specific support methods
+libposix_a_SOURCES += src/pthreadattrcompare.c
+
+if HAS_SMP
+## PTHREAD_AFFINITY_C_FILES
+libposix_a_SOURCES += src/pthreadattrsetaffinitynp.c \
+    src/pthreadattrgetaffinitynp.c  src/pthreadgetaffinitynp.c   \
+    src/pthreadsetaffinitynp.c
+endif
 
 ## PSIGNAL_C_FILES
 libposix_a_SOURCES += src/psignal.c src/alarm.c src/kill.c src/killinfo.c \
@@ -145,6 +150,14 @@ libposix_a_SOURCES += src/psignal.c src/alarm.c src/kill.c src/killinfo.c \
     src/psignalclearsignals.c src/psignalunblockthread.c src/pthreadkill.c \
     src/pthreadsigmask.c src/sigaction.c
 endif
+
+## KEY_C_FILES
+libposix_a_SOURCES += src/key.c src/keycreate.c src/keydelete.c \
+    src/keygetspecific.c src/keyfreememory.c src/keyrundestructors.c \
+    src/keysetspecific.c
+
+## ONCE_C_FILES
+libposix_a_SOURCES += src/pthreadonce.c
 
 libposix_a_SOURCES += src/sigaddset.c src/sigdelset.c src/sigfillset.c \
    src/sigemptyset.c src/sigismember.c

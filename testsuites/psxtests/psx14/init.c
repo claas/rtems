@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -14,6 +14,7 @@
 #define CONFIGURE_INIT
 #include "system.h"
 #include <rtems.h>
+#include <rtems/score/objectimpl.h>
 #include "tmacros.h"
 
 void *POSIX_Init(

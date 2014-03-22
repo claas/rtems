@@ -17,7 +17,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_ARM_LPC32XX_MMU_H
@@ -32,7 +32,7 @@ extern "C" {
 /**
  * @defgroup lpc32xx_mmu MMU Support
  *
- * @ingroup lpc32xx
+ * @ingroup arm_lpc32xx
  *
  * @brief MMU support.
  *
@@ -61,11 +61,14 @@ extern "C" {
  *
  * @return Previous section flags of the first modified entry.
  */
-uint32_t lpc32xx_set_translation_table_entries(
+static inline uint32_t lpc32xx_set_translation_table_entries(
   const void *begin,
   const void *end,
   uint32_t section_flags
-);
+)
+{
+  return arm_cp15_set_translation_table_entries(begin, end, section_flags);
+}
 
 /** @} */
 

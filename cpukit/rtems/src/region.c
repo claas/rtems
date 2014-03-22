@@ -1,13 +1,17 @@
+/**
+ * @file
+ *
+ * @brief _Region_Manager_initialization
+ * @ingroup ClassicRegion Regions
+ */
+
 /*
- *  Region Manager
- *
- *
- *  COPYRIGHT (c) 1989-2008.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -18,10 +22,8 @@
 #include <rtems/config.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/options.h>
-#include <rtems/rtems/region.h>
-#include <rtems/score/states.h>
+#include <rtems/rtems/regionimpl.h>
 #include <rtems/score/thread.h>
 #include <rtems/score/apimutex.h>
 
@@ -60,7 +62,7 @@ void _Region_Manager_initialization(void)
 #if defined(RTEMS_MULTIPROCESSING)
   _MPCI_Register_packet_processor(
     MP_PACKET_REGION,
-    0  /* XXX _Region_MP_Process_packet */
+    0  /* Multiprocessing is not currently supported for Regions */
   );
 #endif
 

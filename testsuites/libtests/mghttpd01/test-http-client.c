@@ -9,10 +9,9 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
-#include "test-http-client.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -20,6 +19,9 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <string.h>
+
+#include "test-http-client.h"
 
 void httpc_init_context(
   httpc_context *ctx
@@ -38,7 +40,6 @@ bool httpc_open_connection(
   struct sockaddr_in addr;
 
   struct hostent *server;
-  struct servent *service;
 
   ctx->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if(ctx->socket < 0) { return false; }

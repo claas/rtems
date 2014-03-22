@@ -27,6 +27,7 @@ RTEMS_CANONICALIZE_TOOLS
 RTEMS_CHECK_CUSTOM_BSP(RTEMS_BSP)
 RTEMS_CHECK_CXX(RTEMS_BSP)
 RTEMS_CHECK_CPUOPTS([RTEMS_NETWORKING])
+RTEMS_CHECK_CPUOPTS([RTEMS_POSIX_API])
 
 AC_PROG_LN_S
 AC_PATH_PROG([PAX],[pax])
@@ -38,9 +39,17 @@ AM_CONDITIONAL(TARTESTS,test "$as_ln_s" = "ln -s" && test -n "$PAX")
 AM_CONDITIONAL(HAS_CXX,test "$rtems_cv_HAS_CPLUSPLUS" = "yes")
 AM_CONDITIONAL([HAS_COMPLEX],[test "$ac_cv_header_complex_h" = yes])
 AM_CONDITIONAL(NETTESTS,test "$rtems_cv_RTEMS_NETWORKING" = "yes")
+AM_CONDITIONAL(HAS_POSIX,test x"${rtems_cv_RTEMS_POSIX_API}" = x"yes")
 
 # Explicitly list all Makefiles here
 AC_CONFIG_FILES([Makefile
+block17/Makefile
+exit02/Makefile
+exit01/Makefile
+utf8proc01/Makefile
+md501/Makefile
+sparsedisk01/Makefile
+block16/Makefile
 mghttpd01/Makefile
 block15/Makefile
 block14/Makefile
@@ -80,6 +89,7 @@ malloc05/Makefile
 monitor/Makefile
 monitor02/Makefile
 mouse01/Makefile
+uid01/Makefile
 putenvtest/Makefile
 rtems++/Makefile
 rtmonuse/Makefile

@@ -64,6 +64,7 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c \
 	../../shared/bspclean.c \
 	../../shared/bspgetworkarea.c \
 	../../shared/src/bsp-uboot-board-info.c \
+	../shared/src/ppc-exc-handler-table.c \
 	../shared/src/tictac.c \
 	../shared/src/bsp-start-zero.S \
 	../shared/startup/bspidle.c \
@@ -122,6 +123,10 @@ if HAS_NETWORKING
 libbsp_a_SOURCES += network/network.c \
 	network/if_intercom.c
 libbsp_a_LIBADD += ../../../libcpu/@RTEMS_CPU@/tsec.rel
+endif
+
+if HAS_SMP
+libbsp_a_SOURCES += startup/smp.c
 endif
 
 include $(srcdir)/preinstall.am

@@ -3,16 +3,14 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/address.h>
-#include <rtems/score/rbtree.h>
+#include <rtems/score/rbtreeimpl.h>
 #include <rtems/score/isr.h>
 
 /** @brief Validate and fix-up tree properties for a new insert/colored node
@@ -23,7 +21,7 @@
  *  @note It does NOT disable interrupts to ensure the atomicity of the
  *        append operation.
  */
-static void _RBTree_Validate_insert_unprotected(
+static void _RBTree_Validate_insert(
     RBTree_Node    *the_node
     )
 {
@@ -75,7 +73,7 @@ static void _RBTree_Validate_insert_unprotected(
  *  @note It does NOT disable interrupts to ensure the atomicity
  *        of the extract operation.
  */
-RBTree_Node *_RBTree_Insert_unprotected(
+RBTree_Node *_RBTree_Insert(
     RBTree_Control *the_rbtree,
     RBTree_Node *the_node
     )
@@ -120,38 +118,7 @@ RBTree_Node *_RBTree_Insert_unprotected(
     } /* while(iter_node) */
 
     /* verify red-black properties */
-    _RBTree_Validate_insert_unprotected(the_node);
+    _RBTree_Validate_insert(the_node);
   }
   return (RBTree_Node*)0;
-}
-
-
-/*
- *  _RBTree_Insert
- *
- *  This kernel routine inserts a given node after a specified node
- *  a requested rbtree.
- *
- *  Input parameters:
- *    tree - pointer to RBTree Control for tree to insert to
- *    node       - pointer to node to be inserted
- *
- *  Output parameters:  NONE
- *
- *  INTERRUPT LATENCY:
- *    only case
- */
-
-RBTree_Node *_RBTree_Insert(
-  RBTree_Control *tree,
-  RBTree_Node *node
-)
-{
-  ISR_Level level;
-  RBTree_Node *return_node;
-
-  _ISR_Disable( level );
-  return_node = _RBTree_Insert_unprotected( tree, node );
-  _ISR_Enable( level );
-  return return_node;
 }

@@ -1,10 +1,17 @@
+/**
+ * @file
+ *
+ * @brief POSIX Function Evaluates Thread Cancellation and Enables Dispatch
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,7 +22,7 @@
 #include <rtems/system.h>
 #include <rtems/score/thread.h>
 #include <rtems/posix/cancel.h>
-#include <rtems/posix/pthread.h>
+#include <rtems/posix/pthreadimpl.h>
 
 void _POSIX_Thread_Evaluate_cancellation_and_enable_dispatch(
   Thread_Control    *the_thread
@@ -28,9 +35,11 @@ void _POSIX_Thread_Evaluate_cancellation_and_enable_dispatch(
   if ( thread_support->cancelability_state == PTHREAD_CANCEL_ENABLE &&
        thread_support->cancelability_type == PTHREAD_CANCEL_ASYNCHRONOUS &&
        thread_support->cancelation_requested ) {
+    /* FIXME: This path is broken on SMP */
     _Thread_Unnest_dispatch();
+    /* FIXME: Cancelability state may change here */
     _POSIX_Thread_Exit( the_thread, PTHREAD_CANCELED );
   } else
-    _Thread_Enable_dispatch();
+    _Objects_Put( &the_thread->Object );
 
 }

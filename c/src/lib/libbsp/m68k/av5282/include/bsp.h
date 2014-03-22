@@ -1,3 +1,11 @@
+/**
+ * @file
+ *
+ * @ingroup m68k_av5282
+ *
+ * @brief Global BSP definitions.
+ */
+
 /*
  *  av5282 BSP header file
  */
@@ -8,6 +16,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <bspopts.h>
+#include <bsp/default-initial-extension.h>
 
 #include <rtems.h>
 #include <rtems/iosupp.h>
@@ -72,3 +83,11 @@ rtems_isr_entry set_vector(
 #endif
 
 #endif
+
+/**
+ * @defgroup m68k_av5282 AV5282 Support
+ *
+ * @ingroup bsp_m68k
+ *
+ * @brief AV5282 support.
+ */

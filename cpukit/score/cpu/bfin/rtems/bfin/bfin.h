@@ -1,15 +1,19 @@
-/*  bfin.h
+/**
+ * @file
  *
- *  This file defines Macros for MMR register common to all Blackfin
- *  Processors.
+ * @brief Macros for MMR register common to all Blackfin Processors
  *
+ * This file defines Macros for MMR register common to all Blackfin
+ * Processors.
+ */
+/*
  *  COPYRIGHT (c) 2006 by Atos Automacao Industrial Ltda.
  *             modified by Alain Schaefer <alain.schaefer@easc.ch>
  *                     and Antonio Giovanini <antonio@atos.com.br>
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  */
 

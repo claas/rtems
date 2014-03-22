@@ -1,3 +1,9 @@
+/**
+ * @file
+ *
+ * @brief ARMV7M ISR Dispatch
+ */
+
 /*
  * Copyright (c) 2011 Sebastian Huber.  All rights reserved.
  *
@@ -9,18 +15,17 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
   #include "config.h"
 #endif
 
+#include <rtems/score/armv7m.h>
 #include <rtems/score/percpu.h>
 
 #ifdef ARM_MULTILIB_ARCH_V7M
-
-#include <rtems/score/armv7m.h>
 
 static void __attribute__((naked)) _ARMV7M_Thread_dispatch( void )
 {

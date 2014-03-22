@@ -6,10 +6,9 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
 #include <rtems.h>
 #include <rtems/libcsupport.h>
 #include <rtems/score/protectedheap.h>
@@ -23,11 +22,6 @@
 #include <rtems/chain.h>
 
 /*
- * Basic management data
- */
-extern Heap_Control  *RTEMS_Malloc_Heap;
-
-/*
  *  Malloc Statistics Structure
  */
 extern rtems_malloc_statistics_t rtems_malloc_statistics;
@@ -38,6 +32,5 @@ extern rtems_malloc_statistics_t rtems_malloc_statistics;
  *  Process deferred free operations
  */
 bool malloc_is_system_state_OK(void);
-void malloc_deferred_frees_initialize(void);
 void malloc_deferred_frees_process(void);
 void malloc_deferred_free(void *);

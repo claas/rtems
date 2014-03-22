@@ -1,5 +1,11 @@
+/**
+ * @file
+ *
+ * @brief Change Root Directory
+ * @ingroup libcsupport
+ */
+
 /*
- *  chroot() -  Change Root Directory
  *  Author: fernando.ruiz@ctv.es
  *
  *  COPYRIGHT (c) 1989-2008.
@@ -10,7 +16,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H

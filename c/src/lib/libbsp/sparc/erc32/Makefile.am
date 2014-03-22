@@ -19,7 +19,7 @@ include_HEADERS += include/erc32.h
 include_HEADERS += ../../shared/include/coverhd.h
 
 noinst_LIBRARIES = libbspstart.a
-libbspstart_a_SOURCES = ../../sparc/shared/start.S
+libbspstart_a_SOURCES = ../../sparc/shared/start/start.S
 project_lib_DATA = start.$(OBJEXT)
 
 dist_project_lib_DATA += startup/linkcmds ../shared/startup/linkcmds.base
@@ -29,7 +29,7 @@ libbsp_a_SOURCES =
 
 # startup
 libbsp_a_SOURCES += ../../shared/bspclean.c ../../shared/bsplibc.c \
-    startup/bsppredriver.c ../../sparc/shared/bspgetworkarea.c \
+    startup/bsppredriver.c ../../sparc/shared/startup/bspgetworkarea.c \
     ../../sparc/shared/bsppretaskinghook.c ../../shared/bsppost.c \
     ../../shared/bspstart.c ../../shared/bootcard.c ../../shared/bspinit.c \
     ../../shared/sbrk.c startup/setvec.c startup/spurious.c \
@@ -66,8 +66,7 @@ libbsp_a_SOURCES += \
     ../../shared/src/irq-shell.c
 
 if HAS_SMP
-libbsp_a_SOURCES += ../../shared/smp/getcpuid.c ../../shared/smp/smp_stub.c \
-    ../../shared/smp/bspsmp_wait_for.c
+libbsp_a_SOURCES += ../../shared/smp/getcpuid.c ../../shared/smp/smp_stub.c
 endif
 
 if HAS_NETWORKING

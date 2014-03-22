@@ -1,17 +1,19 @@
 /**
  * @file
  *
- * @ingroup ClassicRTEMS
+ * @defgroup ClassicRTEMS RTEMS Classic API
  *
- * @brief Provides the public interface to the RTEMS Classic API.
+ * @brief RTEMS Classic API
+ *
+ * the Public Interface to the RTEMS Classic API
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2008.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_H
@@ -21,26 +23,11 @@
  * @defgroup ClassicRTEMS RTEMS Classic API
  *
  * RTEMS Classic API definitions and modules.
- *
- * @{
  */
+/**@{*/
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#if (!defined(__RTEMS_VIOLATE_KERNEL_VISIBILITY__)) && \
-    (!defined(__RTEMS_INSIDE__))
-/**
- * @brief Compiling RTEMS application macro.
- *
- * Unless told otherwise, the RTEMS include files will hide some stuff from
- * normal application code.  Defining this crosses a boundary which is
- * undesirable since it means your application is using RTEMS features which
- * are not included in the formally defined and supported API.  Define this at
- * your own risk.
- */
-#define __RTEMS_APPLICATION__
 #endif
 
 #include <rtems/system.h>
@@ -48,6 +35,7 @@ extern "C" {
 #include <rtems/rtems/types.h>
 
 #include <rtems/config.h>
+#include <rtems/debug.h>
 #include <rtems/init.h>
 #include <rtems/rtems/options.h>
 #include <rtems/rtems/tasks.h>
@@ -72,13 +60,9 @@ extern "C" {
 #if defined(RTEMS_MULTIPROCESSING)
 #include <rtems/rtems/mp.h>
 #endif
-#if defined(RTEMS_SMP)
 #include <rtems/rtems/smp.h>
-#endif
-
 
 #include <rtems/rtems/support.h>
-#include <rtems/score/sysstate.h>
 
 /**
  * @brief Returns the pointer to the RTEMS version string.
@@ -158,7 +142,7 @@ const char *rtems_get_version_string(void);
  * risk of blown stacks for most user applications. Using this constant when
  * specifying the task stack size, indicates that the stack size will be at
  * least RTEMS_MINIMUM_STACK_SIZE bytes in size. If the user configured minimum
- * stack size is larger than the recommended minimum, then it will be used. 
+ * stack size is larger than the recommended minimum, then it will be used.
  */
 #define RTEMS_MINIMUM_STACK_SIZE  STACK_MINIMUM_SIZE
 
@@ -174,7 +158,7 @@ const char *rtems_get_version_string(void);
  * minimum stack size value, you may get a stack size that is smaller or larger
  * than the recommended minimum. This can be used to provide large stacks for
  * all tasks on complex applications or small stacks on applications that are
- * trying to conserve memory. 
+ * trying to conserve memory.
  */
 #define RTEMS_CONFIGURED_MINIMUM_STACK_SIZE  0
 

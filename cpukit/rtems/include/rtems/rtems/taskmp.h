@@ -1,40 +1,46 @@
 /**
  * @file rtems/rtems/taskmp.h
  *
- *  This include file contains all the constants and structures associated
- *  with the multiprocessing support in the task manager.
+ * @defgroup ClassicTaskMP Task MP Support
+ *
+ * @ingroup ClassicRTEMS
+ * @brief Task Manager MP Support
+ *
+ * This include file contains all the constants and structures associated
+ * with the multiprocessing support in the task manager.
  */
 
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTEMS_TASKMP_H
 #define _RTEMS_RTEMS_TASKMP_H
 
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/score/priority.h>
-#include <rtems/rtems/tasks.h>
-#include <rtems/score/thread.h>
+#ifndef _RTEMS_RTEMS_TASKSIMPL_H
+# error "Never use <rtems/rtems/taskmp.h> directly; include <rtems/rtems/tasksimpl.h> instead."
+#endif
+
+#include <rtems/score/mpciimpl.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  @defgroup ClassicTaskMP Task MP Support
  *
  *  @ingroup ClassicMP
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the transparent multiprocessing
+ *  support within the Classic API Task Manager.
  */
 /**@{*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /**
  *  The following enumerated type defines the list of
  *  remote task operations.
@@ -68,7 +74,9 @@ typedef struct {
 }   RTEMS_tasks_MP_Packet;
 
 /**
- *  @brief _RTEMS_tasks_MP_Send_process_packet
+ *  @brief RTEMS Tasks MP Send Process Packet
+ *
+ *  Multiprocessing Support for the RTEMS Task Manager
  *
  *  This routine performs a remote procedure call so that a
  *  process operation can be performed on another node.

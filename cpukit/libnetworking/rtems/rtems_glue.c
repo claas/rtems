@@ -4,10 +4,6 @@
 
 #define RTEMS_FAST_MUTEX
 
-#ifdef RTEMS_FAST_MUTEX
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__ 1
-#endif
-
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -17,6 +13,8 @@
 #include <rtems/libio.h>
 #include <rtems/error.h>
 #include <rtems/rtems_bsdnet.h>
+#include <rtems/rtems/semimpl.h>
+#include <rtems/score/coremuteximpl.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/domain.h>
@@ -111,6 +109,33 @@ rtems_bsdnet_initialize_sockaddr_in(struct sockaddr_in *addr)
 	memcpy(addr, &address_template, sizeof(*addr));
 }
 
+uint32_t
+rtems_bsdnet_semaphore_release_recursive(void)
+{
+#ifdef RTEMS_FAST_MUTEX
+	uint32_t nest_count = the_networkSemaphore->Core_control.mutex.nest_count;
+	uint32_t i;
+
+	for (i = 0; i < nest_count; ++i) {
+		rtems_bsdnet_semaphore_release();
+	}
+
+	return nest_count;
+#else
+	#error "not implemented"
+#endif
+}
+
+void
+rtems_bsdnet_semaphore_obtain_recursive(uint32_t nest_count)
+{
+	uint32_t i;
+
+	for (i = 0; i < nest_count; ++i) {
+		rtems_bsdnet_semaphore_obtain();
+	}
+}
+
 /*
  * Perform FreeBSD memory allocation.
  * FIXME: This should be modified to keep memory allocation statistics.
@@ -126,16 +151,18 @@ rtems_bsdnet_malloc (size_t size, int type, int flags)
 	int try = 0;
 
 	for (;;) {
+		uint32_t nest_count;
+
 		p = malloc (size);
 		if (p || (flags & M_NOWAIT))
 			return p;
-		rtems_bsdnet_semaphore_release ();
+		nest_count = rtems_bsdnet_semaphore_release_recursive ();
 		if (++try >= 30) {
 			rtems_bsdnet_malloc_starvation();
 			try = 0;
 		}
-        rtems_task_wake_after (rtems_bsdnet_ticks_per_second);
-		rtems_bsdnet_semaphore_obtain ();
+		rtems_task_wake_after (rtems_bsdnet_ticks_per_second);
+		rtems_bsdnet_semaphore_obtain_recursive (nest_count);
 	}
 }
 
@@ -307,12 +334,6 @@ rtems_bsdnet_initialize (void)
 		1000000 / rtems_bsdnet_ticks_per_second;
 
 	/*
-	 * Ensure that `seconds' is greater than 0
-	 */
-    while (rtems_bsdnet_seconds_since_boot() == 0)
-        rtems_task_wake_after(1);
-
-	/*
 	 * Set up BSD-style sockets
 	 */
 	if (bsd_init () < 0)
@@ -341,17 +362,26 @@ rtems_bsdnet_semaphore_obtain (void)
 {
 #ifdef RTEMS_FAST_MUTEX
 	ISR_Level level;
+	Thread_Control *executing;
+#ifdef RTEMS_SMP
+	_Thread_Disable_dispatch();
+#endif
 	_ISR_Disable (level);
+	executing = _Thread_Executing;
 	_CORE_mutex_Seize (
 		&the_networkSemaphore->Core_control.mutex,
+		executing,
 		networkSemaphore,
 		1,		/* wait */
 		0,		/* forever */
 		level
 		);
-	if (_Thread_Executing->Wait.return_code)
+#ifdef RTEMS_SMP
+	_Thread_Enable_dispatch();
+#endif
+	if (executing->Wait.return_code)
 		rtems_panic ("rtems-net: can't obtain network sema: %d\n",
-                 _Thread_Executing->Wait.return_code);
+                 executing->Wait.return_code);
 #else
 	rtems_status_code sc;
 
@@ -405,7 +435,7 @@ sbwait(struct sockbuf *sb)
 	 * The sleep/wakeup synchronization in the FreeBSD
 	 * kernel has no memory.
 	 */
-	rtems_event_receive (SBWAIT_EVENT, RTEMS_EVENT_ANY | RTEMS_NO_WAIT, RTEMS_NO_TIMEOUT, &events);
+	rtems_event_system_receive (SBWAIT_EVENT, RTEMS_EVENT_ANY | RTEMS_NO_WAIT, RTEMS_NO_TIMEOUT, &events);
 
 	/*
 	 * Set this task as the target of the wakeup operation.
@@ -426,7 +456,7 @@ sbwait(struct sockbuf *sb)
 	/*
 	 * Wait for the wakeup event.
 	 */
-	sc = rtems_event_receive (SBWAIT_EVENT, RTEMS_EVENT_ANY | RTEMS_WAIT, sb->sb_timeo, &events);
+	sc = rtems_event_system_receive (SBWAIT_EVENT, RTEMS_EVENT_ANY | RTEMS_WAIT, sb->sb_timeo, &events);
 
 	/*
 	 * Reobtain the network semaphore.
@@ -454,7 +484,7 @@ sowakeup(
 {
 	if (sb->sb_flags & SB_WAIT) {
 		sb->sb_flags &= ~SB_WAIT;
-		rtems_event_send (sb->sb_sel.si_pid, SBWAIT_EVENT);
+		rtems_event_system_send (sb->sb_sel.si_pid, SBWAIT_EVENT);
 	}
 	if (sb->sb_wakeup) {
 		(*sb->sb_wakeup) (so, sb->sb_wakeuparg);
@@ -491,7 +521,7 @@ soconnsleep (struct socket *so)
 	 * The sleep/wakeup synchronization in the FreeBSD
 	 * kernel has no memory.
 	 */
-	rtems_event_receive (SOSLEEP_EVENT, RTEMS_EVENT_ANY | RTEMS_NO_WAIT, RTEMS_NO_TIMEOUT, &events);
+	rtems_event_system_receive (SOSLEEP_EVENT, RTEMS_EVENT_ANY | RTEMS_NO_WAIT, RTEMS_NO_TIMEOUT, &events);
 
 	/*
 	 * Set this task as the target of the wakeup operation.
@@ -525,7 +555,7 @@ void
 soconnwakeup (struct socket *so)
 {
 	if (so->so_pgid)
-		rtems_event_send (so->so_pgid, SOSLEEP_EVENT);
+		rtems_event_system_send (so->so_pgid, SOSLEEP_EVENT);
 }
 
 /*
@@ -535,7 +565,7 @@ soconnwakeup (struct socket *so)
 void
 rtems_bsdnet_schednetisr (int n)
 {
-	rtems_event_send (networkDaemonTid, 1 << n);
+	rtems_event_system_send (networkDaemonTid, 1 << n);
 }
 
 /*
@@ -680,31 +710,9 @@ rtems_status_code rtems_bsdnet_event_receive (
 	rtems_status_code sc;
 
 	rtems_bsdnet_semaphore_release ();
-	sc = rtems_event_receive (event_in, option_set, ticks, event_out);
+	sc = rtems_event_system_receive (event_in, option_set, ticks, event_out);
 	rtems_bsdnet_semaphore_obtain ();
 	return sc;
-}
-
-/*
- * Return time since startup
- */
-void
-microtime (struct timeval *t)
-{
-	rtems_interval now;
-
-	now = rtems_clock_get_ticks_since_boot();
-	t->tv_sec = now / rtems_bsdnet_ticks_per_second;
-	t->tv_usec = (now % rtems_bsdnet_ticks_per_second) * rtems_bsdnet_microseconds_per_tick;
-}
-
-unsigned long
-rtems_bsdnet_seconds_since_boot (void)
-{
-	rtems_interval now;
-
-	now = rtems_clock_get_ticks_since_boot();
-	return now / rtems_bsdnet_ticks_per_second;
 }
 
 /*
@@ -1259,9 +1267,9 @@ m_mballoc(int nmb, int nowait)
 
 		mbstat.m_wait++;
 		for (;;) {
-			rtems_bsdnet_semaphore_release ();
+			uint32_t nest_count = rtems_bsdnet_semaphore_release_recursive ();
 			rtems_task_wake_after (1);
-			rtems_bsdnet_semaphore_obtain ();
+			rtems_bsdnet_semaphore_obtain_recursive (nest_count);
 			if (mmbfree)
 				break;
 			if (++try >= print_limit) {
@@ -1288,9 +1296,9 @@ m_clalloc(int ncl, int nowait)
 
 		mbstat.m_wait++;
 		for (;;) {
-			rtems_bsdnet_semaphore_release ();
+			uint32_t nest_count = rtems_bsdnet_semaphore_release_recursive ();
 			rtems_task_wake_after (1);
-			rtems_bsdnet_semaphore_obtain ();
+			rtems_bsdnet_semaphore_obtain_recursive (nest_count);
 			if (mclfree)
 				break;
 			if (++try >= print_limit) {

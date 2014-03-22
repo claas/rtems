@@ -9,7 +9,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  Modified to support the MCP750.
  *  Modifications Copyright (C) 1999 Eric Valette. valette@crf.canon.fr
@@ -40,6 +40,7 @@
 #include <bsp/bspException.h>
 
 #include <rtems/bspIo.h>
+#include <rtems/counter.h>
 #include <rtems/sptables.h>
 
 /*
@@ -187,7 +188,6 @@ save_boot_params(
 
 void bsp_start( void )
 {
-  rtems_status_code sc = RTEMS_SUCCESSFUL;
 #ifdef CONF_VPD
   int i;
 #endif
@@ -245,14 +245,7 @@ void bsp_start( void )
   /*
    * Initialize default raw exception handlers.
    */
-  sc = ppc_exc_initialize(
-    PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-    intrStackStart,
-    intrStackSize
-  );
-  if (sc != RTEMS_SUCCESSFUL) {
-    BSP_panic("cannot initialize exceptions");
-  }
+  ppc_exc_initialize(intrStackStart, intrStackSize);
 
   /*
    * Init MMU block address translation to enable hardware
@@ -291,6 +284,9 @@ void bsp_start( void )
   /* P94 : 7455 TB/DECR is clocked by the system bus clock frequency */
 
   bsp_clicks_per_usec    = BSP_bus_frequency/(BSP_time_base_divisor * 1000);
+  rtems_counter_initialize_converter(
+    BSP_bus_frequency / (BSP_time_base_divisor / 1000)
+  );
 
   /*
    * Initalize RTEMS IRQ system

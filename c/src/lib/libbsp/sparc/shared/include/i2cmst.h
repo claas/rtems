@@ -1,15 +1,21 @@
+/**
+ * @file
+ * @ingroup sparc_bsp
+ * @defgroup i2c I2C-master
+ * @ingroup i2c
+ * @brief Driver for GRLIB port of OpenCores I2C-master
+ */
+
 /*
- * Driver for GRLIB port of OpenCores I2C-master
- *
  * COPYRIGHT (c) 2007 Gaisler Research
  * with parts from the RTEMS MPC83xx I2C driver (c) 2007 Embedded Brains GmbH.
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  *
- * This file contains the driver declarations
  */
+
 #ifndef _I2CMST_H
 #define _I2CMST_H
 

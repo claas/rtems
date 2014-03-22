@@ -4,7 +4,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15,6 +15,7 @@
 #include "system.h"
 #include <signal.h>
 #include <errno.h>
+#include <reent.h>
 
 /* forward declarations to avoid warnings */
 int test_main(void);

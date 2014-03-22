@@ -15,35 +15,64 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <bsp.h>
 #include <bspopts.h>
 #include <ambapp.h>
+#include <rtems/score/profiling.h>
 
 #if SIMSPARC_FAST_IDLE==1
-#define CLOCK_DRIVER_USE_FAST_IDLE
+#define CLOCK_DRIVER_USE_FAST_IDLE 1
 #endif
 
 /*
  *  The Real Time Clock Counter Timer uses this trap type.
  */
 
-#if defined(RTEMS_MULTIPROCESSING)
-  #define LEON3_CLOCK_INDEX \
-    (rtems_configuration_get_user_multiprocessing_table() ? LEON3_Cpu_Index : 0)
-#else
-  #define LEON3_CLOCK_INDEX 0
-#endif
-
-
 volatile struct gptimer_regs *LEON3_Timer_Regs = 0;
 static int clkirq;
 
 #define CLOCK_VECTOR LEON_TRAP_TYPE( clkirq )
 
-#define Clock_driver_support_at_tick()
+static void leon3_clock_profiling_interrupt_delay(void)
+{
+#ifdef RTEMS_PROFILING
+  /*
+   * We need a small state machine to ignore the first clock interrupt, since
+   * it contains the sequential system initialization time.  Do the timestamp
+   * initialization on the fly.
+   */
+  static int state = 1;
+
+  volatile struct irqmp_timestamp_regs *irqmp_ts =
+    &LEON3_IrqCtrl_Regs->timestamp[0];
+  unsigned int s1_s2 = (1U << 25) | (1U << 26);
+
+  if (state == 0) {
+    unsigned int first = irqmp_ts->assertion;
+    unsigned int second = irqmp_ts->counter;
+
+    irqmp_ts->control |= s1_s2;
+
+    _Profiling_Update_max_interrupt_delay(_Per_CPU_Get(), second - first);
+  } else if (state == 1 && leon3_irqmp_has_timestamp(irqmp_ts)) {
+    unsigned int ks = 1U << 5;
+
+    state = 0;
+
+    irqmp_ts->control = ks | s1_s2 | (unsigned int) clkirq;
+  } else if (state == 1) {
+    state = 2;
+  }
+#endif
+}
+
+#define Clock_driver_support_at_tick() \
+  do { \
+    leon3_clock_profiling_interrupt_delay(); \
+  } while (0)
 
 #if defined(RTEMS_MULTIPROCESSING)
   #define Adjust_clkirq_for_node() \
@@ -94,7 +123,7 @@ static int clkirq;
     LEON3_Timer_Regs->timer[LEON3_CLOCK_INDEX].ctrl = 0; \
   } while (0)
 
-uint32_t bsp_clock_nanoseconds_since_last_tick(void)
+static uint32_t bsp_clock_nanoseconds_since_last_tick(void)
 {
   uint32_t clicks;
   uint32_t usecs;

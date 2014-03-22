@@ -12,15 +12,15 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/userext.h>
+#include <rtems/score/userextimpl.h>
+#include <rtems/score/percpu.h>
 
 void _User_extensions_Add_set(
   User_extensions_Control *the_extension
@@ -33,11 +33,16 @@ void _User_extensions_Add_set(
    */
 
   if ( the_extension->Callouts.thread_switch != NULL ) {
+    ISR_Level level;
+
     the_extension->Switch.thread_switch =
       the_extension->Callouts.thread_switch;
-    _Chain_Append(
+
+    _Per_CPU_Acquire_all( level );
+    _Chain_Append_unprotected(
       &_User_extensions_Switches_list,
       &the_extension->Switch.Node
     );
+    _Per_CPU_Release_all( level );
   }
 }

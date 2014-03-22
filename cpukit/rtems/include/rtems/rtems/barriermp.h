@@ -1,40 +1,38 @@
 /**
  * @file rtems/rtems/barriermp.h
  *
- *  This include file contains all the constants and structures associated
- *  with the Multiprocessing Support in the Barrier Manager.
- */
-
-/*  COPYRIGHT (c) 1989-2008.
- *  On-Line Applications Research Corporation (OAR).
+ * @brief MP Support in the Barrier Manager
  *
- *  The license and distribution terms for this file may be
- *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ * This include file contains all the constants and structures associated
+ * with the Multiprocessing Support in the Barrier Manager.
  */
 
-#ifndef _RTEMS_RTEMS_SEMMP_H
-#define _RTEMS_RTEMS_SEMMP_H
+/* COPYRIGHT (c) 1989-2013.
+ * On-Line Applications Research Corporation (OAR).
+ *
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.org/license/LICENSE.
+ */
+
+#ifndef _RTEMS_RTEMS_BARRIERMP_H
+#define _RTEMS_RTEMS_BARRIERMP_H
+
+#include <rtems/score/mpciimpl.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  @defgroup ClassicBarrierMP Barrier MP Support
  *
  *  @ingroup ClassicMP
  *
- *  This encapsulates functionality which XXX
+ *  This encapsulates functionality related to the transparent multiprocessing
+ *  support within the Classic API Barrier Manager.
  */
-/**{*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <rtems/score/mppkt.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/rtems/barrier.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
+/**@{*/
 
 /**
  *  The following enumerated type defines the list of
@@ -139,11 +137,11 @@ void _Barrier_MP_Send_extract_proxy (
  */
 Barrier_MP_Packet *_Barrier_MP_Get_packet ( void );
 
+/**@}*/
+
 #ifdef __cplusplus
 }
 #endif
-
-/**@}*/
 
 #endif
 /* end of file */

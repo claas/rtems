@@ -1,8 +1,10 @@
 /**
  *  @file
- *  
- *  Mips CPU Dependent Header File
  *
+ *  @brief Mips CPU Dependent Header File
+ */
+
+/*
  *  Conversion to MIPS port by Alan Cudmore <alanc@linuxstart.com> and
  *           Joel Sherrill <joel@OARcorp.com>.
  *
@@ -36,11 +38,19 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_CPU_H
 #define _RTEMS_SCORE_CPU_H
+
+/**
+ *  @defgroup ScoreCPU CPU CPU
+ *
+ *  @ingroup Score
+ *
+ */
+/**@{*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -211,7 +221,7 @@ extern "C" {
  *  all tasks floating point.
  */
 
-#define CPU_ALL_TASKS_ARE_FP CPU_HARDWARE_FP 
+#define CPU_ALL_TASKS_ARE_FP CPU_HARDWARE_FP
 
 /*
  *  Should the IDLE task have a floating point context?
@@ -343,6 +353,10 @@ extern "C" {
 
 #define CPU_MODES_INTERRUPT_MASK   0x000000ff
 
+#define CPU_SIZEOF_POINTER 4
+
+#define CPU_PER_CPU_CONTROL_SIZE 0
+
 /*
  *  Processor defined structures
  *
@@ -388,6 +402,10 @@ extern "C" {
  */
 
 #ifndef ASM
+
+typedef struct {
+  /* There is no CPU specific per-CPU state */
+} CPU_Per_CPU_control;
 
 /* WARNING: If this structure is modified, the constants in cpu.h must be updated. */
 #if (__mips == 1) || (__mips == 32)
@@ -607,6 +625,8 @@ typedef struct
 
 } CPU_Interrupt_frame;
 
+typedef CPU_Interrupt_frame CPU_Exception_frame;
+
 /*
  *  This variable is optional.  It is used on CPUs on which it is difficult
  *  to generate an "uninitialized" FP context.  It is filled in by
@@ -700,6 +720,8 @@ extern unsigned int mips_interrupt_number_of_vectors;
  */
 
 #define CPU_STACK_ALIGNMENT        CPU_ALIGNMENT
+
+void mips_vector_exceptions( CPU_Interrupt_frame *frame );
 
 /*
  *  ISR handler macros
@@ -836,7 +858,8 @@ void _CPU_Context_Initialize(
   uint32_t          size,
   uint32_t          new_level,
   void             *entry_point,
-  bool              is_fp
+  bool              is_fp,
+  void             *tls_area
 );
 
 
@@ -903,6 +926,7 @@ void _CPU_Context_Initialize(
   do { \
     unsigned int _level; \
     _CPU_ISR_Disable(_level); \
+    (void)_level; \
     loop: goto loop; \
   } while (0)
 
@@ -1110,6 +1134,27 @@ void _CPU_Context_restore_fp(
   Context_Control_fp **fp_context_ptr
 );
 
+static inline void _CPU_Context_volatile_clobber( uintptr_t pattern )
+{
+  /* TODO */
+}
+
+static inline void _CPU_Context_validate( uintptr_t pattern )
+{
+  while (1) {
+    /* TODO */
+  }
+}
+
+void _BSP_Exception_frame_print( const CPU_Exception_frame *frame );
+
+static inline void _CPU_Exception_frame_print(
+  const CPU_Exception_frame *frame
+)
+{
+  _BSP_Exception_frame_print( frame );
+}
+
 /*  The following routine swaps the endian format of an unsigned int.
  *  It must be static because it is referenced indirectly.
  *
@@ -1148,6 +1193,17 @@ static inline uint32_t CPU_swap_u32(
 #define CPU_swap_u16( value ) \
   (((value&0xff) << 8) | ((value >> 8)&0xff))
 
+typedef uint32_t CPU_Counter_ticks;
+
+CPU_Counter_ticks _CPU_Counter_read( void );
+
+static inline CPU_Counter_ticks _CPU_Counter_difference(
+  CPU_Counter_ticks second,
+  CPU_Counter_ticks first
+)
+{
+  return second - first;
+}
 
 #endif
 
@@ -1157,4 +1213,5 @@ static inline uint32_t CPU_swap_u32(
 }
 #endif
 
+/**@}*/
 #endif

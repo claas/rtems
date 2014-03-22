@@ -1,12 +1,17 @@
-/*
- *  calloc()
+/**
+ *  @file
  *
+ *  @brief Reallocate Memory Block
+ *  @ingroup libcsupport
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,6 +22,10 @@
 #include "malloc_p.h"
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
+
+#include <rtems/score/sysstate.h>
+#include <rtems/score/objectimpl.h>
 
 void *realloc(
   void *ptr,
@@ -33,10 +42,7 @@ void *realloc(
    */
 
   if (_System_state_Is_up(_System_state_Get())) {
-    if (_Thread_Dispatch_in_critical_section())
-      return (void *) 0;
-
-    if (_ISR_Nest_level > 0)
+    if (!_Thread_Dispatch_is_enabled())
       return (void *) 0;
   }
 

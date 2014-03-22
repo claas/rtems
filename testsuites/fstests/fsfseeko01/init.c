@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -24,6 +24,8 @@
 #include <inttypes.h>
 #include <limits.h>
 
+const char rtems_test_name[] = "FSFSEEKO 1";
+
 static void test(void)
 {
   FILE *file;
@@ -32,36 +34,57 @@ static void test(void)
     ? INT64_MAX
     : (sizeof(off_t) == sizeof(int32_t) ? INT32_MAX : 1);
   off_t actual_off;
- 
-  errno = 0;
-  file = fopen("file", "w+");
-  perror("fopen");
-  rtems_test_assert(file != NULL);
+  const long long_off = LONG_MAX;
+  long actual_long_off;
 
   errno = 0;
-  rv = fseeko(file, off, SEEK_SET);
-  perror("fseeko");
+  file = fopen("file", "w+");
+  rtems_test_assert(file != NULL);
+  rtems_test_assert(errno == 0);
+
+  errno = 0;
+  rv = fseek(file, long_off, SEEK_SET);
   rtems_test_assert(rv == 0);
+  rtems_test_assert(errno == 0);
+
+  errno = 0;
+  actual_long_off = ftell(file);
+  rtems_test_assert(actual_long_off == long_off);
+  rtems_test_assert(errno == 0);
 
   errno = 0;
   actual_off = ftello(file);
-  perror("ftello");
+  rtems_test_assert(actual_off == long_off);
+  rtems_test_assert(errno == 0);
+
+  errno = 0;
+  rv = fseeko(file, off, SEEK_SET);
+  rtems_test_assert(rv == 0);
+  rtems_test_assert(errno == 0);
+
+  errno = 0;
+  actual_long_off = ftell(file);
+  rtems_test_assert(actual_long_off == -1L);
+  rtems_test_assert(errno == EOVERFLOW);
+
+  errno = 0;
+  actual_off = ftello(file);
   rtems_test_assert(actual_off == off);
+  rtems_test_assert(errno == 0);
 
   errno = 0;
   rv = fclose(file);
-  perror("fclose");
   rtems_test_assert(rv == 0);
+  rtems_test_assert(errno == 0);
 }
 
 static void Init(rtems_task_argument arg)
 {
-  puts("\n\n*** TEST FSFSEEKO 1 ***");
+  TEST_BEGIN();
 
   test();
 
-  puts("*** END OF TEST FSFSEEKO 1 ***");
-
+  TEST_END();
   rtems_test_exit(0);
 }
 
@@ -73,6 +96,8 @@ static void Init(rtems_task_argument arg)
 #define CONFIGURE_USE_IMFS_AS_BASE_FILESYSTEM
 
 #define CONFIGURE_MAXIMUM_TASKS 1
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

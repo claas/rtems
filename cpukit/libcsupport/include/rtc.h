@@ -1,6 +1,8 @@
 /**
  * @file
  *
+ * @brief Real-Time Clock Driver Interface
+ * 
  * Real-time clock driver interface.
  */
 
@@ -10,7 +12,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_RTC_H
@@ -27,9 +29,8 @@ extern "C" {
  *
  * This driver interface provides support to read and set the real-time clock
  * and to initialize the time of day for the system.
- *
- * @{
  */
+/**@{**/
 
 /**
  * Device file name path.

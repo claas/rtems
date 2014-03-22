@@ -1,24 +1,23 @@
+/**
+ * @file
+ *
+ * @brief Initializes the RTEMS API
+ *
+ * @ingroup ClassicRTEMS
+ */
+
 /*
- *  POSIX API Initialization Support
- *
- *  NOTE:
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-/*
- *  RTEMS_API_INIT is defined so all of the RTEMS API
- *  data will be included in this object file.
- */
 
 #define RTEMS_API_INIT
 
@@ -27,29 +26,23 @@
 #include <rtems/rtems/rtemsapi.h>
 
 #include <rtems/rtems/intr.h>
-#include <rtems/rtems/barrier.h>
+#include <rtems/rtems/barrierimpl.h>
 #include <rtems/rtems/clock.h>
-#include <rtems/rtems/tasks.h>
-#include <rtems/rtems/dpmem.h>
-#include <rtems/rtems/event.h>
-#include <rtems/rtems/message.h>
+#include <rtems/rtems/tasksimpl.h>
+#include <rtems/rtems/dpmemimpl.h>
+#include <rtems/rtems/eventimpl.h>
+#include <rtems/rtems/messageimpl.h>
 #if defined(RTEMS_MULTIPROCESSING)
 #include <rtems/rtems/mp.h>
 #endif
-#include <rtems/rtems/part.h>
-#include <rtems/rtems/ratemon.h>
-#include <rtems/rtems/region.h>
-#include <rtems/rtems/sem.h>
-#include <rtems/rtems/signal.h>
-#include <rtems/rtems/timer.h>
+#include <rtems/rtems/partimpl.h>
+#include <rtems/rtems/ratemonimpl.h>
+#include <rtems/rtems/regionimpl.h>
+#include <rtems/rtems/semimpl.h>
+#include <rtems/rtems/signalimpl.h>
+#include <rtems/rtems/timerimpl.h>
 
 Objects_Information *_RTEMS_Objects[ OBJECTS_RTEMS_CLASSES_LAST + 1 ];
-
-/*
- *  _RTEMS_API_Initialize
- *
- *  XXX
- */
 
 void _RTEMS_API_Initialize(void)
 {
@@ -75,5 +68,3 @@ void _RTEMS_API_Initialize(void)
   _Rate_monotonic_Manager_initialization();
   _Barrier_Manager_initialization();
 }
-
-/* end of file */

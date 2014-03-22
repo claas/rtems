@@ -5,7 +5,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _MG5UART_H_
@@ -73,8 +73,8 @@ extern "C" {
  * Driver function table
  */
 
-extern console_fns mg5uart_fns;
-extern console_fns mg5uart_fns_polled;
+extern const console_fns mg5uart_fns;
+extern const console_fns mg5uart_fns_polled;
 
 /*
  * Default register access routines

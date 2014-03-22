@@ -1,29 +1,28 @@
+/**
+ * @file
+ *
+ * @brief Multiprocessing Support for the Message Queue Manager
+ * @ingroup ClassicMsgMP Message Queue MP Support
+ */
+
 /*
- *  Multiprocessing Support for the Message Queue Manager
- *
- *
  *  COPYRIGHT (c) 1989-2008.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/message.h>
-#include <rtems/score/mpci.h>
-#include <rtems/rtems/msgmp.h>
-#include <rtems/score/object.h>
-#include <rtems/rtems/options.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/watchdog.h>
-#include <rtems/rtems/support.h>
+#include <rtems/rtems/messageimpl.h>
+#include <rtems/rtems/optionsimpl.h>
+#include <rtems/score/coremsgimpl.h>
+#include <rtems/score/statesimpl.h>
+#include <rtems/score/threadimpl.h>
 
 RTEMS_STATIC_ASSERT(
   MESSAGE_QUEUE_MP_PACKET_SIZE <= MP_PACKET_MINIMUM_PACKET_SIZE,
@@ -53,8 +52,8 @@ void _Message_queue_MP_Send_process_packet (
 
       the_packet                    = _Message_queue_MP_Get_packet();
       the_packet->Prefix.the_class  = MP_PACKET_MESSAGE_QUEUE;
-      the_packet->Prefix.length     = sizeof ( Message_queue_MP_Packet );
-      the_packet->Prefix.to_convert = sizeof ( Message_queue_MP_Packet );
+      the_packet->Prefix.length     = MESSAGE_QUEUE_MP_PACKET_SIZE;
+      the_packet->Prefix.to_convert = MESSAGE_QUEUE_MP_PACKET_SIZE;
       the_packet->operation         = operation;
       the_packet->Prefix.id         = message_queue_id;
       the_packet->name              = name;

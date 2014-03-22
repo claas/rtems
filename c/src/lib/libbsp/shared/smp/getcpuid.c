@@ -4,11 +4,12 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
-int bsp_smp_processor_id(void)
+#include <rtems/score/cpu.h>
+
+uint32_t _CPU_SMP_Get_current_processor( void )
 {
   return 0;
 }
-

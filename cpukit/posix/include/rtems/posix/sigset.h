@@ -1,5 +1,7 @@
 /**
- * @file rtems/posix/sigset.h
+ * @file
+ * 
+ * @brief POSIX Signal Sets Management Helper
  *
  * This file defines the interface to implementation helper for management
  * of POSIX Signal Sets.
@@ -11,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_POSIX_SIGSET_H

@@ -1,8 +1,13 @@
-/* very crude and basic fs utilities for testing the NFS */
-
-/* Till Straumann, <strauman@slac.stanford.edu>, 10/2002 */
+/**
+ * @file
+ *
+ * @brief Basic NFS Filesystem Utilities for Testing the NFS
+ * @ingroup libfs
+ */
 
 /*
+ * Author: Till Straumann, <strauman@slac.stanford.edu>, 10/2002
+ *
  * Authorship
  * ----------
  * This software (NFS-2 client implementation for RTEMS) was created by
@@ -84,6 +89,18 @@
 
 #ifdef HAVE_CEXP
 #include <cexpHelp.h>
+#endif
+
+#ifndef __vxworks
+/*
+ *  Prototypes to avoid warnings
+ */
+int pwd(void);
+int ls(char *dir, char *opts);
+int cp(char *from, char *to, char *opts);
+int ln(char *to, char *name, char *opts);
+int rm(char *path);
+int cd(char *path);
 #endif
 
 #ifndef __vxworks
@@ -321,7 +338,7 @@ ln(char *to, char *name, char *opts)
 		}
 		name++;
 	}
-	if (opts || strchr(opts,'s')) {
+	if (opts && strchr(opts,'s')) {
 		if (symlink(name,to)) {
 			fprintf(stderr,"symlink: %s\n",strerror(errno));
 			return -1;

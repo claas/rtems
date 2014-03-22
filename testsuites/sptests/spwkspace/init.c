@@ -6,7 +6,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -52,6 +52,17 @@ static void test_workspace_string_duplicate(void)
   _Workspace_Free( dup_c );
   _Workspace_Free( dup_d );
   _Workspace_Free( dup_e );
+}
+
+static void test_workspace_allocate_aligned(void)
+{
+  uintptr_t align = 512;
+  void *p = _Workspace_Allocate_aligned( 1, align );
+
+  rtems_test_assert( p != NULL );
+  rtems_test_assert( ((uintptr_t) p & (align - 1)) == 0 );
+
+  _Workspace_Free( p );
 }
 
 rtems_task Init(
@@ -100,6 +111,9 @@ rtems_task Init(
   puts( "_Workspace_String_duplicate - samples" );
   test_workspace_string_duplicate();
 
+  puts( "_Workspace_Allocate_aligned" );
+  test_workspace_allocate_aligned();
+
   puts( "*** END OF TEST WORKSPACE CLASSIC API ***" );
   rtems_test_exit( 0 );
 }
@@ -112,6 +126,8 @@ rtems_task Init(
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #define CONFIGURE_MAXIMUM_TASKS             1
+
+#define CONFIGURE_MEMORY_OVERHEAD 1
 
 #define CONFIGURE_INIT
 #include <rtems/confdefs.h>

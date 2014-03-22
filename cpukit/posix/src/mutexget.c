@@ -1,12 +1,17 @@
-/*
- *  Convert POSIX Mutex ID to local object pointer
+/**
+ * @file
  *
+ * @brief Convert POSIX Mutex ID to local object pointer
+ * @ingroup POSIXAPI
+ */
+
+/*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,11 +22,8 @@
 #include <pthread.h>
 
 #include <rtems/system.h>
-#include <rtems/score/coremutex.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
-#include <rtems/posix/mutex.h>
+#include <rtems/score/coremuteximpl.h>
+#include <rtems/posix/muteximpl.h>
 
 
 /*

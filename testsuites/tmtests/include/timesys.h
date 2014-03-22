@@ -1,14 +1,18 @@
-/*  timesys.h
+/**
+ *  @file
+ *  @brief Timing Test Support
  *
- *  This header file contains the global variables for the Time
- *  suite.
- *
- *  COPYRIGHT (c) 1989-1999.
+ *  This header file contains supporting definitions for the
+ *  Timing Test Suites.
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #include <tmacros.h>
@@ -35,7 +39,7 @@
 #define put_time( _message, _total_time, \
                   _iterations, _loop_overhead, _overhead ) \
     printf( \
-      "%s %" PRId32 "\n", \
+      "%s - %" PRId32 "\n", \
       (_message), \
       (((_total_time) - (_loop_overhead)) / (_iterations)) - (_overhead) \
     )
@@ -58,8 +62,5 @@
 
 TEST_EXTERN volatile uint32_t   end_time;   /* ending time variable */
 TEST_EXTERN volatile uint32_t   overhead;   /* loop overhead variable */
-
-TEST_EXTERN rtems_id   Task_id[ OPERATION_COUNT+1 ];   /* array of task ids */
-TEST_EXTERN rtems_name Task_name[ OPERATION_COUNT+1 ]; /* array of task names */
 
 /* end of include file */

@@ -1,12 +1,25 @@
+/**
+ * @file
+ * @ingroup lm32_milkymist_video lm32_milkymist_shared
+ * @brief Milkymist video input driver
+ */
+
 /*  milkymist_video.h
  *
  *  Milkymist video input driver for RTEMS
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  *
  *  COPYRIGHT (c) 2010, 2011 Sebastien Bourdeauducq
+ */
+
+/**
+ * @defgroup lm32_milkymist_video Milkymist Video
+ * @ingroup lm32_milkymist_shared
+ * @brief Milkymist video input driver
+ * @{
  */
 
 #ifndef __MILKYMIST_VIDEO_H_
@@ -67,6 +80,8 @@ rtems_device_driver video_control(
 
 #define VIDEO_DRIVER_TABLE_ENTRY {video_initialize, \
 video_open, video_close, NULL, NULL, video_control}
+
+/** @} */
 
 #ifdef __cplusplus
 }

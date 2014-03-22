@@ -10,7 +10,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -153,9 +153,12 @@ ssize_t termios_test_driver_write_helper(
   size_t      len
 )
 {
-  Tx_Buffer[Tx_Index++] = buf[0];
-  (void) rtems_timer_fire_after( Tx_Timer, 10, Tx_ISR, NULL );
-  return 1;
+  if (len > 0) {
+    Tx_Buffer[Tx_Index++] = buf[0];
+    (void) rtems_timer_fire_after( Tx_Timer, 10, Tx_ISR, NULL );
+  }
+
+  return 0;
 }
 
 /*

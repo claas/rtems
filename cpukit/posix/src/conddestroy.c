@@ -1,10 +1,17 @@
+/**
+ *  @file
+ *
+ *  @brief Destroy a Condition Variable
+ *  @ingroup POSIXAPI
+ */
+
 /*
  *  COPYRIGHT (c) 1989-2007.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -15,18 +22,15 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/score/object.h>
-#include <rtems/score/states.h>
 #include <rtems/score/watchdog.h>
-#include <rtems/posix/cond.h>
+#include <rtems/posix/condimpl.h>
 #include <rtems/posix/time.h>
-#include <rtems/posix/mutex.h>
+#include <rtems/posix/muteximpl.h>
 
-/*
+/**
  *  11.4.2 Initializing and Destroying a Condition Variable,
  *         P1003.1c/Draft 10, p. 87
  */
-
 int pthread_cond_destroy(
   pthread_cond_t           *cond
 )
@@ -40,7 +44,7 @@ int pthread_cond_destroy(
     case OBJECTS_LOCAL:
 
       if ( _Thread_queue_First( &the_cond->Wait_queue ) ) {
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_cond->Object );
         return EBUSY;
       }
 
@@ -50,7 +54,7 @@ int pthread_cond_destroy(
       );
 
       _POSIX_Condition_variables_Free( the_cond );
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_cond->Object );
       return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)

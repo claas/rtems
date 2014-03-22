@@ -1,5 +1,8 @@
-/*
- *  Semaphore Manager
+/**
+ * @file
+ *
+ * @brief RTEMS Semaphore Release
+ * @ingroup ClassicSem Semaphores
  *
  *  DESCRIPTION:
  *
@@ -15,12 +18,15 @@
  *     + acquire a semaphore
  *     + release a semaphore
  *
- *  COPYRIGHT (c) 1989-2007.
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -30,20 +36,13 @@
 #include <rtems/system.h>
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/support.h>
-#include <rtems/rtems/attr.h>
+#include <rtems/rtems/attrimpl.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/object.h>
 #include <rtems/rtems/options.h>
-#include <rtems/rtems/sem.h>
-#include <rtems/score/coremutex.h>
-#include <rtems/score/coresem.h>
-#include <rtems/score/states.h>
+#include <rtems/rtems/semimpl.h>
+#include <rtems/score/coremuteximpl.h>
+#include <rtems/score/coresemimpl.h>
 #include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#if defined(RTEMS_MULTIPROCESSING)
-#include <rtems/score/mpci.h>
-#endif
-#include <rtems/score/sysstate.h>
 
 #include <rtems/score/interr.h>
 
@@ -70,7 +69,7 @@ rtems_status_code rtems_semaphore_release(
   rtems_id   id
 )
 {
-  register Semaphore_Control *the_semaphore;
+  Semaphore_Control          *the_semaphore;
   Objects_Locations           location;
   CORE_mutex_Status           mutex_status;
   CORE_semaphore_Status       semaphore_status;
@@ -85,7 +84,7 @@ rtems_status_code rtems_semaphore_release(
           id,
           MUTEX_MP_SUPPORT
         );
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_semaphore->Object );
         return _Semaphore_Translate_core_mutex_return_code( mutex_status );
       } else {
         semaphore_status = _CORE_semaphore_Surrender(
@@ -93,7 +92,7 @@ rtems_status_code rtems_semaphore_release(
           id,
           MUTEX_MP_SUPPORT
         );
-        _Thread_Enable_dispatch();
+        _Objects_Put( &the_semaphore->Object );
         return
           _Semaphore_Translate_core_semaphore_return_code( semaphore_status );
       }

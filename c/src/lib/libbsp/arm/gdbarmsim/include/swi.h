@@ -1,3 +1,19 @@
+/**
+ * @file
+ *
+ * @ingroup arm_gdbarmsim
+ *
+ * @brief Software interrupt definitions.
+ */
+
+/**
+ * @defgroup gdbarmsim_swi SWI Definitions
+ *
+ * @ingroup arm_gdbarmsim
+ *
+ * @brief Software interrupt definitions.
+ */
+
 /*
  *  Copied from libgloss 1 Oct 2009.
  *  Minor modifications to work with RTEMS.

@@ -1,7 +1,11 @@
 /**
- * @file sys/termios.h
+ * @file
  *
- * POSIX termios implementation for RTEMS console device driver.
+ * @brief POSIX Termios Implementation for RTEMS Console Device Driver
+ *
+ * The Open Group Base Specifications Issue 6
+ * IEEE Std 1003.1, 2004 Edition
+ * Chapter 11, General Terminal Interface
  */
 
 /*
@@ -10,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef	TERMIOS_H
@@ -21,6 +25,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @ingroup Termios
+ *
+ * @brief POSIX Termios Implementation
+ * 
+ */
+/**@{**/
 
 typedef unsigned char	cc_t;
 typedef unsigned int	speed_t;
@@ -37,8 +49,8 @@ struct termios {
 };
 
 /**
- *  This value is used to disable processing of a member of c_cc
- *  in the struct termios.
+ * This value is used to disable processing of a member of c_cc
+ * in the struct termios.
  */
 #define _POSIX_VDISABLE 0
 
@@ -193,11 +205,14 @@ int	tcdrain(int);
 pid_t	tcgetprgrp(int);
 int	tcsetprgrp(int, pid_t);
 int	tcsendbreak(int, int);
-
 speed_t	cfgetospeed(const struct termios *tp);
 int	cfsetospeed(struct termios *tp, speed_t speed);
 speed_t	cfgetispeed(const struct termios *tp);
 int	cfsetispeed(struct termios *tp, speed_t speed);
+void    cfmakeraw(struct termios *tp);
+int     cfsetspeed(struct termios *tp, speed_t speed);
+
+/** @} */ 
 
 #ifdef __cplusplus
 }

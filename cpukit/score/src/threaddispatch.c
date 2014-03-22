@@ -1,78 +1,76 @@
+/**
+ * @file
+ * 
+ * @brief Dispatch Thread
+ * @ingroup ScoreThread
+ */
+
 /*
- *  Thread Handler
- *
  *  COPYRIGHT (c) 1989-2009.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
+#include <rtems/score/threaddispatch.h>
 #include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
-#include <rtems/score/interr.h>
+#include <rtems/score/assert.h>
 #include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/todimpl.h>
+#include <rtems/score/userextimpl.h>
 #include <rtems/score/wkspace.h>
 
-#ifndef __RTEMS_USE_TICKS_FOR_STATISTICS__
-  #include <rtems/score/timestamp.h>
-#endif
-
-#if defined(RTEMS_SMP)
-  #include <rtems/score/smp.h>
-#endif
-
-/**
- *  _Thread_Dispatch
- *
- *  This kernel routine determines if a dispatch is needed, and if so
- *  dispatches to the heir thread.  Once the heir is running an attempt
- *  is made to dispatch any ASRs.
- *
- *  ALTERNATE ENTRY POINTS:
- *    void _Thread_Enable_dispatch();
- *
- *  INTERRUPT LATENCY:
- *    dispatch thread
- *    no dispatch thread
- */
 void _Thread_Dispatch( void )
 {
+  Per_CPU_Control  *per_cpu;
   Thread_Control   *executing;
   Thread_Control   *heir;
   ISR_Level         level;
 
-  _Thread_Disable_dispatch();
-  #if defined(RTEMS_SMP)
-    /*
-     *  If necessary, send dispatch request to other cores.
-     */
-    _SMP_Request_other_cores_to_dispatch();
-  #endif
+#if defined( RTEMS_SMP )
+  _ISR_Disable_without_giant( level );
+#endif
+
+  per_cpu = _Per_CPU_Get();
+  _Assert( per_cpu->thread_dispatch_disable_level == 0 );
+  _Profiling_Thread_dispatch_disable( per_cpu, 0 );
+  per_cpu->thread_dispatch_disable_level = 1;
+
+#if defined( RTEMS_SMP )
+  _ISR_Enable_without_giant( level );
+#endif
 
   /*
    *  Now determine if we need to perform a dispatch on the current CPU.
    */
-  executing   = _Thread_Executing;
-  _ISR_Disable( level );
-  while ( _Thread_Dispatch_necessary == true ) {
-
-    heir = _Thread_Heir;
-    _Thread_Dispatch_necessary = false;
-    _Thread_Executing = heir;
+  executing = per_cpu->executing;
+  _Per_CPU_ISR_disable_and_acquire( per_cpu, level );
+#if defined( RTEMS_SMP )
+  /*
+   * On SMP the complete context switch must be atomic with respect to one
+   * processor.  The scheduler must obtain the per-CPU lock to check if a
+   * thread is executing and to update the heir.  This ensures that a thread
+   * cannot execute on more than one processor at a time.  See also
+   * _Thread_Handler() since _Context_switch() may branch to this function.
+   */
+  if ( per_cpu->dispatch_necessary ) {
+#else
+  while ( per_cpu->dispatch_necessary ) {
+#endif
+    heir = per_cpu->heir;
+    per_cpu->dispatch_necessary = false;
+    per_cpu->executing = heir;
+#if defined( RTEMS_SMP )
+    executing->is_executing = false;
+    heir->is_executing = true;
+#endif
 
     /*
      *  When the heir and executing are the same, then we are being
@@ -93,27 +91,23 @@ void _Thread_Dispatch( void )
     if ( heir->budget_algorithm == THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE )
       heir->cpu_time_budget = _Thread_Ticks_per_timeslice;
 
+#if !defined( RTEMS_SMP )
     _ISR_Enable( level );
+#endif
 
     #ifndef __RTEMS_USE_TICKS_FOR_STATISTICS__
-      {
-        Timestamp_Control uptime, ran;
-        _TOD_Get_uptime( &uptime );
-        _Timestamp_Subtract(
-          &_Thread_Time_of_last_context_switch,
-          &uptime,
-          &ran
-        );
-        _Timestamp_Add_to( &executing->cpu_time_used, &ran );
-        _Thread_Time_of_last_context_switch = uptime;
-      }
+      _Thread_Update_cpu_time_used(
+        executing,
+        &per_cpu->time_of_last_context_switch
+      );
     #else
       {
-        TOD_Get_uptime( &_Thread_Time_of_last_context_switch );
+        _TOD_Get_uptime( &per_cpu->time_of_last_context_switch );
         heir->cpu_time_used++;
       }
     #endif
 
+#if !defined(__DYNAMIC_REENT__)
     /*
      * Switch libc's task specific data.
      */
@@ -121,6 +115,7 @@ void _Thread_Dispatch( void )
       executing->libc_reent = *_Thread_libc_reent;
       *_Thread_libc_reent = heir->libc_reent;
     }
+#endif
 
     _User_extensions_Thread_switch( executing, heir );
 
@@ -161,16 +156,24 @@ void _Thread_Dispatch( void )
 #endif
 #endif
 
-    executing = _Thread_Executing;
+    /*
+     * We have to obtain this value again after the context switch since the
+     * heir thread may have migrated from another processor.  Values from the
+     * stack or non-volatile registers reflect the old execution environment.
+     */
+    per_cpu = _Per_CPU_Get();
 
+#if !defined( RTEMS_SMP )
     _ISR_Disable( level );
+#endif
   }
 
 post_switch:
+  _Assert( per_cpu->thread_dispatch_disable_level == 1 );
+  per_cpu->thread_dispatch_disable_level = 0;
+  _Profiling_Thread_dispatch_enable( per_cpu, 0 );
 
-  _ISR_Enable( level );
+  _Per_CPU_Release_and_ISR_enable( per_cpu, level );
 
-  _Thread_Unnest_dispatch();
- 
-  _API_extensions_Run_postswitch();
+  _API_extensions_Run_post_switch( executing );
 }

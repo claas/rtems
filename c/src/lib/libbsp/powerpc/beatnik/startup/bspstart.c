@@ -31,6 +31,7 @@
 #include <rtems/libio.h>
 #include <rtems/libcsupport.h>
 #include <rtems/bspIo.h>
+#include <rtems/counter.h>
 #include <rtems/powerpc/powerpc.h>
 /*#include <bsp/consoleIo.h>*/
 #include <libcpu/spr.h>   /* registers.h is included here */
@@ -47,10 +48,6 @@
 
 /* for RTEMS_VERSION :-( I dont like the preassembled string */
 #include <rtems/sptables.h>
-
-#ifdef __RTEMS_APPLICATION__
-#undef __RTEMS_APPLICATION__
-#endif
 
 #define SHOW_MORE_INIT_SETTINGS
 
@@ -129,13 +126,6 @@ char BSP_serialNumber[20] = {0};
 /* VPD appends an extra char -- what for ? */
 char BSP_enetAddr0[7] = {0};
 char BSP_enetAddr1[7] = {0};
-
-/*
- *  The original table from the application and our copy of it with
- *  some changes.
- */
-
-extern rtems_configuration_table Configuration;
 
 char *rtems_progname;
 
@@ -252,11 +242,7 @@ void bsp_start( void )
   /*
    * Initialize default raw exception handlers. See vectors/vectors_init.c
    */
-  ppc_exc_initialize(
-		  PPC_INTERRUPT_DISABLE_MASK_DEFAULT,
-		  intrStackStart,
-		  intrStackSize
-		  );
+  ppc_exc_initialize(intrStackStart, intrStackSize);
 
   printk("CPU: %s\n", get_ppc_cpu_type_name(current_ppc_cpu));
 
@@ -348,9 +334,15 @@ void bsp_start( void )
    */
 
   bsp_clicks_per_usec = BSP_bus_frequency/(BSP_time_base_divisor * 1000);
+  rtems_counter_initialize_converter(
+    BSP_bus_frequency / (BSP_time_base_divisor / 1000)
+  );
 
 #ifdef SHOW_MORE_INIT_SETTINGS
-  printk("Configuration.work_space_size = %x\n", Configuration.work_space_size); 
+  printk(
+    "Configuration.work_space_size = %x\n",
+    rtems_configuration_get_work_space_size()
+  );
 #endif
 
   /* Activate the page table mappings only after

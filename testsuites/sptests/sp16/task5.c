@@ -13,7 +13,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -46,12 +46,7 @@ rtems_task Task5(
   Put_address_from_area_1( segment_address_1 );
   new_line;
 
-  /*
-   * Use TOD_MICROSECONDS_TO_TICKS not RTEMS_MICROSECONDS_TO_TICKS to
-   * test C implementation in SuperCore -- not macro version used
-   * everywhere else.
-   */
-  status = rtems_task_wake_after( TOD_MICROSECONDS_TO_TICKS( 1000000 ) );
+  status = rtems_task_wake_after( RTEMS_MICROSECONDS_TO_TICKS( 1000000 ) );
   directive_failed( status, "rtems_task_wake_after" );
 
   puts( "TA5 - rtems_region_get_segment - wait on 3K segment from region 1" );

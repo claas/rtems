@@ -1,12 +1,17 @@
-/*
- *  calloc()
+/**
+ *  @file
  *
- *  COPYRIGHT (c) 1989-2007.
+ *  @brief Allocate Space for Array in Memory
+ *  @ingroup libcsupport
+ */
+
+/*
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -16,14 +21,15 @@
 #if defined(RTEMS_NEWLIB) && !defined(HAVE_CALLOC)
 #include "malloc_p.h"
 #include <stdlib.h>
+#include <string.h>
 
 void *calloc(
   size_t nelem,
   size_t elsize
 )
 {
-  register char *cptr;
-  size_t length;
+  char   *cptr;
+  size_t  length;
 
   MSBUMP(calloc_calls, 1);
 

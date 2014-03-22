@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -26,6 +26,8 @@
 #include <rtems/rtems_bsdnet.h>
 #include <rtems/ftpd.h>
 #include <rtems/ftpfs.h>
+
+const char rtems_test_name[] = "FTP 1";
 
 /* forward declarations to avoid warnings */
 static rtems_task Init(rtems_task_argument argument);
@@ -104,7 +106,7 @@ static void change_self_priority(void)
   rtems_test_assert(sc == RTEMS_SUCCESSFUL);
 }
 
-static void create_file(const char *path)
+static void create_file(const char *path, const void *begin, size_t size)
 {
   int rv = 0;
   int fd = open(path, O_WRONLY);
@@ -112,8 +114,8 @@ static void create_file(const char *path)
 
   rtems_test_assert(fd >= 0);
 
-  n = write(fd, &content [0], sizeof(content));
-  rtems_test_assert(n == (ssize_t) sizeof(content));
+  n = write(fd, begin, size);
+  rtems_test_assert(n == (ssize_t) size);
 
   rv = close(fd);
   rtems_test_assert(rv == 0);
@@ -126,20 +128,47 @@ static void copy_file(const char *src_path, const char *dest_path)
   int out = open(dest_path, O_WRONLY);
   ssize_t n_in = 0;
   char buf [64];
+  struct stat st_in;
+  struct stat st_out;
+
+  memset(&st_in, 0xff, sizeof(st_in));
+  memset(&st_out, 0xff, sizeof(st_out));
 
   rtems_test_assert(in >= 0);
   rtems_test_assert(out >= 0);
+
+  rv = fstat(out, &st_out);
+  rtems_test_assert(rv == 0);
+
+  rtems_test_assert(st_out.st_size == 0);
 
   while ((n_in = read(in, buf, sizeof(buf))) > 0) {
     ssize_t n_out = write(out, buf, (size_t) n_in);
     rtems_test_assert(n_out == n_in);
   }
 
+  rv = fstat(out, &st_out);
+  rtems_test_assert(rv == 0);
+
+  rv = fstat(in, &st_in);
+  rtems_test_assert(rv == 0);
+
+  rtems_test_assert(st_in.st_size == st_out.st_size);
+
   rv = close(out);
   rtems_test_assert(rv == 0);
 
   rv = close(in);
   rtems_test_assert(rv == 0);
+}
+
+static void check_file_size(const char *path, size_t size)
+{
+  struct stat st;
+  int rv = lstat(path, &st);
+
+  rtems_test_assert(rv == 0);
+  rtems_test_assert(st.st_size == (off_t) size);
 }
 
 static void check_file(const char *path)
@@ -180,16 +209,18 @@ static void test(void)
 
   initialize_ftpfs();
   change_self_priority();
-  create_file(file_a);
+  create_file(file_a, &content [0], sizeof(content));
   copy_file(file_a, file_b);
   check_file(file_b);
+  check_file_size(file_a, sizeof(content));
+  check_file_size(file_b, sizeof(content));
 }
 
 static rtems_task Init(rtems_task_argument argument)
 {
-  puts("\n\n*** TEST FTP 1 ***");
+  TEST_BEGIN();
   test();
-  puts("*** END OF TEST FTP 1 ***");
+  TEST_END();
 
   rtems_test_exit(0);
 }
@@ -212,6 +243,8 @@ static rtems_task Init(rtems_task_argument argument)
 #define CONFIGURE_MAXIMUM_SEMAPHORES 2
 
 #define CONFIGURE_EXTRA_TASK_STACKS FTP_WORKER_TASK_EXTRA_STACK
+
+#define CONFIGURE_INITIAL_EXTENSIONS RTEMS_TEST_INITIAL_EXTENSION
 
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 

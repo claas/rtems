@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Creates a new POSIX Message Queue or Opens an Existing Queue 
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  NOTE:  The structure of the routines is identical to that of POSIX
  *         Message_queues to leave the option of having unnamed message
@@ -16,7 +23,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -31,11 +38,11 @@
 #include <fcntl.h>
 #include <mqueue.h>
 
-#include <rtems/system.h>
+#include <rtems/score/todimpl.h>
 #include <rtems/score/watchdog.h>
-#include <rtems/seterr.h>
-#include <rtems/posix/mqueue.h>
+#include <rtems/posix/mqueueimpl.h>
 #include <rtems/posix/time.h>
+#include <rtems/seterr.h>
 
 /*
  *  15.2.2 Open a Message Queue, P1003.1b-1993, p. 272
@@ -48,8 +55,15 @@ mqd_t mq_open(
   /* struct mq_attr  attr */
 )
 {
+  /*
+   * mode is set but never used. GCC gives a warning for this
+   * and we need to tell GCC not to complain. But we have to
+   * have it because we have to work through the variable
+   * arguments to get to attr.
+   */
+  mode_t                          mode RTEMS_COMPILER_UNUSED_ATTRIBUTE;
+
   va_list                         arg;
-  mode_t                          mode;
   struct mq_attr                 *attr = NULL;
   int                             status;
   Objects_Id                      the_mq_id;

@@ -1,23 +1,23 @@
 /**
  * @file
  *
- * @ingroup bsp_linker
+ * @ingroup powerpc_linker
  *
  * @brief Symbols defined in linker command base file.
  */
 
 /*
- * Copyright (c) 2010-2012 embedded brains GmbH.  All rights reserved.
+ * Copyright (c) 2010-2013 embedded brains GmbH.  All rights reserved.
  *
  *  embedded brains GmbH
- *  Obere Lagerstr. 30
+ *  Donrierstr. 4
  *  82178 Puchheim
  *  Germany
  *  <rtems@embedded-brains.de>
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef LIBBSP_POWERPC_SHARED_LINKER_SYMBOLS_H
@@ -30,9 +30,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @defgroup bsp_linker Linker Support
+ * @defgroup powerpc_linker Linker Support
  *
- * @ingroup bsp_kit
+ * @ingroup powerpc_shared
  *
  * @brief Linker support.
  *
@@ -99,11 +99,17 @@ LINKER_SYMBOL(bsp_section_nocache_size)
 LINKER_SYMBOL(bsp_section_nocache_load_begin)
 LINKER_SYMBOL(bsp_section_nocache_load_end)
 
+LINKER_SYMBOL(bsp_section_nvram_begin)
+LINKER_SYMBOL(bsp_section_nvram_end)
+LINKER_SYMBOL(bsp_section_nvram_size)
+
 #define BSP_FAST_TEXT_SECTION __attribute__((section(".bsp_fast_text")))
 
 #define BSP_FAST_DATA_SECTION __attribute__((section(".bsp_fast_data")))
 
 #define BSP_NOCACHE_SECTION __attribute__((section(".bsp_nocache")))
+
+#define BSP_NVRAM_SECTION __attribute__((section(".bsp_nvram")))
 
 /** @} */
 

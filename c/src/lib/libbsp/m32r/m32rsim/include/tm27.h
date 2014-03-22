@@ -1,9 +1,17 @@
+/**
+ *  @file
+ *
+ *  @ingroup m32r_tm27
+ *
+ *  @brief Time Test 27
+ */
+
 /*
  *  tm27.h
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_TMTEST27
@@ -13,8 +21,12 @@
 #ifndef __tm27_h
 #define __tm27_h
 
-/*
- *  Define the interrupt mechanism for Time Test 27
+/**
+ *  @defgroup m32r_tm27 Time Test 27
+ *
+ *  @ingroup m32r_m32rsim
+ *
+ *  @brief Define the interrupt mechanism for Time Test 27
  */
 
 #define MUST_WAIT_FOR_INTERRUPT 0

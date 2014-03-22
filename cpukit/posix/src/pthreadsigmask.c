@@ -1,3 +1,10 @@
+/**
+ * @file
+ *
+ * @brief Examine and/or change the calling thread's signal mask
+ * @ingroup POSIXAPI
+ */
+
 /*
  *  3.3.5 Examine and Change Blocked Signals, P1003.1b-1993, p. 73
  *
@@ -8,7 +15,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -20,14 +27,14 @@
 #include <errno.h>
 
 #include <rtems/system.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/psignal.h>
+#include <rtems/posix/pthreadimpl.h>
+#include <rtems/posix/psignalimpl.h>
 #include <rtems/seterr.h>
 
 int pthread_sigmask(
   int               how,
-  const sigset_t   *set,
-  sigset_t         *oset
+  const sigset_t   *__restrict set,
+  sigset_t         *__restrict oset
 )
 {
   POSIX_API_Control  *api;
@@ -35,7 +42,7 @@ int pthread_sigmask(
   if ( !set && !oset )
     rtems_set_errno_and_return_minus_one( EINVAL );
 
-  api = _Thread_Executing->API_Extensions[ THREAD_API_POSIX ];
+  api = _Thread_Get_executing()->API_Extensions[ THREAD_API_POSIX ];
 
   if ( oset )
     *oset = api->signals_blocked;

@@ -1,24 +1,16 @@
+/**
+ *  @file
+ *
+ *  This file initializes the POSIX Barrier Manager.
+ */
+
 /*
- *  Barrier Manager
- *
- *  DESCRIPTION:
- *
- *  This package is the implementation of the Barrier Manager.
- *
- *  Directives provided are:
- *
- *     + create a barrier
- *     + get an ID of a barrier
- *     + delete a barrier
- *     + acquire a barrier
- *     + release a barrier
- *
- *  COPYRIGHT (c) 1989-2008.
+ *  COPYRIGHT (c) 1989-2013.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -29,12 +21,11 @@
 
 #include <rtems/system.h>
 #include <rtems/config.h>
-#include <rtems/posix/barrier.h>
+#include <rtems/posix/barrierimpl.h>
 
 /**
  *  @brief _POSIX_Barrier_Manager_initialization
  */
-
 void _POSIX_Barrier_Manager_initialization(void)
 {
   _Objects_Initialize_information(

@@ -1,6 +1,8 @@
 /**
  * @file rtems/score/priority.h
  *
+ * @brief Thread Priority Manipulation Routines
+ *
  * This include file contains all thread priority manipulation routines.
  * This Handler provides mechanisms which can be used to
  * initialize and manipulate thread priorities.
@@ -12,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_PRIORITY_H
@@ -70,10 +72,6 @@ typedef uint32_t   Priority_Control;
  *  This variable contains the configured number of priorities
  */
 extern uint8_t rtems_maximum_priority;
-
-#ifndef __RTEMS_APPLICATION__
-#include <rtems/score/priority.inl>
-#endif
 
 #ifdef __cplusplus
 }

@@ -1,52 +1,26 @@
+/**
+ *  @file
+ *
+ *  @brief RTEMS Get Task Node
+ *  @ingroup ClassicRTEMS
+ */
+
 /*
- *  RTEMS Task Manager
- *
- *
- *  COPYRIGHT (c) 1989-2007.
+ *  COPYRIGHT (c) 1989-2014.
  *  On-Line Applications Research Corporation (OAR).
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
+#include <rtems/rtems/tasksimpl.h>
+#include <rtems/score/threadimpl.h>
 #include <rtems/config.h>
-#include <rtems/rtems/status.h>
-#include <rtems/rtems/support.h>
-#include <rtems/rtems/modes.h>
-#include <rtems/score/object.h>
-#include <rtems/score/stack.h>
-#include <rtems/score/states.h>
-#include <rtems/rtems/tasks.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/tod.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/sysstate.h>
-
-/*
- *  rtems_task_get_note
- *
- *  This directive obtains the note from the specified notepad
- *  of the specified thread.
- *
- *  Input parameters:
- *    id      - thread id
- *    notepad - notepad number
- *    note    - pointer to note
- *
- *  Output parameters:
- *    note             - filled in if successful
- *    RTEMS_SUCCESSFUL - if successful
- *    error code       - if unsuccessful
- */
 
 rtems_status_code rtems_task_get_note(
   rtems_id    id,
@@ -54,9 +28,10 @@ rtems_status_code rtems_task_get_note(
   uint32_t   *note
 )
 {
-  register Thread_Control *the_thread;
+  Thread_Control          *the_thread;
   Objects_Locations        location;
   RTEMS_API_Control       *api;
+  Thread_Control          *executing;
 
   if ( !rtems_configuration_get_notepads_enabled() )
     return RTEMS_NOT_CONFIGURED;
@@ -76,9 +51,10 @@ rtems_status_code rtems_task_get_note(
    *  Optimize the most likely case to avoid the Thread_Dispatch.
    */
 
+  executing = _Thread_Get_executing();
   if ( _Objects_Are_ids_equal( id, OBJECTS_ID_OF_SELF ) ||
-       _Objects_Are_ids_equal( id, _Thread_Executing->Object.id ) ) {
-      api = _Thread_Executing->API_Extensions[ THREAD_API_RTEMS ];
+       _Objects_Are_ids_equal( id, executing->Object.id ) ) {
+      api = executing->API_Extensions[ THREAD_API_RTEMS ];
       *note = api->Notepads[ notepad ];
       return RTEMS_SUCCESSFUL;
   }
@@ -89,12 +65,12 @@ rtems_status_code rtems_task_get_note(
     case OBJECTS_LOCAL:
       api = the_thread->API_Extensions[ THREAD_API_RTEMS ];
       *note = api->Notepads[ notepad ];
-      _Thread_Enable_dispatch();
+      _Objects_Put( &the_thread->Object );
       return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
     case OBJECTS_REMOTE:
-      _Thread_Executing->Wait.return_argument = note;
+      executing->Wait.return_argument = note;
 
       return _RTEMS_tasks_MP_Send_request_packet(
         RTEMS_TASKS_MP_GET_NOTE_REQUEST,

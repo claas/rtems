@@ -1,7 +1,8 @@
 /**
  *  @file
  *
- *  Initialization Wrapper for all Threads.
+ *  @brief Thread Handler
+ *  @ingroup ScoreThread
  */
 
 /*
@@ -10,29 +11,18 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <rtems/system.h>
-#include <rtems/score/apiext.h>
-#include <rtems/score/context.h>
+#include <rtems/score/threadimpl.h>
+#include <rtems/score/assert.h>
 #include <rtems/score/interr.h>
-#include <rtems/score/isr.h>
-#include <rtems/score/object.h>
-#include <rtems/score/priority.h>
-#include <rtems/score/states.h>
-#include <rtems/score/sysstate.h>
-#include <rtems/score/thread.h>
-#include <rtems/score/threadq.h>
-#include <rtems/score/userext.h>
-#include <rtems/score/wkspace.h>
-#if defined(RTEMS_SMP)
-  #include <rtems/score/smp.h>
-#endif
+#include <rtems/score/isrlevel.h>
+#include <rtems/score/userextimpl.h>
 
 /*
  *  Conditional magic to determine what style of C++ constructor
@@ -57,35 +47,49 @@
   #define EXECUTE_GLOBAL_CONSTRUCTORS
 #endif
 
-/*
- *  _Thread_Handler
- *
- *  This routine is the "primal" entry point for all threads.
- *  _Context_Initialize() dummies up the thread's initial context
- *  to cause the first Context_Switch() to jump to _Thread_Handler().
- *
- *  This routine is the default thread exitted error handler.  It is
- *  returned to when a thread exits.  The configured fatal error handler
- *  is invoked to process the exit.
- *
- *  NOTE:
- *
- *  On entry, it is assumed all interrupts are blocked and that this
- *  routine needs to set the initial isr level.  This may or may not
- *  actually be needed by the context switch routine and as a result
- *  interrupts may already be at there proper level.  Either way,
- *  setting the initial isr level properly here is safe.
- *
- *  Input parameters:   NONE
- *
- *  Output parameters:  NONE
- */
+#if defined(EXECUTE_GLOBAL_CONSTRUCTORS)
+  static bool _Thread_Handler_is_constructor_execution_required(
+    Thread_Control *executing
+  )
+  {
+    static bool doneConstructors;
+    bool doCons = false;
+
+    #if defined(RTEMS_SMP)
+      static SMP_lock_Control constructor_lock =
+        SMP_LOCK_INITIALIZER("constructor");
+
+      SMP_lock_Context lock_context;
+
+      if ( !doneConstructors ) {
+        _SMP_lock_Acquire( &constructor_lock, &lock_context );
+    #endif
+
+    #if defined(RTEMS_MULTIPROCESSING)
+      doCons = !doneConstructors
+        && _Objects_Get_API( executing->Object.id ) != OBJECTS_INTERNAL_API;
+      if (doCons)
+        doneConstructors = true;
+    #else
+      (void) executing;
+      doCons = !doneConstructors;
+      doneConstructors = true;
+    #endif
+
+    #if defined(RTEMS_SMP)
+        _SMP_lock_Release( &constructor_lock, &lock_context );
+      }
+    #endif
+
+    return doCons;
+  }
+#endif
+
 void _Thread_Handler( void )
 {
   ISR_Level  level;
   Thread_Control *executing;
   #if defined(EXECUTE_GLOBAL_CONSTRUCTORS)
-    static bool doneConstructors;
     bool doCons;
   #endif
 
@@ -98,25 +102,24 @@ void _Thread_Handler( void )
    */
   _Context_Initialization_at_thread_begin();
 
-  /*
-   * have to put level into a register for those cpu's that use
-   * inline asm here
-   */
-  level = executing->Start.isr_level;
-  _ISR_Set_level(level);
-
-  #if defined(EXECUTE_GLOBAL_CONSTRUCTORS)
-    #if defined(RTEMS_MULTIPROCESSING)
-      doCons = !doneConstructors
-        && _Objects_Get_API( executing->Object.id ) != OBJECTS_INTERNAL_API;
-      if (doCons)
-        doneConstructors = true;
-    #else
-      doCons = !doneConstructors;
-      doneConstructors = true;
-    #endif
+  #if !defined(RTEMS_SMP)
+    /*
+     * have to put level into a register for those cpu's that use
+     * inline asm here
+     */
+    level = executing->Start.isr_level;
+    _ISR_Set_level( level );
   #endif
 
+  #if defined(EXECUTE_GLOBAL_CONSTRUCTORS)
+    doCons = _Thread_Handler_is_constructor_execution_required( executing );
+  #endif
+
+  /*
+   * Initialize the floating point context because we do not come
+   * through _Thread_Dispatch on our first invocation. So the normal
+   * code path for performing the FP context switch is not hit.
+   */
   #if ( CPU_HARDWARE_FP == TRUE ) || ( CPU_SOFTWARE_FP == TRUE )
     #if ( CPU_USE_DEFERRED_FP_SWITCH == TRUE )
       if ( (executing->fp_context != NULL) &&
@@ -138,7 +141,35 @@ void _Thread_Handler( void )
   /*
    *  At this point, the dispatch disable level BETTER be 1.
    */
-  _Thread_Enable_dispatch();
+  #if defined(RTEMS_SMP)
+    {
+      /*
+       * On SMP we enter _Thread_Handler() with interrupts disabled and
+       * _Thread_Dispatch() obtained the per-CPU lock for us.  We have to
+       * release it here and set the desired interrupt level of the thread.
+       */
+      Per_CPU_Control *per_cpu = _Per_CPU_Get();
+
+      _Assert( per_cpu->thread_dispatch_disable_level == 1 );
+      _Assert( _ISR_Get_level() != 0 );
+
+      per_cpu->thread_dispatch_disable_level = 0;
+      _Profiling_Thread_dispatch_enable( per_cpu, 0 );
+
+      _Per_CPU_Release( per_cpu );
+
+      level = executing->Start.isr_level;
+      _ISR_Set_level( level);
+
+      /*
+       * The thread dispatch level changed from one to zero.  Make sure we lose
+       * no thread dispatch necessary update.
+       */
+      _Thread_Dispatch();
+    }
+  #else
+    _Thread_Enable_dispatch();
+  #endif
 
   #if defined(EXECUTE_GLOBAL_CONSTRUCTORS)
     /*
@@ -148,15 +179,14 @@ void _Thread_Handler( void )
      */
     if (doCons) /* && (volatile void *)_init) */ {
       INIT_NAME ();
-   
-      #if defined(RTEMS_SMP)
-        _Thread_Disable_dispatch();
-          _SMP_Request_other_cores_to_perform_first_context_switch();
-        _Thread_Enable_dispatch();
-      #endif
     }
  #endif
 
+  /*
+   *  RTEMS supports multiple APIs and each API can define a different
+   *  thread/task prototype. The following code supports invoking the
+   *  user thread entry point using the prototype expected.
+   */
   if ( executing->Start.prototype == THREAD_START_NUMERIC ) {
     executing->Wait.return_argument =
       (*(Thread_Entry_numeric) executing->Start.entry_point)(
@@ -197,7 +227,7 @@ void _Thread_Handler( void )
 
   _User_extensions_Thread_exitted( executing );
 
-  _Internal_error_Occurred(
+  _Terminate(
     INTERNAL_ERROR_CORE,
     true,
     INTERNAL_ERROR_THREAD_EXITTED

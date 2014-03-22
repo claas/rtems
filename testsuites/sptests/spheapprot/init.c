@@ -9,7 +9,7 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define __RTEMS_VIOLATE_KERNEL_VISIBILITY__
+#include <bsp.h>
 
-#include <rtems.h>
+#include <rtems/score/heapimpl.h>
 
 #ifdef HEAP_PROTECTION
   static void test_heap_block_error(Heap_Control *heap, Heap_Block *block)

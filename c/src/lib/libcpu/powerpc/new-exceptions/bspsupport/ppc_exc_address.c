@@ -23,16 +23,12 @@
  *
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #include <rtems.h>
 
 #include <bsp/vectors.h>
-
-bool bsp_exceptions_in_RAM = true;
-
-uint32_t ppc_exc_vector_base = 0;
 
 /*
  * XXX: These values are choosen to directly generate the vector offsets for an
@@ -61,9 +57,8 @@ static const uint8_t ivor_values [] = {
   [ASM_E500_PERFMON_VECTOR] = 19
 };
 
-void *ppc_exc_vector_address(unsigned vector)
+void *ppc_exc_vector_address(unsigned vector, void *vector_base)
 {
-  uintptr_t vector_base = 0xfff00000;
   uintptr_t vector_offset = vector << 8;
 
   if (ppc_cpu_has_altivec()) {
@@ -101,9 +96,5 @@ void *ppc_exc_vector_address(unsigned vector)
     }
   }
 
-  if (bsp_exceptions_in_RAM) {
-    vector_base = ppc_exc_vector_base;
-  }
-
-  return (void *) (vector_base + vector_offset);
+  return (void *) ((uintptr_t) vector_base + vector_offset);
 }

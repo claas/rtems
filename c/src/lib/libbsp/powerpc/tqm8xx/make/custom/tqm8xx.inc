@@ -9,13 +9,13 @@ RTEMS_CPU_MODEL=mpc860
 
 CPU_CFLAGS = -mcpu=860 -Dmpc860 \
              -mstrict-align -fno-strict-aliasing \
-             -meabi -msdata -fno-common
+             -meabi -msdata=sysv -fno-common
 
 # optimize flag: typically -O2
 CFLAGS_OPTIMIZE_V = -O2 -g -fno-keep-inline-functions
 
 define bsp-post-link
-	cp $(basename $@).exe $(basename $@)$(DOWNEXT) 
+	cp $(basename $@)$(EXEEXT) $(basename $@)$(DOWNEXT) 
 	$(STRIP) $(basename $@)$(DOWNEXT)
 	$(default-bsp-post-link)
 endef

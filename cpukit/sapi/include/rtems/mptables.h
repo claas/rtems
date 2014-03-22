@@ -1,5 +1,8 @@
 /**
- * @file rtems/mptables.h
+ * @file
+ *
+ * @brief Executive's Pre-Initialized Tables used in a
+ * Multiprocessor Configuration
  *
  * This include file contains the executive's pre-initialized tables
  * used in a multiprocessor configuration.
@@ -11,7 +14,7 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_MPTABLES_H

@@ -1,9 +1,16 @@
+/**
+ *  @file
+ *
+ *  @brief Cancel Asynchronous I/O Operation
+ *  @ingroup POSIX_AIO
+ */
+
 /*
  * Copyright 2010, Alin Rus <alin.codejunkie@gmail.com> 
  * 
  * The license and distribution terms for this file may be
  * found in the file LICENSE in this distribution or at
- * http://www.rtems.com/license/LICENSE.
+ * http://www.rtems.org/license/LICENSE.
  */
 
 #if HAVE_CONFIG_H
@@ -17,25 +24,10 @@
 #include <rtems/system.h>
 #include <rtems/seterr.h>
 
-/* 
- *  aio_cancel
- *
- * Cancel an asynchronous I/O request
- *
- *  Input parameters:
- *        fildes - file descriptor
- *        aiocbp - asynchronous I/O control block
- *
- *  Output parameters: 
- *        AIO_CANCELED    - if the requested operation(s)
- *                          were canceled
- *        AIO_NOTCANCELED - if at least one of the requested
- *                          operation(s) cannot be canceled
- */
-
-
 int aio_cancel(int fildes, struct aiocb  *aiocbp)
 {
+  rtems_chain_control *idle_req_chain = &aio_request_queue.idle_req;
+  rtems_chain_control *work_req_chain = &aio_request_queue.work_req;
   rtems_aio_request_chain *r_chain;
   int result;
   
@@ -50,12 +42,12 @@ int aio_cancel(int fildes, struct aiocb  *aiocbp)
   if (aiocbp == NULL) {
     AIO_printf ("Cancel all requests\n");        
          
-    r_chain = rtems_aio_search_fd (&aio_request_queue.work_req, fildes, 0);
+    r_chain = rtems_aio_search_fd (work_req_chain, fildes, 0);
     if (r_chain == NULL) {
       AIO_printf ("Request chain not on [WQ]\n");
 
-      if (!rtems_chain_is_empty (&aio_request_queue.idle_req)) {
-        r_chain = rtems_aio_search_fd (&aio_request_queue.idle_req, fildes, 0);
+      if (!rtems_chain_is_empty (idle_req_chain)) {
+        r_chain = rtems_aio_search_fd (idle_req_chain, fildes, 0);
         if (r_chain == NULL) {
           pthread_mutex_unlock(&aio_request_queue.mutex);
           return AIO_ALLDONE;
@@ -63,7 +55,7 @@ int aio_cancel(int fildes, struct aiocb  *aiocbp)
 
         AIO_printf ("Request chain on [IQ]\n");
 
-        rtems_chain_extract (&r_chain->next_fd);        
+        rtems_chain_extract (&r_chain->next_fd);
         rtems_aio_remove_fd (r_chain);
         pthread_mutex_destroy (&r_chain->mutex);
         pthread_cond_destroy (&r_chain->mutex);
@@ -93,10 +85,10 @@ int aio_cancel(int fildes, struct aiocb  *aiocbp)
       rtems_set_errno_and_return_minus_one (EINVAL);
     }
       
-    r_chain = rtems_aio_search_fd (&aio_request_queue.work_req, fildes, 0);
+    r_chain = rtems_aio_search_fd (work_req_chain, fildes, 0);
     if (r_chain == NULL) {
-      if (!rtems_chain_is_empty (&aio_request_queue.idle_req)) {
-        r_chain = rtems_aio_search_fd (&aio_request_queue.idle_req, fildes, 0);
+      if (!rtems_chain_is_empty (idle_req_chain)) {
+        r_chain = rtems_aio_search_fd (idle_req_chain, fildes, 0);
         if (r_chain == NULL) { 
           pthread_mutex_unlock (&aio_request_queue.mutex);
           rtems_set_errno_and_return_minus_one (EINVAL);

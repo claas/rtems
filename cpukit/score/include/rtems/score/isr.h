@@ -1,6 +1,8 @@
 /**
  *  @file  rtems/score/isr.h
  *
+ *  @brief Data Related to the Management of Processor Interrupt Levels
+ *
  *  This include file contains all the constants and structures associated
  *  with the management of processor interrupt levels.  This handler
  *  supports interrupt critical sections, vectoring of user interrupt
@@ -13,12 +15,13 @@
  *
  *  The license and distribution terms for this file may be
  *  found in the file LICENSE in this distribution or at
- *  http://www.rtems.com/license/LICENSE.
+ *  http://www.rtems.org/license/LICENSE.
  */
 
 #ifndef _RTEMS_SCORE_ISR_H
 #define _RTEMS_SCORE_ISR_H
 
+#include <rtems/score/isrlevel.h>
 #include <rtems/score/percpu.h>
 
 /**
@@ -50,7 +53,7 @@ typedef void ISR_Handler;
 
 #if (CPU_SIMPLE_VECTORED_INTERRUPTS == FALSE)
 
-typedef void * ISR_Handler_entry; 
+typedef void * ISR_Handler_entry;
 
 #else
 /**
@@ -87,236 +90,34 @@ SCORE_EXTERN ISR_Handler_entry *_ISR_Vector_table;
 #endif
 
 /**
- *  This routine performs the initialization necessary for this handler.
+ *  @brief Initialize the ISR handler.
+ *
+ *  This routine performs the initialization necessary for the ISR handler.
  */
 void _ISR_Handler_initialization ( void );
 
 /**
- *  @brief Disable Interrupts on This Core
- *
- *  This routine disables all interrupts so that a critical section
- *  of code can be executing without being interrupted.
- *
- *  @return The argument @a _level will contain the previous interrupt
- *          mask level.
- */
-#define _ISR_Disable_on_this_core( _level ) \
-  do { \
-    _CPU_ISR_Disable( _level ); \
-    RTEMS_COMPILER_MEMORY_BARRIER(); \
-  } while (0)
-
-/**
- *  @brief Enable Interrupts on This Core
- *
- *  This routine enables interrupts to the previous interrupt mask
- *  LEVEL.  It is used at the end of a critical section of code to
- *  enable interrupts so they can be processed again.
- *
- *  @param[in] level contains the interrupt level mask level
- *             previously returned by @ref _ISR_Disable_on_this_core.
- */
-#define _ISR_Enable_on_this_core( _level ) \
-  do { \
-    RTEMS_COMPILER_MEMORY_BARRIER(); \
-    _CPU_ISR_Enable( _level ); \
-  } while (0)
-
-/**
- *  @brief Temporarily Enable Interrupts on This Core
- *
- *  This routine temporarily enables interrupts to the previous
- *  interrupt mask level and then disables all interrupts so that
- *  the caller can continue into the second part of a critical
- *  section.
- *
- *  This routine is used to temporarily enable interrupts
- *  during a long critical section.  It is used in long sections of
- *  critical code when a point is reached at which interrupts can
- *  be temporarily enabled.  Deciding where to flash interrupts
- *  in a long critical section is often difficult and the point
- *  must be selected with care to ensure that the critical section
- *  properly protects itself.
- *
- *  @param[in] level contains the interrupt level mask level
- *             previously returned by @ref _ISR_Disable_on_this_core.
- */
-#define _ISR_Flash_on_this_core( _level ) \
-  do { \
-    RTEMS_COMPILER_MEMORY_BARRIER(); \
-    _CPU_ISR_Flash( _level ); \
-    RTEMS_COMPILER_MEMORY_BARRIER(); \
-  } while (0)
-
-#if defined(RTEMS_SMP)
-
-/**
- *  @brief Initialize SMP Interrupt Critical Section Support
- *
- *  This method initializes the variables required by the SMP implementation
- *  of interrupt critical section management.
- */
-void _ISR_SMP_Initialize(void);
-
-/**
- *  @brief Enter Interrupt Critical Section on SMP System
- *
- *  This method is used to enter an interrupt critical section that
- *  is honored across all cores in an SMP system.
- *
- *  @return This method returns the previous interrupt mask level.
- */
-ISR_Level _ISR_SMP_Disable(void);
-
-/**
- *  @brief Exit Interrupt Critical Section on SMP System
- *
- *  This method is used to exit an interrupt critical section that
- *  is honored across all cores in an SMP system.
- *
- *  @param[in] level contains the interrupt level mask level
- *             previously returned by @ref _ISR_SMP_Disable.
- */
-void _ISR_SMP_Enable(ISR_Level level);
-
-/**
- *  @brief Temporarily Exit Interrupt Critical Section on SMP System
- *
- *  This method is used to temporarily exit an interrupt critical section
- *  that is honored across all cores in an SMP system.
- *
- *  @param[in] level contains the interrupt level mask level
- *             previously returned by @ref _ISR_SMP_Disable.
- */
-void _ISR_SMP_Flash(ISR_Level level);
-
-/**
- *  @brief Enter SMP interrupt code
- *
- *  This method is used to enter the SMP interrupt section.
- *
- *  @return This method returns the isr level.
- */
-int _ISR_SMP_Enter(void);
-
-/**
- *  @brief Exit SMP interrupt code
- *
- *  This method is used to exit the SMP interrupt.
- *
- *  @return This method returns 0 on a simple return and returns 1 on a
- *  dispatching return.
- */
-int _ISR_SMP_Exit(void);
-
-#endif
-
-/**
- *  @brief Enter Interrupt Disable Critical Section
- *
- *  This routine enters an interrupt disable critical section.  When
- *  in an SMP configuration, this involves obtaining a spinlock to ensure
- *  that only one core is inside an interrupt disable critical section.
- *  When on a single core system, this only involves disabling local
- *  CPU interrupts.
- *
- *  @return The argument @a _level will contain the previous interrupt
- *          mask level.
- */
-#if defined(RTEMS_SMP)
-  #define _ISR_Disable( _level ) \
-    _level = _ISR_SMP_Disable();
-#else
-  #define _ISR_Disable( _level ) \
-    _ISR_Disable_on_this_core( _level );
-#endif
-  
-/**
- *  @brief Exits Interrupt Disable Critical Section
- *
- *  This routine exits an interrupt disable critical section.  When
- *  in an SMP configuration, this involves releasing a spinlock.
- *  When on a single core system, this only involves disabling local
- *  CPU interrupts.
- *
- *  @return The argument @a _level will contain the previous interrupt
- *          mask level.
- */
-#if defined(RTEMS_SMP)
-  #define _ISR_Enable( _level ) \
-    _ISR_SMP_Enable( _level );
-#else
-  #define _ISR_Enable( _level ) \
-    _ISR_Enable_on_this_core( _level );
-#endif
-
-/**
- *  @brief Temporarily Exit Interrupt Disable Critical Section
- *
- *  This routine is used to temporarily enable interrupts
- *  during a long critical section.  It is used in long sections of
- *  critical code when a point is reached at which interrupts can
- *  be temporarily enabled.  Deciding where to flash interrupts
- *  in a long critical section is often difficult and the point
- *  must be selected with care to ensure that the critical section
- *  properly protects itself.
- *
- *  @return The argument @a _level will contain the previous interrupt
- *          mask level.
- */
-#if defined(RTEMS_SMP)
-  #define _ISR_Flash( _level ) \
-    _ISR_SMP_Flash( _level );
-#else
-  #define _ISR_Flash( _level ) \
-    _ISR_Flash_on_this_core( _level );
-#endif
-
-/**
- *  @brief Install Interrupt Handler Vector
+ *  @brief Install interrupt handler vector.
  *
  *  This routine installs new_handler as the interrupt service routine
  *  for the specified vector.  The previous interrupt service routine is
  *  returned as old_handler.
+ *
+ *  LM32 Specific Information:
+ *  XXX document implementation including references if appropriate
  *
  *  @param[in] _vector is the vector number
  *  @param[in] _new_handler is ISR handler to install
  *  @param[in] _old_handler is a pointer to a variable which will be set
  *             to the old handler
  *
- *  @return *_old_handler will be set to the old ISR handler
+ *  @retval *_old_handler will be set to the old ISR handler
  */
 #define _ISR_Install_vector( _vector, _new_handler, _old_handler ) \
   _CPU_ISR_install_vector( _vector, _new_handler, _old_handler )
 
 /**
- *  @brief Return Current Interrupt Level
- *
- *  This routine returns the current interrupt level.
- *
- *  @return This method returns the current level.
- */
-#define _ISR_Get_level() \
-        _CPU_ISR_Get_level()
-
-/**
- *  @brief Set Current Interrupt Level
- *
- *  This routine sets the current interrupt level to that specified
- *  by @a _new_level.  The new interrupt level is effective when the
- *  routine exits.
- *
- *  @param[in] _new_level contains the desired interrupt level.
- */
-#define _ISR_Set_level( _new_level ) \
-  do { \
-    RTEMS_COMPILER_MEMORY_BARRIER();  \
-    _CPU_ISR_Set_level( _new_level ); \
-    RTEMS_COMPILER_MEMORY_BARRIER();  \
-  } while (0)
-
-/**
- *  @brief ISR Handler or Dispatcher
+ *  @brief ISR interrupt dispatcher.
  *
  *  This routine is the interrupt dispatcher.  ALL interrupts
  *  are vectored to this routine so that minimal context can be saved
@@ -332,7 +133,7 @@ int _ISR_SMP_Exit(void);
 void _ISR_Handler( void );
 
 /**
- *  @brief ISR Wrapper for Thread Dispatcher
+ *  @brief ISR wrapper for thread dispatcher.
  *
  *  This routine provides a wrapper so that the routine
  *  @ref _Thread_Dispatch can be invoked when a reschedule is necessary
@@ -347,22 +148,48 @@ void _ISR_Handler( void );
 void _ISR_Dispatch( void );
 
 /**
- *  @brief Is an ISR in Progress
+ * @brief Returns the current ISR nest level
+ *
+ * This function can be called in any context.  On SMP configurations
+ * interrupts are disabled to ensure that the processor index is used
+ * consistently.
+ *
+ * @return The current ISR nest level.
+ */
+RTEMS_INLINE_ROUTINE uint32_t _ISR_Get_nest_level( void )
+{
+  uint32_t isr_nest_level;
+
+  #if defined( RTEMS_SMP )
+    ISR_Level level;
+
+    _ISR_Disable_without_giant( level );
+  #endif
+
+  isr_nest_level = _ISR_Nest_level;
+
+  #if defined( RTEMS_SMP )
+    _ISR_Enable_without_giant( level );
+  #endif
+
+  return isr_nest_level;
+}
+
+/**
+ *  @brief Checks if an ISR in progress.
  *
  *  This function returns true if the processor is currently servicing
  *  and interrupt and false otherwise.   A return value of true indicates
  *  that the caller is an interrupt service routine, NOT a thread.
  *
- *  @return This methods returns true when called from an ISR.
+ *  @retval This methods returns true when called from an ISR.
  */
 #if (CPU_PROVIDES_ISR_IS_IN_PROGRESS == TRUE)
   bool _ISR_Is_in_progress( void );
 #else
   #define _ISR_Is_in_progress() \
-          (_ISR_Nest_level != 0)
+          (_ISR_Get_nest_level() != 0)
 #endif
-
-#include <rtems/score/isr.inl>
 
 #ifdef __cplusplus
 }
